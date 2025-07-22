@@ -195,6 +195,7 @@
             background: #f9f9f9;
             border-radius: 8px;
             padding: 12px;
+            position: relative;
         }
 
         .status-item.completed .status-content,
@@ -238,6 +239,27 @@
 
         .status-item.active .status-description {
             color: #333;
+        }
+
+        .status-estimate-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: #2A5CFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-estimate-btn:hover {
+            opacity: 0.9;
         }
 
         .current-status-card {
@@ -346,7 +368,7 @@
 </head>
 <body>
 <div id="splash">
-    <img src="Screen.jpg" alt="AutoTrack Logo">
+    <img src="Screen.png" alt="AutoTrack Logo">
 </div>
 
 <div id="app">
@@ -399,6 +421,7 @@
                             <span class="status-date">15.04.2023</span>
                         </div>
                         <div class="status-description">Смета согласована, работы подтверждены</div>
+                        <button class="status-estimate-btn" onclick="showEstimate()">Смета</button>
                     </div>
                 </div>
 
@@ -453,7 +476,7 @@
                     <div class="status-dot"></div>
                     <div class="status-content">
                         <div class="status-title">Готов к выдаче</div>
-                        <div class="status-description">Автомобиль пройдёт финальный осмотр</div>
+                        <div class="status-description">Автомобиль пройдёт финальный осмотр и будет готов к выдаче</div>
                     </div>
                 </div>
             </div>
@@ -492,12 +515,6 @@
             </svg>
             Написать мастеру
         </button>
-        <button class="btn btn-invoice" id="invoiceBtn">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
-            </svg>
-            Открыть смету
-        </button>
     </div>
 </div>
 
@@ -515,6 +532,10 @@
         currentView = 'main';
         document.getElementById('app').style.display = 'flex';
         tg.BackButton.hide();
+    }
+
+    function showEstimate() {
+        tg.showAlert('Смета согласована 15.04.2023. Общая сумма: 125 430 руб.');
     }
 
     // Инициализация
