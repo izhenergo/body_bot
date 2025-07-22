@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AutoTrack - Кузовной ремонт</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            touch-action: none;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #2A5CFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #splash img {
+            width: 150px;
+            height: auto;
+        }
+
+        #splash.hidden {
+            display: none;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: 16px;
+            padding-top: calc(16px + env(safe-area-inset-top));
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+        }
+
+        #app.visible {
+            display: flex;
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+
+        .car-image {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 12px;
+        }
+
+        .car-info {
+            margin-bottom: 16px;
+        }
+
+        .car-model {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .car-number {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .step {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step.active {
+            color: #2A5CFF;
+            font-weight: 600;
+        }
+
+        .step.completed {
+            color: #4CAF50;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2A5CFF;
+            width: 50%;
+            border-radius: 3px;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            height: 56px;
+            border-radius: 16px;
+            border: none;
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            width: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-call {
+            background: #2A5CFF;
+            color: white;
+        }
+
+        .btn-chat {
+            background: #EFEFEF;
+            color: #1a1a1a;
+        }
+
+        .btn-invoice {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-icon {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .status-info {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div id="splash">
+        <img src="https://via.placeholder.com/150x150/FFFFFF/2A5CFF?text=AutoTrack" alt="AutoTrack Logo">
+    </div>
+
+    <div id="app">
+        
+        <div class="car-card">
+            <img src="https://via.placeholder.com/300x180/DDD/333?text=BMW+X5" class="car-image" alt="Автомобиль">
+            <div class="car-info">
+                <div class="car-model">BMW X5 (G05)</div>
+                <div class="car-number">А123БВ777</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="step completed">Прием</div>
+                    <div class="step completed">Разборка</div>
+                    <div class="step active">Покраска</div>
+                    <div class="step">Сборка</div>
+                    <div class="step">Готово</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="status-info">
+                    Текущий статус: Машина находится в покрасочной камере<br>
+                    Осталось: ~2 дня
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="btn btn-call" id="callBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
+                </svg>
+                Позвонить в сервис
+            </button>
+            <button class="btn btn-chat" id="chatBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
+                </svg>
+                Написать мастеру
+            </button>
+            <button class="btn btn-invoice" id="invoiceBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
+                </svg>
+                Открыть смету
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        let currentView = 'main';
+
+        // Инициализация WebApp
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+        tg.BackButton.hide();
+
+        function showMainView() {
+            currentView = 'main';
+            document.getElementById('app').style.display = 'flex';
+            tg.BackButton.hide();
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash').classList.add('hidden');
+                document.getElementById('app').classList.add('visible');
+                showMainView();
+            }, 1500);
+
+            // Назначение обработчиков
+            document.getElementById('callBtn').addEventListener('click', () => {
+                tg.openTelegramLink('tel:+79991234567');
+            });
+
+            document.getElementById('chatBtn').addEventListener('click', () => {
+                tg.openTelegramLink('https://t.me/AutoService_Support');
+            });
+
+            document.getElementById('invoiceBtn').addEventListener('click', () => {
+                tg.showAlert('Смета будет доступна после завершения диагностики');
+            });
+
+            // Блокировка скролла
+            document.body.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        });
+    </script>
+</body>
+</html>
