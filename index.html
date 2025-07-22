@@ -175,7 +175,7 @@
             position: absolute;
             left: 11px;
             top: 0;
-            height: 62.5%; /* 5 из 8 шагов */
+            height: 62.5%;
             width: 2px;
             background: #4CAF50;
             z-index: 2;
@@ -301,10 +301,6 @@
             justify-content: center;
         }
 
-        .status-estimate-btn:hover {
-            opacity: 0.9;
-        }
-
         .current-status-card {
             background: #2A5CFF;
             border-radius: 12px;
@@ -386,18 +382,12 @@
             color: #1a1a1a;
         }
 
-        .btn-invoice {
-            background: #4CAF50;
-            color: white;
-        }
-
         .btn-icon {
             margin-right: 8px;
             width: 20px;
             height: 20px;
         }
 
-        /* Для iOS Safari */
         @supports (-webkit-touch-callout: none) {
             body {
                 min-height: '100vh';
@@ -427,8 +417,6 @@
             </div>
             <div class="carousel-controls">
                 <div class="carousel-dot active"></div>
-                <div class="carousel-dot"></div>
-                <div class="carousel-dot"></div>
                 <div class="carousel-dot"></div>
             </div>
         </div>
@@ -581,16 +569,9 @@
     const tg = window.Telegram.WebApp;
     let currentView = 'main';
     let currentSlide = 0;
-    const slides = document.querySelectorAll('.carousel-item');
-    const dots = document.querySelectorAll('.carousel-dot');
     let startX = 0;
     let isDragging = false;
-
-    // Инициализация WebApp
-    tg.ready();
-    tg.expand();
-    tg.enableClosingConfirmation();
-    tg.BackButton.hide();
+    let carouselInterval;
 
     function showMainView() {
         currentView = 'main';
@@ -604,6 +585,9 @@
 
     function updateCarousel() {
         const carouselInner = document.querySelector('.carousel-inner');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const slides = document.querySelectorAll('.carousel-item');
+
         carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
 
         dots.forEach((dot, index) => {
@@ -612,11 +596,13 @@
     }
 
     function nextSlide() {
+        const slides = document.querySelectorAll('.carousel-item');
         currentSlide = (currentSlide + 1) % slides.length;
         updateCarousel();
     }
 
     function prevSlide() {
+        const slides = document.querySelectorAll('.carousel-item');
         currentSlide = (currentSlide - 1 + slides.length) % slides.length;
         updateCarousel();
     }
@@ -626,14 +612,15 @@
         updateCarousel();
     }
 
-    // Touch event handlers
     function handleTouchStart(e) {
         startX = e.touches[0].clientX;
         isDragging = true;
+        clearInterval(carouselInterval);
     }
 
     function handleTouchMove(e) {
         if (!isDragging) return;
+        e.preventDefault();
         const x = e.touches[0].clientX;
         const diff = startX - x;
 
@@ -649,12 +636,13 @@
 
     function handleTouchEnd() {
         isDragging = false;
+        startAutoScroll();
     }
 
-    // Mouse event handlers for desktop testing
     function handleMouseDown(e) {
         startX = e.clientX;
         isDragging = true;
+        clearInterval(carouselInterval);
     }
 
     function handleMouseMove(e) {
@@ -674,35 +662,40 @@
 
     function handleMouseUp() {
         isDragging = false;
+        startAutoScroll();
     }
 
-    // Инициализация
+    function startAutoScroll() {
+        clearInterval(carouselInterval);
+        carouselInterval = setInterval(nextSlide, 5000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             document.getElementById('splash').classList.add('hidden');
             document.getElementById('app').classList.add('visible');
             showMainView();
+
+            // Инициализация карусели
+            updateCarousel();
+            startAutoScroll();
         }, 1500);
 
         // Назначение обработчиков
-        document.getElementById('callBtn').addEventListener('click', () => {
+        document.getElementById('callBtn')?.addEventListener('click', () => {
             tg.openTelegramLink('tel:+79991234567');
         });
 
-        document.getElementById('chatBtn').addEventListener('click', () => {
+        document.getElementById('chatBtn')?.addEventListener('click', () => {
             tg.openTelegramLink('https://t.me/AutoService_Support');
-        });
-
-        document.getElementById('invoiceBtn').addEventListener('click', () => {
-            tg.showAlert('Смета будет доступна после завершения диагностики');
         });
 
         // Обработчики для карусели
         const carousel = document.getElementById('carousel');
 
         // Touch events
-        carousel.addEventListener('touchstart', handleTouchStart);
-        carousel.addEventListener('touchmove', handleTouchMove);
+        carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
+        carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
         carousel.addEventListener('touchend', handleTouchEnd);
 
         // Mouse events for testing on desktop
@@ -711,21 +704,17 @@
         carousel.addEventListener('mouseup', handleMouseUp);
         carousel.addEventListener('mouseleave', handleMouseUp);
 
+        // Обработчики для точек
+        const dots = document.querySelectorAll('.carousel-dot');
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => goToSlide(index));
         });
 
-        // Автопрокрутка карусели
-        let carouselInterval = setInterval(nextSlide, 5000);
-
-        // Остановка автопрокрутки при взаимодействии
-        carousel.addEventListener('touchstart', () => {
-            clearInterval(carouselInterval);
-        });
-
-        carousel.addEventListener('touchend', () => {
-            carouselInterval = setInterval(nextSlide, 5000);
-        });
+        // Инициализация WebApp
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+        tg.BackButton.hide();
 
         // Оптимизация для iOS
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
