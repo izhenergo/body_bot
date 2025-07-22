@@ -107,29 +107,6 @@
             object-fit: cover;
         }
 
-        .carousel-controls {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            z-index: 10;
-        }
-
-        .carousel-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
-            transition: background 0.3s ease;
-        }
-
-        .carousel-dot.active {
-            background: white;
-        }
-
         .car-info {
             margin-bottom: 16px;
         }
@@ -388,6 +365,48 @@
             height: 20px;
         }
 
+        /* Tabbar styles */
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: white;
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 100;
+        }
+
+        .tabbar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .tabbar-item.active {
+            color: #2A5CFF;
+        }
+
+        .tabbar-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding-bottom: 56px; /* Space for tabbar */
+            margin-bottom: env(safe-area-inset-bottom);
+            width: 100%;
+        }
+
         @supports (-webkit-touch-callout: none) {
             body {
                 min-height: '100vh';
@@ -405,163 +424,183 @@
 </div>
 
 <div id="app">
-    <div class="car-card">
-        <div class="carousel" id="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item">
-                    <img src="BMW.jpg" alt="BMW X5 - вид спереди">
-                </div>
-                <div class="carousel-item">
-                    <img src="BMW2.jpg" alt="BMW X5 - вид сбоку">
+    <div class="main-content">
+        <div class="car-card">
+            <div class="carousel" id="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item">
+                        <img src="BMW.jpg" alt="BMW X5 - вид спереди">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="BMW2.jpg" alt="BMW X5 - вид сбоку">
+                    </div>
                 </div>
             </div>
-            <div class="carousel-controls">
-                <div class="carousel-dot active"></div>
-                <div class="carousel-dot"></div>
+
+            <div class="car-info">
+                <div class="car-model">BMW X5 (G05)</div>
+                <div class="car-number">А123БВ777</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="status-timeline">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-fill"></div>
+                    <div class="timeline-current"></div>
+
+                    <div class="status-item completed">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">✓</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Дефектовка</span>
+                                <span class="status-date">12.04.2023</span>
+                            </div>
+                            <div class="status-description">Выявлены все повреждения, составлен отчёт</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item completed">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">✓</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Формирование сметы</span>
+                                <span class="status-date">14.04.2023</span>
+                            </div>
+                            <div class="status-description">Смета утверждена, ожидается согласование</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item completed">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">✓</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Согласование</span>
+                                <span class="status-date">15.04.2023</span>
+                            </div>
+                            <div class="status-description">Смета согласована, работы подтверждены</div>
+                            <button class="status-estimate-btn" onclick="showEstimate()">Смета</button>
+                        </div>
+                    </div>
+
+                    <div class="status-item completed">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">✓</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Разборка</span>
+                                <span class="status-date">17.04.2023</span>
+                            </div>
+                            <div class="status-description">Автомобиль разобран, повреждённые детали сняты</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item completed">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">✓</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Рихтовка</span>
+                                <span class="status-date">19.04.2023</span>
+                            </div>
+                            <div class="status-description">Кузовные панели выровнены, подготовлены к покраске</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item active">
+                        <div class="status-dot">
+                            <span class="status-dot-icon">!</span>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-title">
+                                <span>Покраска</span>
+                                <span class="status-date">В процессе</span>
+                            </div>
+                            <div class="status-description">Начата покраска кузовных элементов</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        <div class="status-content">
+                            <div class="status-title">Сборка</div>
+                            <div class="status-description">Ожидается после завершения покраски</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        <div class="status-content">
+                            <div class="status-title">Готов к выдаче</div>
+                            <div class="status-description">Автомобиль пройдёт финальный осмотр</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="current-status-card">
+                    <div class="current-status-title">
+                        <svg class="current-status-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="currentColor"/>
+                        </svg>
+                        Текущий статус
+                    </div>
+                    <div class="current-status-text">
+                        Ваш автомобиль находится в покрасочной камере. Идёт процесс нанесения
+                        базового покрытия и лака.
+                    </div>
+                    <div class="current-status-time">
+                        <svg class="time-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor"/>
+                        </svg>
+                        Ориентировочное завершение: 25.04.2023
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="car-info">
-            <div class="car-model">BMW X5 (G05)</div>
-            <div class="car-number">А123БВ777</div>
-        </div>
-
-        <div class="progress-container">
-            <div class="status-timeline">
-                <div class="timeline-line"></div>
-                <div class="timeline-fill"></div>
-                <div class="timeline-current"></div>
-
-                <div class="status-item completed">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">✓</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Дефектовка</span>
-                            <span class="status-date">12.04.2023</span>
-                        </div>
-                        <div class="status-description">Выявлены все повреждения, составлен отчёт</div>
-                    </div>
-                </div>
-
-                <div class="status-item completed">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">✓</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Формирование сметы</span>
-                            <span class="status-date">14.04.2023</span>
-                        </div>
-                        <div class="status-description">Смета утверждена, ожидается согласование</div>
-                    </div>
-                </div>
-
-                <div class="status-item completed">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">✓</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Согласование</span>
-                            <span class="status-date">15.04.2023</span>
-                        </div>
-                        <div class="status-description">Смета согласована, работы подтверждены</div>
-                        <button class="status-estimate-btn" onclick="showEstimate()">Смета</button>
-                    </div>
-                </div>
-
-                <div class="status-item completed">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">✓</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Разборка</span>
-                            <span class="status-date">17.04.2023</span>
-                        </div>
-                        <div class="status-description">Автомобиль разобран, повреждённые детали сняты</div>
-                    </div>
-                </div>
-
-                <div class="status-item completed">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">✓</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Рихтовка</span>
-                            <span class="status-date">19.04.2023</span>
-                        </div>
-                        <div class="status-description">Кузовные панели выровнены, подготовлены к покраске</div>
-                    </div>
-                </div>
-
-                <div class="status-item active">
-                    <div class="status-dot">
-                        <span class="status-dot-icon">!</span>
-                    </div>
-                    <div class="status-content">
-                        <div class="status-title">
-                            <span>Покраска</span>
-                            <span class="status-date">В процессе</span>
-                        </div>
-                        <div class="status-description">Начата покраска кузовных элементов</div>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="status-dot"></div>
-                    <div class="status-content">
-                        <div class="status-title">Сборка</div>
-                        <div class="status-description">Ожидается после завершения покраски</div>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="status-dot"></div>
-                    <div class="status-content">
-                        <div class="status-title">Готов к выдаче</div>
-                        <div class="status-description">Автомобиль пройдёт финальный осмотр</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="current-status-card">
-                <div class="current-status-title">
-                    <svg class="current-status-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="currentColor"/>
-                    </svg>
-                    Текущий статус
-                </div>
-                <div class="current-status-text">
-                    Ваш автомобиль находится в покрасочной камере. Идёт процесс нанесения
-                    базового покрытия и лака.
-                </div>
-                <div class="current-status-time">
-                    <svg class="time-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor"/>
-                    </svg>
-                    Ориентировочное завершение: 25.04.2023
-                </div>
-            </div>
+        <div class="buttons-container">
+            <button class="btn btn-call" id="callBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
+                </svg>
+                Позвонить в сервис
+            </button>
+            <button class="btn btn-chat" id="chatBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
+                </svg>
+                Написать мастеру
+            </button>
         </div>
     </div>
 
-    <div class="buttons-container">
-        <button class="btn btn-call" id="callBtn">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
+    <!-- Tabbar -->
+    <div class="tabbar">
+        <a href="#" class="tabbar-item active">
+            <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="currentColor"/>
             </svg>
-            Позвонить в сервис
-        </button>
-        <button class="btn btn-chat" id="chatBtn">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
+            Главная
+        </a>
+        <a href="#" class="tabbar-item">
+            <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19Z" fill="currentColor"/>
             </svg>
-            Написать мастеру
-        </button>
+            История
+        </a>
+        <a href="#" class="tabbar-item">
+            <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor"/>
+            </svg>
+            Профиль
+        </a>
     </div>
 </div>
 
@@ -571,7 +610,6 @@
     let currentSlide = 0;
     let startX = 0;
     let isDragging = false;
-    let carouselInterval;
 
     function showMainView() {
         currentView = 'main';
@@ -585,14 +623,7 @@
 
     function updateCarousel() {
         const carouselInner = document.querySelector('.carousel-inner');
-        const dots = document.querySelectorAll('.carousel-dot');
-        const slides = document.querySelectorAll('.carousel-item');
-
         carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentSlide);
-        });
     }
 
     function nextSlide() {
@@ -607,15 +638,9 @@
         updateCarousel();
     }
 
-    function goToSlide(index) {
-        currentSlide = index;
-        updateCarousel();
-    }
-
     function handleTouchStart(e) {
         startX = e.touches[0].clientX;
         isDragging = true;
-        clearInterval(carouselInterval);
     }
 
     function handleTouchMove(e) {
@@ -636,13 +661,11 @@
 
     function handleTouchEnd() {
         isDragging = false;
-        startAutoScroll();
     }
 
     function handleMouseDown(e) {
         startX = e.clientX;
         isDragging = true;
-        clearInterval(carouselInterval);
     }
 
     function handleMouseMove(e) {
@@ -662,12 +685,6 @@
 
     function handleMouseUp() {
         isDragging = false;
-        startAutoScroll();
-    }
-
-    function startAutoScroll() {
-        clearInterval(carouselInterval);
-        carouselInterval = setInterval(nextSlide, 5000);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -678,7 +695,6 @@
 
             // Инициализация карусели
             updateCarousel();
-            startAutoScroll();
         }, 1500);
 
         // Назначение обработчиков
@@ -703,12 +719,6 @@
         carousel.addEventListener('mousemove', handleMouseMove);
         carousel.addEventListener('mouseup', handleMouseUp);
         carousel.addEventListener('mouseleave', handleMouseUp);
-
-        // Обработчики для точек
-        const dots = document.querySelectorAll('.carousel-dot');
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => goToSlide(index));
-        });
 
         // Инициализация WebApp
         tg.ready();
