@@ -13,16 +13,18 @@
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            position: fixed;
-            touch-action: none;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            touch-action: pan-y;
             background: #f5f5f5;
             color: #333;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         #splash {
@@ -36,25 +38,28 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         #splash img {
-            width: 150px;
-            height: auto;
+            width: 100%;
+            height: 100%;
         }
 
         #splash.hidden {
-            display: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
         #app {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             display: none;
             flex-direction: column;
             padding: 16px;
-            padding-top: calc(16px + env(safe-area-inset-top));
-            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
             overflow-y: auto;
         }
 
@@ -67,8 +72,11 @@
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .car-image {
@@ -87,53 +95,191 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 4px;
+            color: #1a1a1a;
         }
 
         .car-number {
             font-size: 14px;
             color: #666;
+            background: #f7f7f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
         }
 
         .progress-container {
             margin: 20px 0;
+            width: 100%;
         }
 
-        .progress-steps {
+        .status-timeline {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 24px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 11px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .timeline-fill {
+            position: absolute;
+            left: 11px;
+            top: 0;
+            height: 62.5%; /* 5 из 8 шагов */
+            width: 2px;
+            background: #4CAF50;
+            z-index: 2;
+            transition: height 0.5s ease;
+        }
+
+        .timeline-current {
+            position: absolute;
+            left: 11px;
+            top: 62.5%;
+            height: 12.5%;
+            width: 2px;
+            background: #2A5CFF;
+            z-index: 3;
+        }
+
+        .status-item {
+            position: relative;
+            padding: 8px 0 8px 32px;
+            margin-bottom: 12px;
+            z-index: 4;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-dot {
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+
+        .status-item.completed .status-dot {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+
+        .status-item.active .status-dot {
+            background: #2A5CFF;
+            border-color: #2A5CFF;
+            color: white;
+        }
+
+        .status-dot-icon {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-content {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .status-item.completed .status-content,
+        .status-item.active .status-content {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .status-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
         }
 
-        .step {
+        .status-item.completed .status-title,
+        .status-item.active .status-title {
+            color: #1a1a1a;
+        }
+
+        .status-date {
             font-size: 12px;
             color: #999;
-            text-align: center;
-            flex: 1;
-            position: relative;
+            font-weight: normal;
         }
 
-        .step.active {
-            color: #2A5CFF;
-            font-weight: 600;
-        }
-
-        .step.completed {
+        .status-item.completed .status-date {
             color: #4CAF50;
         }
 
-        .progress-bar {
-            height: 6px;
-            background: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 16px;
+        .status-item.active .status-date {
+            color: #2A5CFF;
         }
 
-        .progress-fill {
-            height: 100%;
+        .status-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .status-item.active .status-description {
+            color: #333;
+        }
+
+        .current-status-card {
             background: #2A5CFF;
-            width: 50%;
-            border-radius: 3px;
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            margin-top: 16px;
+            box-shadow: 0 4px 12px rgba(42, 92, 255, 0.2);
+        }
+
+        .current-status-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .current-status-icon {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .current-status-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .current-status-time {
+            font-size: 13px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+        }
+
+        .time-icon {
+            margin-right: 6px;
+            width: 14px;
+            height: 14px;
         }
 
         .buttons-container {
@@ -141,8 +287,9 @@
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            max-width: 400px;
+            max-width: 600px;
             margin: 0 auto;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .btn {
@@ -155,12 +302,13 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: transform 0.1s ease, opacity 0.2s ease;
             width: 100%;
         }
 
         .btn:active {
             transform: scale(0.96);
+            opacity: 0.9;
         }
 
         .btn-call {
@@ -184,110 +332,219 @@
             height: 20px;
         }
 
-        .status-info {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 24px;
+        /* Для iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: '100vh';
+                min-height: '-webkit-fill-available';
+            }
+            #app {
+                min-height: '-webkit-fill-available';
+            }
         }
     </style>
 </head>
 <body>
-    <div id="splash">
-        <img src="https://via.placeholder.com/150x150/FFFFFF/2A5CFF?text=AutoTrack" alt="AutoTrack Logo">
-    </div>
+<div id="splash">
+    <img src="Screen.jpg" alt="AutoTrack Logo">
+</div>
 
-    <div id="app">
-        
-        <div class="car-card">
-            <img src="https://via.placeholder.com/300x180/DDD/333?text=BMW+X5" class="car-image" alt="Автомобиль">
-            <div class="car-info">
-                <div class="car-model">BMW X5 (G05)</div>
-                <div class="car-number">А123БВ777</div>
+<div id="app">
+    <div class="car-card">
+        <img src="BMW.jpg" class="car-image" alt="Автомобиль">
+        <div class="car-info">
+            <div class="car-model">BMW X5 (G05)</div>
+            <div class="car-number">А123БВ777</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="status-timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-fill"></div>
+                <div class="timeline-current"></div>
+
+                <div class="status-item completed">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">✓</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Дефектовка</span>
+                            <span class="status-date">12.04.2023</span>
+                        </div>
+                        <div class="status-description">Выявлены все повреждения, составлен отчёт</div>
+                    </div>
+                </div>
+
+                <div class="status-item completed">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">✓</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Формирование сметы</span>
+                            <span class="status-date">14.04.2023</span>
+                        </div>
+                        <div class="status-description">Смета утверждена, ожидается согласование</div>
+                    </div>
+                </div>
+
+                <div class="status-item completed">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">✓</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Согласование</span>
+                            <span class="status-date">15.04.2023</span>
+                        </div>
+                        <div class="status-description">Смета согласована, работы подтверждены</div>
+                    </div>
+                </div>
+
+                <div class="status-item completed">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">✓</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Разборка</span>
+                            <span class="status-date">17.04.2023</span>
+                        </div>
+                        <div class="status-description">Автомобиль разобран, повреждённые детали сняты</div>
+                    </div>
+                </div>
+
+                <div class="status-item completed">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">✓</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Рихтовка</span>
+                            <span class="status-date">19.04.2023</span>
+                        </div>
+                        <div class="status-description">Кузовные панели выровнены, подготовлены к покраске</div>
+                    </div>
+                </div>
+
+                <div class="status-item active">
+                    <div class="status-dot">
+                        <span class="status-dot-icon">!</span>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-title">
+                            <span>Покраска</span>
+                            <span class="status-date">В процессе</span>
+                        </div>
+                        <div class="status-description">Начата покраска кузовных элементов</div>
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <div class="status-content">
+                        <div class="status-title">Сборка</div>
+                        <div class="status-description">Ожидается после завершения покраски</div>
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <div class="status-content">
+                        <div class="status-title">Готов к выдаче</div>
+                        <div class="status-description">Автомобиль пройдёт финальный осмотр</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="progress-container">
-                <div class="progress-steps">
-                    <div class="step completed">Прием</div>
-                    <div class="step completed">Разборка</div>
-                    <div class="step active">Покраска</div>
-                    <div class="step">Сборка</div>
-                    <div class="step">Готово</div>
+            <div class="current-status-card">
+                <div class="current-status-title">
+                    <svg class="current-status-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="currentColor"/>
+                    </svg>
+                    Текущий статус
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+                <div class="current-status-text">
+                    Ваш автомобиль находится в покрасочной камере. Идёт процесс нанесения
+                    базового покрытия и лака.
                 </div>
-                <div class="status-info">
-                    Текущий статус: Машина находится в покрасочной камере<br>
-                    Осталось: ~2 дня
+                <div class="current-status-time">
+                    <svg class="time-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor"/>
+                    </svg>
+                    Ориентировочное завершение: 25.04.2023
                 </div>
             </div>
         </div>
-
-        <div class="buttons-container">
-            <button class="btn btn-call" id="callBtn">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
-                </svg>
-                Позвонить в сервис
-            </button>
-            <button class="btn btn-chat" id="chatBtn">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
-                </svg>
-                Написать мастеру
-            </button>
-            <button class="btn btn-invoice" id="invoiceBtn">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
-                </svg>
-                Открыть смету
-            </button>
-        </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        let currentView = 'main';
+    <div class="buttons-container">
+        <button class="btn btn-call" id="callBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
+            </svg>
+            Позвонить в сервис
+        </button>
+        <button class="btn btn-chat" id="chatBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
+            </svg>
+            Написать мастеру
+        </button>
+        <button class="btn btn-invoice" id="invoiceBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
+            </svg>
+            Открыть смету
+        </button>
+    </div>
+</div>
 
-        // Инициализация WebApp
-        tg.ready();
-        tg.expand();
-        tg.enableClosingConfirmation();
+<script>
+    const tg = window.Telegram.WebApp;
+    let currentView = 'main';
+
+    // Инициализация WebApp
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+    tg.BackButton.hide();
+
+    function showMainView() {
+        currentView = 'main';
+        document.getElementById('app').style.display = 'flex';
         tg.BackButton.hide();
+    }
 
-        function showMainView() {
-            currentView = 'main';
-            document.getElementById('app').style.display = 'flex';
-            tg.BackButton.hide();
-        }
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('app').classList.add('visible');
+            showMainView();
+        }, 1500);
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.getElementById('splash').classList.add('hidden');
-                document.getElementById('app').classList.add('visible');
-                showMainView();
-            }, 1500);
-
-            // Назначение обработчиков
-            document.getElementById('callBtn').addEventListener('click', () => {
-                tg.openTelegramLink('tel:+79991234567');
-            });
-
-            document.getElementById('chatBtn').addEventListener('click', () => {
-                tg.openTelegramLink('https://t.me/AutoService_Support');
-            });
-
-            document.getElementById('invoiceBtn').addEventListener('click', () => {
-                tg.showAlert('Смета будет доступна после завершения диагностики');
-            });
-
-            // Блокировка скролла
-            document.body.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-            }, { passive: false });
+        // Назначение обработчиков
+        document.getElementById('callBtn').addEventListener('click', () => {
+            tg.openTelegramLink('tel:+79991234567');
         });
-    </script>
+
+        document.getElementById('chatBtn').addEventListener('click', () => {
+            tg.openTelegramLink('https://t.me/AutoService_Support');
+        });
+
+        document.getElementById('invoiceBtn').addEventListener('click', () => {
+            tg.showAlert('Смета будет доступна после завершения диагностики');
+        });
+
+        // Оптимизация для iOS
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            document.body.style.minHeight = '100vh';
+            document.body.style.minHeight = '-webkit-fill-available';
+            document.getElementById('app').style.minHeight = '-webkit-fill-available';
+        }
+    });
+</script>
 </body>
 </html>
