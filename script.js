@@ -1,4 +1,4 @@
-// Проверяем, загружен ли Telegram WebApp
+// Telegram WebApp polyfill
 const tg = window.Telegram?.WebApp || {
     ready: () => console.log('Telegram WebApp not available'),
     showAlert: (msg) => alert(msg),
@@ -7,12 +7,10 @@ const tg = window.Telegram?.WebApp || {
     BackButton: {
         show: () => {},
         hide: () => {},
-        onClick: () => {}
+        onClick: (cb) => { window.backButtonCallback = cb; }
     },
     openTelegramLink: (url) => window.open(url, '_blank')
 };
-
-let currentView = 'main', currentSlide = 0;
 
 // Данные для авторизации
 const users = {
@@ -20,278 +18,156 @@ const users = {
     '2': { password: '2', role: 'admin' }
 };
 
-// Данные о посещениях
-const visits = {
-    1: {
-        model: "BMW X5 (G05)",
-        number: "А123БВ777",
-        date: "15.04.2023 - 25.04.2023",
-        beforeImg: "splash1.jpg",
-        afterImg: "splash2.jpg",
-        works: [
-            "Ремонт правого переднего крыла - 25 000 руб.",
-            "Замена правой передней фары - 18 500 руб.",
-            "Покраска правых дверей - 32 000 руб.",
-            "Ремонт порога - 15 000 руб."
-        ],
-        total: "90 500 руб."
-    }
-};
-
 // Основная инициализация
 document.addEventListener('DOMContentLoaded', function() {
-    // Сначала скрываем сплеш-скрин через 1 секунду
+    console.log('DOM loaded'); // Логирование
+
     setTimeout(function() {
         const splash = document.getElementById('splash');
-        if (splash) splash.classList.add('hidden');
-
-        // Затем показываем форму авторизации
-        const authView = document.getElementById('auth-view');
-        if (authView) {
-            authView.classList.remove('hidden');
-
-            // Обработчик формы авторизации
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    handleLogin();
-                });
-            }
-        } else {
-            console.error('Auth view not found');
+        if (splash) {
+            splash.classList.add('hidden');
+            console.log('Splash hidden'); // Логирование
         }
+
+        showAuthForm();
     }, 1000);
 });
 
-// Обработка входа
-function handleLogin() {
-    try {
-        const username = document.getElementById('username')?.value;
-        const password = document.getElementById('password')?.value;
+function showAuthForm() {
+    const authView = document.getElementById('auth-view');
+    if (!authView) {
+        console.error('Auth form not found');
+        return;
+    }
 
-        if (!username || !password) {
-            tg.showAlert('Введите логин и пароль');
-            return;
-        }
+    authView.classList.remove('hidden');
+    console.log('Auth form shown'); // Логирование
 
-        if (users[username] && users[username].password === password) {
-            document.getElementById('auth-view').classList.add('hidden');
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username')?.value;
+            const password = document.getElementById('password')?.value;
 
-            if (users[username].role === 'admin') {
-                document.getElementById('admin-panel').classList.remove('hidden');
+            console.log('Login attempt:', username); // Логирование
+
+            if (users[username] && users[username].password === password) {
+                authView.classList.add('hidden');
+                console.log('Login success, role:', users[username].role); // Логирование
+
+                if (users[username].role === 'admin') {
+                    showAdminPanel();
+                } else {
+                    showMainApp();
+                }
             } else {
-                document.getElementById('app').classList.remove('hidden');
-                initApp();
+                tg.showAlert('Неверный логин или пароль');
             }
-        } else {
-            tg.showAlert('Неверный логин или пароль');
-        }
-    } catch (e) {
-        console.error('Login error:', e);
-        tg.showAlert('Ошибка входа');
+        });
     }
 }
 
-// Инициализация приложения
-function initApp() {
-    try {
-        // Инициализация Telegram WebApp
-        tg.ready();
-        tg.expand();
-        tg.enableClosingConfirmation();
-        tg.BackButton.hide();
+function showAdminPanel() {
+    console.log('Showing admin panel'); // Логирование
+    const adminPanel = document.getElementById('admin-panel');
+    if (adminPanel) {
+        adminPanel.classList.remove('hidden');
+    } else {
+        console.error('Admin panel not found');
+    }
+}
 
-        // Настройка обработчиков
-        const callBtn = document.getElementById('callBtn');
-        if (callBtn) callBtn.addEventListener('click', () => tg.openTelegramLink('tel:+79991234567'));
+function showMainApp() {
+    console.log('Showing main app'); // Логирование
 
-        const chatBtn = document.getElementById('chatBtn');
-        if (chatBtn) chatBtn.addEventListener('click', () => tg.openTelegramLink('https://t.me/AutoService_Support'));
+    const app = document.getElementById('app');
+    if (!app) {
+        console.error('App container not found');
+        return;
+    }
 
-        // Инициализация навигации
-        setupNavigation();
+    app.classList.remove('hidden');
 
-        // Инициализация карусели
-        initCarousel();
+    // Инициализация Telegram WebApp
+    tg.ready();
+    tg.expand();
 
-        // Показать главный экран
+    // Настройка кнопок
+    document.getElementById('callBtn')?.addEventListener('click', () => {
+        tg.openTelegramLink('tel:+79991234567');
+    });
+
+    document.getElementById('chatBtn')?.addEventListener('click', () => {
+        tg.openTelegramLink('https://t.me/AutoService_Support');
+    });
+
+    // Навигация
+    document.getElementById('main-tab')?.addEventListener('click', (e) => {
+        e.preventDefault();
         showMainView();
-    } catch (e) {
-        console.error('App init error:', e);
-        tg.showAlert('Ошибка инициализации приложения');
-    }
-}
+    });
 
-function setupNavigation() {
-    const historyTab = document.getElementById('history-tab');
-    const mainTab = document.getElementById('main-tab');
-    const profileTab = document.getElementById('profile-tab');
-
-    if (historyTab) historyTab.addEventListener('click', (e) => {
+    document.getElementById('history-tab')?.addEventListener('click', (e) => {
         e.preventDefault();
         showHistoryView();
     });
 
-    if (mainTab) mainTab.addEventListener('click', (e) => {
-        e.preventDefault();
-        showMainView();
-    });
-
-    if (profileTab) profileTab.addEventListener('click', (e) => {
+    document.getElementById('profile-tab')?.addEventListener('click', (e) => {
         e.preventDefault();
         showProfileView();
     });
+
+    // Показать главный экран
+    showMainView();
 }
 
-function initCarousel() {
-    const carousel = document.getElementById('carousel');
-    if (!carousel) return;
-
-    let startX = 0, isDragging = false;
-
-    carousel.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-    }, { passive: false });
-
-    carousel.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const diff = startX - e.touches[0].clientX;
-        if (Math.abs(diff) > 50) {
-            isDragging = false;
-            diff > 0 ? nextSlide() : prevSlide();
-        }
-    }, { passive: false });
-
-    carousel.addEventListener('touchend', () => {
-        isDragging = false;
-    });
-
-    updateCarousel();
-}
-
-// Навигация
 function showMainView() {
-    currentView = 'main';
+    console.log('Showing main view'); // Логирование
+    setActiveView('main');
     document.querySelector('.main-content').style.display = 'block';
     document.getElementById('history-view').style.display = 'none';
     document.getElementById('profile-view').style.display = 'none';
     document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.add('active');
-    document.getElementById('history-tab').classList.remove('active');
-    document.getElementById('profile-tab').classList.remove('active');
     tg.BackButton.hide();
 }
 
 function showHistoryView() {
-    currentView = 'history';
+    console.log('Showing history view'); // Логирование
+    setActiveView('history');
     document.querySelector('.main-content').style.display = 'none';
     document.getElementById('history-view').style.display = 'block';
     document.getElementById('profile-view').style.display = 'none';
     document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.remove('active');
-    document.getElementById('history-tab').classList.add('active');
-    document.getElementById('profile-tab').classList.remove('active');
     tg.BackButton.show();
     tg.BackButton.onClick(showMainView);
 }
 
 function showProfileView() {
-    currentView = 'profile';
+    console.log('Showing profile view'); // Логирование
+    setActiveView('profile');
     document.querySelector('.main-content').style.display = 'none';
     document.getElementById('history-view').style.display = 'none';
     document.getElementById('profile-view').style.display = 'block';
     document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.remove('active');
-    document.getElementById('history-tab').classList.remove('active');
-    document.getElementById('profile-tab').classList.add('active');
     tg.BackButton.show();
     tg.BackButton.onClick(showMainView);
 }
 
-// Карусель
-function updateCarousel() {
-    const carouselInner = document.querySelector('.carousel-inner');
-    if (carouselInner) {
-        carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
-    }
+function setActiveView(view) {
+    document.getElementById('main-tab')?.classList.remove('active');
+    document.getElementById('history-tab')?.classList.remove('active');
+    document.getElementById('profile-tab')?.classList.remove('active');
+
+    document.getElementById(`${view}-tab`)?.classList.add('active');
 }
 
-function nextSlide() {
-    const slides = document.querySelectorAll('.carousel-item');
-    if (slides.length > 0) {
-        currentSlide = (currentSlide + 1) % slides.length;
-        updateCarousel();
-    }
-}
+// Делаем функции доступными для HTML
+window.showVisitDetail = function(visitId) {
+    console.log('Showing visit details:', visitId); // Логирование
+    // Реализация функции
+};
 
-function prevSlide() {
-    const slides = document.querySelectorAll('.carousel-item');
-    if (slides.length > 0) {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        updateCarousel();
-    }
-}
-
-// Детали посещения
-function showVisitDetail(visitId) {
-    const visit = visits[visitId];
-    if (!visit) return;
-
-    const detailContent = document.getElementById('visit-detail-content');
-    if (!detailContent) return;
-
-    detailContent.innerHTML = `
-        <div class="history-car-info">
-            <div class="history-car-model">${visit.model}</div>
-            <div class="history-car-number">${visit.number}</div>
-            <div class="history-date">${visit.date}</div>
-        </div>
-        <div class="history-carousel">
-            <div class="history-carousel-inner">
-                <div class="history-carousel-item">
-                    <img src="${visit.beforeImg}" alt="До ремонта" loading="lazy">
-                    <div class="history-carousel-caption">До ремонта</div>
-                </div>
-                <div class="history-carousel-item">
-                    <img src="${visit.afterImg}" alt="После ремонта" loading="lazy">
-                    <div class="history-carousel-caption">После ремонта</div>
-                </div>
-            </div>
-        </div>
-        <div class="history-work-list">
-            <h3>Выполненные работы:</h3>
-            <ul>${visit.works.map(work => `<li>${work}</li>`).join('')}</ul>
-        </div>
-        <div class="current-status-card" style="margin-top: 20px;">
-            <div class="current-status-title">Итоговая смета</div>
-            <div class="current-status-text">Общая сумма: ${visit.total}</div>
-            <button class="btn btn-estimate" onclick="window.tg.showAlert('Смета по ${visit.model}\\n\\n${visit.works.join('\\n')}\\n\\nИтого: ${visit.total}')">
-                Показать полную смету
-            </button>
-        </div>
-    `;
-
-    document.querySelector('.main-content').style.display = 'none';
-    document.getElementById('history-view').style.display = 'none';
-    document.getElementById('profile-view').style.display = 'none';
-    document.getElementById('visit-detail-view').style.display = 'block';
-
-    tg.BackButton.show();
-    tg.BackButton.onClick(showHistoryView);
-}
-
-function backToHistory() {
-    showHistoryView();
-}
-
-function showEstimate() {
+window.showEstimate = function() {
     tg.showAlert('Смета согласована 15.04.2023. Общая сумма: 125 430 руб.');
-}
-
-// Делаем функции доступными глобально для обработчиков в HTML
-window.showVisitDetail = showVisitDetail;
-window.showEstimate = showEstimate;
-window.tg = tg;
+};
