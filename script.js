@@ -1,5 +1,18 @@
-const tg = window.Telegram.WebApp;
-let currentView = 'main', currentSlide = 0, startX = 0, isDragging = false;
+// Проверяем, загружен ли Telegram WebApp
+const tg = window.Telegram?.WebApp || {
+    ready: () => console.log('Telegram WebApp not available'),
+    showAlert: (msg) => alert(msg),
+    expand: () => console.log('Expand not available'),
+    enableClosingConfirmation: () => {},
+    BackButton: {
+        show: () => {},
+        hide: () => {},
+        onClick: () => {}
+    },
+    openTelegramLink: (url) => window.open(url, '_blank')
+};
+
+let currentView = 'main', currentSlide = 0;
 
 // Данные для авторизации
 const users = {
@@ -22,94 +35,140 @@ const visits = {
             "Ремонт порога - 15 000 руб."
         ],
         total: "90 500 руб."
-    },
-    2: {
-        model: "Audi Q7",
-        number: "В456СЕ777",
-        date: "10.02.2023 - 20.02.2023",
-        beforeImg: "audi_damage.webp",
-        afterImg: "audi_repaired.webp",
-        works: [
-            "Ремонт заднего бампера - 18 000 руб.",
-            "Покраска задней двери - 22 000 руб.",
-            "Замена стекла задней двери - 35 000 руб."
-        ],
-        total: "75 000 руб."
     }
 };
 
 // Основная инициализация
 document.addEventListener('DOMContentLoaded', function() {
-    // Скрываем сплеш-скрин через 1.5 секунды и показываем авторизацию
+    // Сначала скрываем сплеш-скрин через 1 секунду
     setTimeout(function() {
-        document.getElementById('splash').classList.add('hidden');
-        document.getElementById('auth-view').classList.remove('hidden');
-    }, 1500);
+        const splash = document.getElementById('splash');
+        if (splash) splash.classList.add('hidden');
 
-    // Обработчик формы авторизации
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleLogin();
-    });
+        // Затем показываем форму авторизации
+        const authView = document.getElementById('auth-view');
+        if (authView) {
+            authView.classList.remove('hidden');
+
+            // Обработчик формы авторизации
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    handleLogin();
+                });
+            }
+        } else {
+            console.error('Auth view not found');
+        }
+    }, 1000);
 });
 
 // Обработка входа
 function handleLogin() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    try {
+        const username = document.getElementById('username')?.value;
+        const password = document.getElementById('password')?.value;
 
-    if (users[username] && users[username].password === password) {
-        document.getElementById('auth-view').classList.add('hidden');
-
-        if (users[username].role === 'admin') {
-            document.getElementById('admin-panel').classList.remove('hidden');
-        } else {
-            document.getElementById('app').classList.remove('hidden');
-            initApp();
+        if (!username || !password) {
+            tg.showAlert('Введите логин и пароль');
+            return;
         }
-    } else {
-        tg.showAlert('Неверный логин или пароль');
+
+        if (users[username] && users[username].password === password) {
+            document.getElementById('auth-view').classList.add('hidden');
+
+            if (users[username].role === 'admin') {
+                document.getElementById('admin-panel').classList.remove('hidden');
+            } else {
+                document.getElementById('app').classList.remove('hidden');
+                initApp();
+            }
+        } else {
+            tg.showAlert('Неверный логин или пароль');
+        }
+    } catch (e) {
+        console.error('Login error:', e);
+        tg.showAlert('Ошибка входа');
     }
 }
 
 // Инициализация приложения
 function initApp() {
-    // Настройка обработчиков
-    document.getElementById('callBtn')?.addEventListener('click', function() {
-        tg.openTelegramLink('tel:+79991234567');
+    try {
+        // Инициализация Telegram WebApp
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+        tg.BackButton.hide();
+
+        // Настройка обработчиков
+        const callBtn = document.getElementById('callBtn');
+        if (callBtn) callBtn.addEventListener('click', () => tg.openTelegramLink('tel:+79991234567'));
+
+        const chatBtn = document.getElementById('chatBtn');
+        if (chatBtn) chatBtn.addEventListener('click', () => tg.openTelegramLink('https://t.me/AutoService_Support'));
+
+        // Инициализация навигации
+        setupNavigation();
+
+        // Инициализация карусели
+        initCarousel();
+
+        // Показать главный экран
+        showMainView();
+    } catch (e) {
+        console.error('App init error:', e);
+        tg.showAlert('Ошибка инициализации приложения');
+    }
+}
+
+function setupNavigation() {
+    const historyTab = document.getElementById('history-tab');
+    const mainTab = document.getElementById('main-tab');
+    const profileTab = document.getElementById('profile-tab');
+
+    if (historyTab) historyTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        showHistoryView();
     });
 
-    document.getElementById('chatBtn')?.addEventListener('click', function() {
-        tg.openTelegramLink('https://t.me/AutoService_Support');
+    if (mainTab) mainTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMainView();
     });
 
-    document.getElementById('history-tab').addEventListener('click', showHistoryView);
-    document.getElementById('main-tab').addEventListener('click', showMainView);
-    document.getElementById('profile-tab').addEventListener('click', showProfileView);
+    if (profileTab) profileTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        showProfileView();
+    });
+}
 
-    // Инициализация карусели
+function initCarousel() {
     const carousel = document.getElementById('carousel');
-    if (carousel) {
-        carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
-        carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
-        carousel.addEventListener('touchend', handleTouchEnd);
-    }
+    if (!carousel) return;
 
-    // Поддержка iOS
-    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        document.body.style.minHeight = '100vh';
-        document.body.style.minHeight = '-webkit-fill-available';
-        document.getElementById('app').style.minHeight = '-webkit-fill-available';
-    }
+    let startX = 0, isDragging = false;
 
-    // Инициализация Telegram WebApp
-    tg.ready();
-    tg.expand();
-    tg.enableClosingConfirmation();
-    tg.BackButton.hide();
+    carousel.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    }, { passive: false });
 
-    // Показать главный экран
-    showMainView();
+    carousel.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const diff = startX - e.touches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            isDragging = false;
+            diff > 0 ? nextSlide() : prevSlide();
+        }
+    }, { passive: false });
+
+    carousel.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+
     updateCarousel();
 }
 
@@ -152,23 +211,44 @@ function showProfileView() {
     tg.BackButton.onClick(showMainView);
 }
 
+// Карусель
+function updateCarousel() {
+    const carouselInner = document.querySelector('.carousel-inner');
+    if (carouselInner) {
+        carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+}
+
+function nextSlide() {
+    const slides = document.querySelectorAll('.carousel-item');
+    if (slides.length > 0) {
+        currentSlide = (currentSlide + 1) % slides.length;
+        updateCarousel();
+    }
+}
+
+function prevSlide() {
+    const slides = document.querySelectorAll('.carousel-item');
+    if (slides.length > 0) {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        updateCarousel();
+    }
+}
+
 // Детали посещения
 function showVisitDetail(visitId) {
-    currentView = 'visit-detail';
     const visit = visits[visitId];
+    if (!visit) return;
 
-    let worksHtml = '';
-    visit.works.forEach(work => {
-        worksHtml += `<li>${work}</li>`;
-    });
+    const detailContent = document.getElementById('visit-detail-content');
+    if (!detailContent) return;
 
-    const detailContent = `
+    detailContent.innerHTML = `
         <div class="history-car-info">
             <div class="history-car-model">${visit.model}</div>
             <div class="history-car-number">${visit.number}</div>
             <div class="history-date">${visit.date}</div>
         </div>
-
         <div class="history-carousel">
             <div class="history-carousel-inner">
                 <div class="history-carousel-item">
@@ -181,29 +261,26 @@ function showVisitDetail(visitId) {
                 </div>
             </div>
         </div>
-
         <div class="history-work-list">
             <h3>Выполненные работы:</h3>
-            <ul>${worksHtml}</ul>
+            <ul>${visit.works.map(work => `<li>${work}</li>`).join('')}</ul>
         </div>
-
         <div class="current-status-card" style="margin-top: 20px;">
             <div class="current-status-title">Итоговая смета</div>
             <div class="current-status-text">Общая сумма: ${visit.total}</div>
-            <button class="btn btn-estimate" onclick="tg.showAlert('Смета по ${visit.model}\\n\\n${visit.works.join('\\n')}\\n\\nИтого: ${visit.total}')">
+            <button class="btn btn-estimate" onclick="window.tg.showAlert('Смета по ${visit.model}\\n\\n${visit.works.join('\\n')}\\n\\nИтого: ${visit.total}')">
                 Показать полную смету
             </button>
         </div>
     `;
 
-    document.getElementById('visit-detail-content').innerHTML = detailContent;
     document.querySelector('.main-content').style.display = 'none';
     document.getElementById('history-view').style.display = 'none';
     document.getElementById('profile-view').style.display = 'none';
     document.getElementById('visit-detail-view').style.display = 'block';
 
     tg.BackButton.show();
-    tg.BackButton.onClick(backToHistory);
+    tg.BackButton.onClick(showHistoryView);
 }
 
 function backToHistory() {
@@ -214,38 +291,7 @@ function showEstimate() {
     tg.showAlert('Смета согласована 15.04.2023. Общая сумма: 125 430 руб.');
 }
 
-// Карусель
-function updateCarousel() {
-    document.querySelector('.carousel-inner').style.transform = `translateX(-${currentSlide * 100}%)`;
-}
-
-function nextSlide() {
-    const slides = document.querySelectorAll('.carousel-item');
-    currentSlide = (currentSlide + 1) % slides.length;
-    updateCarousel();
-}
-
-function prevSlide() {
-    const slides = document.querySelectorAll('.carousel-item');
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    updateCarousel();
-}
-
-function handleTouchStart(e) {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-}
-
-function handleTouchMove(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    const diff = startX - e.touches[0].clientX;
-    if (Math.abs(diff) > 50) {
-        isDragging = false;
-        diff > 0 ? nextSlide() : prevSlide();
-    }
-}
-
-function handleTouchEnd() {
-    isDragging = false;
-}
+// Делаем функции доступными глобально для обработчиков в HTML
+window.showVisitDetail = showVisitDetail;
+window.showEstimate = showEstimate;
+window.tg = tg;
