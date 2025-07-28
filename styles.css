@@ -43,104 +43,6 @@ body {
     transition: opacity 0.3s ease;
 }
 
-/* Стили авторизации */
-#auth-view {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: #f5f5f5;
-    z-index: 1001;
-    padding: 16px;
-}
-
-.auth-card {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.auth-title {
-    font-size: 24px;
-    text-align: center;
-    margin-bottom: 24px;
-    color: #1a1a1a;
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.auth-form input {
-    width: 100%;
-    height: 48px;
-    padding: 0 16px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
-.auth-form input:focus {
-    border-color: #2A5CFF;
-    outline: none;
-}
-
-.btn-auth {
-    height: 48px;
-    background: #2A5CFF;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.btn-auth:active {
-    opacity: 0.8;
-}
-
-/* Черный экран админа */
-.black-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1002;
-}
-
-.black-screen h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.black-screen button {
-    padding: 12px 24px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
 /* Основные стили приложения */
 #app {
     width: 100%;
@@ -156,7 +58,658 @@ body {
     display: flex;
 }
 
-/* ... все остальные ваши существующие стили ... */
+.main-content {
+    flex: 1;
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+    width: 100%;
+}
 
-/* Ваши существующие стили для main-content, car-card, carousel, status-timeline и т.д. */
-/* Они должны остаться без изменений */
+/* Стили для карточек */
+.car-card, .history-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.history-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* Стили для каруселей с фотографиями */
+.carousel, .history-carousel {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: #f0f0f0;
+}
+
+.history-carousel {
+    height: 200px;
+    margin: 12px 0;
+}
+
+.carousel-inner, .history-carousel-inner {
+    display: flex;
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.carousel-item, .history-carousel-item {
+    min-width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.carousel-item img, .history-carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Подписи к фотографиям */
+.history-carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 12px;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Информация об автомобиле */
+.car-model, .history-car-model {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+}
+
+.car-number, .history-car-number {
+    font-size: 14px;
+    color: #666;
+    background: #f7f7f7;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.history-date {
+    font-size: 14px;
+    color: #666;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.9);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Таймлайн статусов */
+.status-timeline {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 24px;
+}
+
+.timeline-line {
+    position: absolute;
+    left: 11px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+
+.timeline-fill {
+    position: absolute;
+    left: 11px;
+    top: 0;
+    height: 62.5%;
+    width: 2px;
+    background: #4CAF50;
+    z-index: 2;
+    transition: height 0.5s ease;
+}
+
+.timeline-current {
+    position: absolute;
+    left: 11px;
+    top: 62.5%;
+    height: 12.5%;
+    width: 2px;
+    background: #2A5CFF;
+    z-index: 3;
+}
+
+.status-item {
+    position: relative;
+    padding: 8px 0 8px 32px;
+    margin-bottom: 12px;
+    z-index: 4;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-dot {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 2px solid #e0e0e0;
+}
+
+.status-item.completed .status-dot {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+}
+
+.status-item.active .status-dot {
+    background: #2A5CFF;
+    border-color: #2A5CFF;
+    color: white;
+}
+
+.status-dot-icon {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-content {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.status-item.completed .status-content,
+.status-item.active .status-content {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.status-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-item.completed .status-title,
+.status-item.active .status-title {
+    color: #1a1a1a;
+}
+
+.status-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.status-item.completed .status-date {
+    color: #4CAF50;
+}
+
+.status-item.active .status-date {
+    color: #2A5CFF;
+}
+
+.status-description {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.status-item.active .status-description {
+    color: #333;
+}
+
+.status-estimate-btn {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: #2A5CFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Карточка текущего статуса */
+.current-status-card {
+    background: #2A5CFF;
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    margin-top: 16px;
+    box-shadow: 0 4px 12px rgba(42, 92, 255, 0.2);
+}
+
+.current-status-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.current-status-icon {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+}
+
+.current-status-text {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.current-status-time {
+    font-size: 13px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+}
+
+.time-icon {
+    margin-right: 6px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Кнопки */
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.btn {
+    height: 56px;
+    border-radius: 16px;
+    border: none;
+    font-size: 17px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+    width: 100%;
+}
+
+.btn:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+}
+
+.btn-call {
+    background: #2A5CFF;
+    color: white;
+}
+
+.btn-chat {
+    background: #EFEFEF;
+    color: #1a1a1a;
+}
+
+.btn-estimate {
+    background: #2A5CFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-icon {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+}
+
+/* История посещений */
+#history-view {
+    width: 100%;
+    padding-bottom: 20px;
+    display: none;
+}
+
+.history-header {
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.history-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.history-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 16px;
+}
+
+.history-work-list {
+    margin-bottom: 16px;
+}
+
+.history-work-list h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+}
+
+.history-work-list ul {
+    padding-left: 20px;
+}
+
+.history-work-list li {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+/* Детали посещения */
+#visit-detail-view {
+    display: none;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+.visit-detail-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.visit-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.visit-detail-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.visit-detail-back {
+    font-size: 14px;
+    color: #2A5CFF;
+    cursor: pointer;
+}
+
+/* Таббар */
+.tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(56px + env(safe-area-inset-bottom));
+    background: #fff;
+    display: flex;
+    border-top: 1px solid #e0e0e0;
+    z-index: 100;
+}
+
+.tabbar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.tabbar-item.active {
+    color: #2A5CFF;
+}
+
+.tabbar-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+}
+
+/* Стили для профиля */
+#profile-view {
+    display: none;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #2A5CFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.profile-phone {
+    font-size: 16px;
+    color: #666;
+}
+
+.profile-section {
+    margin-bottom: 24px;
+}
+
+.profile-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+.profile-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-info-label {
+    color: #666;
+}
+
+.profile-info-value {
+    font-weight: 500;
+}
+
+.profile-button {
+    width: 100%;
+    padding: 14px;
+    background: #2A5CFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+}
+
+.profile-button:active {
+    opacity: 0.8;
+}
+
+.profile-button.secondary {
+    background: #EFEFEF;
+    color: #1a1a1a;
+}
+
+/* Адаптация для планшетов и десктопов */
+@media (min-width: 768px) {
+    .carousel {
+        height: 280px;
+    }
+    .history-carousel {
+        height: 240px;
+    }
+}
+
+/* Поддержка iOS */
+@supports (-webkit-touch-callout: none) {
+    body {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+    #app {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* Стили для авторизации */
+#auth-view {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    background: #f5f5f5;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
+    color: #1a1a1a;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #666;
+}
+
+.form-group input {
+    height: 48px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #2A5CFF;
+}
+
+.btn-auth {
+    height: 48px;
+    border-radius: 12px;
+    background: #2A5CFF;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+}
+
+.btn-auth:active {
+    opacity: 0.8;
+}

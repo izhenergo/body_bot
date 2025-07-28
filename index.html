@@ -7,48 +7,361 @@
     <title>AutoTrack - Кузовной ремонт</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Временные стили для админ панели */
+        .admin-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .admin-screen h1 {
+            margin-bottom: 20px;
+            color: #2A5CFF;
+        }
+    </style>
 </head>
 <body>
 <div id="splash">
     <img src="Screen.png" alt="AutoTrack Logo">
 </div>
 
-<!-- Форма авторизации -->
-<div id="auth-view">
-    <div class="auth-card">
-        <h2 class="auth-title">Авторизация</h2>
-        <div class="auth-form">
-            <input type="text" id="login" placeholder="Введите логин">
-            <input type="password" id="password" placeholder="Введите пароль">
-            <button class="btn-auth" id="loginBtn">Войти</button>
+<div id="app">
+    <!-- Форма авторизации -->
+    <div id="auth-view">
+        <div class="auth-card">
+            <h2 class="auth-title">Авторизация</h2>
+            <div class="auth-form">
+                <div class="form-group">
+                    <label for="login">Логин</label>
+                    <input type="text" id="login" placeholder="Введите логин">
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" placeholder="Введите пароль">
+                </div>
+                <button class="btn btn-auth" id="loginBtn">Войти</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="app">
-    <!-- Весь ваш основной контент приложения остается без изменений -->
-    <div class="main-content">
-        <!-- ... ваш существующий HTML ... -->
-    </div>
+    <!-- Основное содержимое приложения (показывается после авторизации) -->
+    <div id="main-view" style="display: none;">
+        <div class="main-content">
+            <div class="car-card">
+                <div class="carousel" id="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item">
+                            <img src="splash1.jpg" alt="BMW X5 - вид спереди" loading="lazy">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="splash2.jpg" alt="BMW X5 - вид сбоку" loading="lazy">
+                        </div>
+                    </div>
+                </div>
 
-    <!-- История посещений -->
-    <div id="history-view">
-        <!-- ... ваш существующий HTML ... -->
-    </div>
+                <div class="car-info">
+                    <div class="car-model">BMW X5 (G05)</div>
+                    <div class="car-number">А123БВ777</div>
+                </div>
 
-    <!-- Детали посещения -->
-    <div id="visit-detail-view">
-        <!-- ... ваш существующий HTML ... -->
-    </div>
+                <div class="progress-container">
+                    <div class="status-timeline">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-fill"></div>
+                        <div class="timeline-current"></div>
 
-    <!-- Профиль пользователя -->
-    <div id="profile-view">
-        <!-- ... ваш существующий HTML ... -->
-    </div>
+                        <div class="status-item completed">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">✓</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Дефектовка</span>
+                                    <span class="status-date">12.04.2023</span>
+                                </div>
+                                <div class="status-description">Выявлены все повреждения, составлен отчёт</div>
+                            </div>
+                        </div>
 
-    <!-- Таббар -->
-    <div class="tabbar">
-        <!-- ... ваш существующий HTML ... -->
+                        <div class="status-item completed">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">✓</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Формирование сметы</span>
+                                    <span class="status-date">14.04.2023</span>
+                                </div>
+                                <div class="status-description">Смета утверждена, ожидается согласование</div>
+                            </div>
+                        </div>
+
+                        <div class="status-item completed">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">✓</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Согласование</span>
+                                    <span class="status-date">15.04.2023</span>
+                                </div>
+                                <div class="status-description">Смета согласована, работы подтверждены</div>
+                                <button class="status-estimate-btn" onclick="showEstimate()">Смета</button>
+                            </div>
+                        </div>
+
+                        <div class="status-item completed">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">✓</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Разборка</span>
+                                    <span class="status-date">17.04.2023</span>
+                                </div>
+                                <div class="status-description">Автомобиль разобран, повреждённые детали сняты</div>
+                            </div>
+                        </div>
+
+                        <div class="status-item completed">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">✓</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Рихтовка</span>
+                                    <span class="status-date">19.04.2023</span>
+                                </div>
+                                <div class="status-description">Кузовные панели выровнены, подготовлены к покраске</div>
+                            </div>
+                        </div>
+
+                        <div class="status-item active">
+                            <div class="status-dot">
+                                <span class="status-dot-icon">!</span>
+                            </div>
+                            <div class="status-content">
+                                <div class="status-title">
+                                    <span>Покраска</span>
+                                    <span class="status-date">В процессе</span>
+                                </div>
+                                <div class="status-description">Начата покраска кузовных элементов</div>
+                            </div>
+                        </div>
+
+                        <div class="status-item">
+                            <div class="status-dot"></div>
+                            <div class="status-content">
+                                <div class="status-title">Сборка</div>
+                                <div class="status-description">Ожидается после завершения покраски</div>
+                            </div>
+                        </div>
+
+                        <div class="status-item">
+                            <div class="status-dot"></div>
+                            <div class="status-content">
+                                <div class="status-title">Готов к выдаче</div>
+                                <div class="status-description">Автомобиль пройдёт финальный осмотр</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="current-status-card">
+                        <div class="current-status-title">
+                            <svg class="current-status-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="currentColor"/>
+                            </svg>
+                            Текущий статус
+                        </div>
+                        <div class="current-status-text">
+                            Ваш автомобиль находится в покрасочной камере. Идёт процесс нанесения
+                            базового покрытия и лака.
+                        </div>
+                        <div class="current-status-time">
+                            <svg class="time-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor"/>
+                            </svg>
+                            Ориентировочное завершение: 25.04.2023
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button class="btn btn-call" id="callBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.487 17.14L16.422 13.645C16.2301 13.482 15.9776 13.416 15.7311 13.464C15.4845 13.512 15.2714 13.669 15.148 13.892L13.669 16.557C11.2645 15.438 8.85995 13.033 7.74295 10.628L10.407 9.15095C10.6304 9.0275 10.7876 8.8143 10.8356 8.5676C10.8836 8.3209 10.8177 8.0682 10.654 7.87695L7.15995 3.81295C6.98738 3.61199 6.74052 3.497 6.48145 3.497C6.22238 3.497 5.97552 3.61199 5.80295 3.81295L3.53095 6.37295C3.34385 6.587 3.24582 6.862 3.25695 7.143C3.53795 12.603 11.396 20.461 16.857 20.742C17.138 20.753 17.413 20.655 17.627 20.468L20.187 18.196C20.3873 18.0235 20.5023 17.7766 20.5023 17.5176C20.5023 17.2585 20.3873 17.0116 20.187 16.839L20.487 17.14Z" fill="currentColor"/>
+                    </svg>
+                    Позвонить в сервис
+                </button>
+                <button class="btn btn-chat" id="chatBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="currentColor"/>
+                    </svg>
+                    Написать мастеру
+                </button>
+            </div>
+        </div>
+
+        <!-- История посещений -->
+        <div id="history-view">
+            <div class="history-header">
+                <h2>История посещений</h2>
+            </div>
+            <div class="history-items">
+                <div class="history-card" onclick="showVisitDetail(1)">
+                    <div class="history-date">15.04.2023 - 25.04.2023</div>
+                    <div class="history-car-info">
+                        <div class="history-car-model">BMW X5 (G05)</div>
+                        <div class="history-car-number">А123БВ777</div>
+                    </div>
+                    <div class="history-carousel">
+                        <div class="history-carousel-inner">
+                            <div class="history-carousel-item">
+                                <img src="splash1.jpg" alt="До ремонта" loading="lazy">
+                                <div class="history-carousel-caption">До ремонта</div>
+                            </div>
+                            <div class="history-carousel-item">
+                                <img src="splash2.jpg" alt="После ремонта" loading="lazy">
+                                <div class="history-carousel-caption">После ремонта</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="history-work-list">
+                        <h3>Выполненные работы:</h3>
+                        <ul>
+                            <li>Ремонт правого переднего крыла</li>
+                            <li>Замена правой передней фары</li>
+                            <li>Покраска правых дверей</li>
+                            <li>Ремонт порога</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="history-card" onclick="showVisitDetail(2)">
+                    <div class="history-date">10.02.2023 - 20.02.2023</div>
+                    <div class="history-car-info">
+                        <div class="history-car-model">Audi Q7</div>
+                        <div class="history-car-number">В456СЕ777</div>
+                    </div>
+                    <div class="history-carousel">
+                        <div class="history-carousel-inner">
+                            <div class="history-carousel-item">
+                                <img src="audi_damage.webp" alt="До ремонта" loading="lazy">
+                                <div class="history-carousel-caption">До ремонта</div>
+                            </div>
+                            <div class="history-carousel-item">
+                                <img src="audi_repaired.webp" alt="После ремонта" loading="lazy">
+                                <div class="history-carousel-caption">После ремонта</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="history-work-list">
+                        <h3>Выполненные работы:</h3>
+                        <ul>
+                            <li>Ремонт заднего бампера</li>
+                            <li>Покраска задней двери</li>
+                            <li>Замена стекла задней двери</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Детали посещения -->
+        <div id="visit-detail-view">
+            <div class="visit-detail-card">
+                <div class="visit-detail-header">
+                    <div class="visit-detail-title">Детали посещения</div>
+                    <div class="visit-detail-back" onclick="showView('history')">← Назад</div>
+                </div>
+                <div id="visit-detail-content">
+                    <!-- Контент будет заполняться динамически -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Профиль пользователя -->
+        <div id="profile-view">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">ИИ</div>
+                    <div class="profile-name">Иван Иванов</div>
+                    <div class="profile-phone">+7 (999) 123-45-67</div>
+                </div>
+
+                <div class="profile-section">
+                    <div class="profile-section-title">Личная информация</div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Email</span>
+                        <span class="profile-info-value">ivanov@example.com</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Дата регистрации</span>
+                        <span class="profile-info-value">15.03.2023</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Автомобилей в ремонте</span>
+                        <span class="profile-info-value">1</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Завершенных ремонтов</span>
+                        <span class="profile-info-value">2</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <div class="profile-section-title">Настройки</div>
+                    <button class="profile-button secondary" onclick="tg.showAlert('Уведомления включены')">
+                        Настройки уведомлений
+                    </button>
+                    <button class="profile-button secondary" onclick="tg.showAlert('Язык изменен')">
+                        Сменить язык
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <button class="profile-button" onclick="tg.showAlert('Обращение в поддержку отправлено')">
+                        Связаться с поддержкой
+                    </button>
+                    <button class="profile-button secondary" onclick="logout()">
+                        Выйти из аккаунта
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таббар -->
+        <div class="tabbar">
+            <a href="#" class="tabbar-item active" id="main-tab" onclick="showView('main'); return false;">
+                <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="currentColor"/>
+                </svg>
+                Главная
+            </a>
+            <a href="#" class="tabbar-item" id="history-tab" onclick="showView('history'); return false;">
+                <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 16H6L4 18V4H19V16Z" fill="currentColor"/>
+                </svg>
+                История
+            </a>
+            <a href="#" class="tabbar-item" id="profile-tab" onclick="showView('profile'); return false;">
+                <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor"/>
+                </svg>
+                Профиль
+            </a>
+        </div>
     </div>
 </div>
 
