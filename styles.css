@@ -754,3 +754,14 @@ body {
         min-height: -webkit-fill-available;
     }
 }
+
+#auth-view, #app, #admin-panel {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#auth-view.show, #app.show, #admin-panel.show {
+    display: flex; /* или block */
+    opacity: 1;
+}
