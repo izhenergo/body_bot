@@ -3,63 +3,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-body {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: #ffffff;
-}
-
-#splash {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-#splash img {
-    width: 80%;
-    height: auto;
-    object-fit: contain;
-}
-
-#splash.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.auth-container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.auth-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -98,6 +41,76 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+}
+
+/* Стили для формы авторизации */
+#auth-view {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.auth-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #1a1a1a;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #2A5CFF;
+    outline: none;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background: #2A5CFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+}
+
+.btn-login:active {
+    opacity: 0.8;
 }
 
 /* Основные стили приложения */
@@ -464,6 +477,24 @@ body {
     width: 100%;
 }
 
+.btn-logout {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 24px;
+    width: 100%;
+    transition: opacity 0.2s;
+}
+
+.btn-logout:active {
+    opacity: 0.8;
+}
+
 .btn-icon {
     margin-right: 8px;
     width: 20px;
@@ -674,6 +705,35 @@ body {
     color: #1a1a1a;
 }
 
+/* Админ-панель */
+#admin-panel {
+    width: 100%;
+    min-height: 100vh;
+    display: none;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.admin-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.admin-container h2 {
+    color: #1a1a1a;
+    margin-bottom: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
 /* Адаптация для планшетов и десктопов */
 @media (min-width: 768px) {
     .carousel {
@@ -693,80 +753,4 @@ body {
     #app {
         min-height: -webkit-fill-available;
     }
-}
-
-/* Стили для авторизации */
-#auth-view {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    background: #f5f5f5;
-}
-
-.auth-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.auth-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 24px;
-    text-align: center;
-    color: #1a1a1a;
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-size: 14px;
-    color: #666;
-}
-
-.form-group input {
-    height: 48px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 0 16px;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus {
-    border-color: #2A5CFF;
-}
-
-.btn-auth {
-    height: 48px;
-    border-radius: 12px;
-    background: #2A5CFF;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    margin-top: 8px;
-}
-
-.btn-auth:active {
-    opacity: 0.8;
 }
