@@ -1,11 +1,14 @@
 const tg = window.Telegram.WebApp;
-let currentView = 'main', currentSlide = 0, startX = 0, isDragging = false;
+let currentView = 'main';
+let currentSlide = 0;
+let startX = 0;
+let isDragging = false;
 let currentUser = null;
 
-// Данные пользователей и их роли
+// Конфигурация пользователей
 const users = {
-    '1': { password: '1', role: 'user', view: 'main' },
-    '2': { password: '2', role: 'admin', view: 'black' }
+    '1': { password: '1', role: 'user' },
+    '2': { password: '2', role: 'admin' }
 };
 
 // Данные о посещениях
@@ -39,17 +42,45 @@ const visits = {
     }
 };
 
-// Черный экран для админа
-const blackScreen = `
-    <div id="black-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; color: #fff; display: flex; justify-content: center; align-items: center; z-index: 1000;">
-        <h1>Административная панель</h1>
-        <button onclick="logout()" style="position: absolute; bottom: 20px; background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Выйти</button>
-    </div>
-`;
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.getElementById('splash').classList.add('hidden');
+        showAuthView();
+        initTelegramApp();
+        setupEventListeners();
+    }, 1500);
+});
 
-// Функции авторизации
+function initTelegramApp() {
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+    tg.BackButton.hide();
+}
+
+function setupEventListeners() {
+    // Авторизация
+    document.getElementById('loginBtn').addEventListener('click', handleLogin);
+
+    // Навигация
+    document.getElementById('main-tab').addEventListener('click', () => showView('main'));
+    document.getElementById('history-tab').addEventListener('click', () => showView('history'));
+    document.getElementById('profile-tab').addEventListener('click', () => showView('profile'));
+
+    // Кнопки действий
+    document.getElementById('callBtn')?.addEventListener('click', () => tg.openTelegramLink('tel:+79991234567'));
+    document.getElementById('chatBtn')?.addEventListener('click', () => tg.openTelegramLink('https://t.me/AutoService_Support'));
+
+    // Карусель
+    const carousel = document.getElementById('carousel');
+    carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
+    carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
+    carousel.addEventListener('touchend', handleTouchEnd);
+}
+
+// Система авторизации
 function showAuthView() {
-    document.getElementById('splash').classList.add('hidden');
     document.getElementById('auth-view').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
 }
@@ -58,102 +89,106 @@ function hideAuthView() {
     document.getElementById('auth-view').style.display = 'none';
 }
 
-function login() {
-    const login = document.getElementById('login').value;
-    const password = document.getElementById('password').value;
+function handleLogin() {
+    const login = document.getElementById('login').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (!login || !password) {
+        tg.showAlert('Введите логин и пароль');
+        return;
+    }
 
     if (users[login] && users[login].password === password) {
         currentUser = users[login];
+        hideAuthView();
 
-        if (currentUser.view === 'black') {
-            document.body.insertAdjacentHTML('beforeend', blackScreen);
-            hideAuthView();
+        if (currentUser.role === 'admin') {
+            showAdminScreen();
         } else {
-            document.getElementById('app').style.display = 'flex';
-            document.getElementById('app').classList.add('visible');
-            hideAuthView();
-            showMainView();
+            showMainApp();
         }
-
-        tg.showAlert(`Добро пожаловать, ${login}!`);
     } else {
         tg.showAlert('Неверный логин или пароль');
     }
 }
 
+function showMainApp() {
+    document.getElementById('app').style.display = 'block';
+    showView('main');
+    updateCarousel();
+}
+
+function showAdminScreen() {
+    const adminScreen = document.createElement('div');
+    adminScreen.className = 'black-screen';
+    adminScreen.innerHTML = `
+        <h1>Административная панель</h1>
+        <button onclick="logout()">Выйти</button>
+    `;
+    document.body.appendChild(adminScreen);
+}
+
 function logout() {
     currentUser = null;
-    const blackScreen = document.getElementById('black-screen');
-    if (blackScreen) blackScreen.remove();
+    document.getElementById('app').style.display = 'none';
+
+    const adminScreen = document.querySelector('.black-screen');
+    if (adminScreen) adminScreen.remove();
 
     document.getElementById('login').value = '';
     document.getElementById('password').value = '';
-
     showAuthView();
 }
 
-// Функции навигации по приложению
-function showMainView() {
-    if (!currentUser) {
-        showAuthView();
-        return;
+// Навигация по приложению
+function showView(view) {
+    if (!currentUser) return showAuthView();
+
+    currentView = view;
+
+    // Скрываем все вью
+    document.querySelector('.main-content').style.display = 'none';
+    document.getElementById('history-view').style.display = 'none';
+    document.getElementById('profile-view').style.display = 'none';
+    document.getElementById('visit-detail-view').style.display = 'none';
+
+    // Сбрасываем активные табы
+    document.getElementById('main-tab').classList.remove('active');
+    document.getElementById('history-tab').classList.remove('active');
+    document.getElementById('profile-tab').classList.remove('active');
+
+    // Показываем нужную вью
+    switch(view) {
+        case 'main':
+            document.querySelector('.main-content').style.display = 'block';
+            document.getElementById('main-tab').classList.add('active');
+            tg.BackButton.hide();
+            break;
+        case 'history':
+            document.getElementById('history-view').style.display = 'block';
+            document.getElementById('history-tab').classList.add('active');
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => showView('main'));
+            break;
+        case 'profile':
+            document.getElementById('profile-view').style.display = 'block';
+            document.getElementById('profile-tab').classList.add('active');
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => showView('main'));
+            break;
     }
-
-    if (currentUser.view === 'black') return;
-
-    currentView = 'main';
-    document.querySelector('.main-content').style.display = 'block';
-    document.getElementById('history-view').style.display = 'none';
-    document.getElementById('profile-view').style.display = 'none';
-    document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.add('active');
-    document.getElementById('history-tab').classList.remove('active');
-    document.getElementById('profile-tab').classList.remove('active');
-    tg.BackButton.hide();
-}
-
-function showHistoryView() {
-    currentView = 'history';
-    document.querySelector('.main-content').style.display = 'none';
-    document.getElementById('history-view').style.display = 'block';
-    document.getElementById('profile-view').style.display = 'none';
-    document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.remove('active');
-    document.getElementById('history-tab').classList.add('active');
-    document.getElementById('profile-tab').classList.remove('active');
-    tg.BackButton.show();
-    tg.BackButton.onClick(showMainView);
-}
-
-function showProfileView() {
-    currentView = 'profile';
-    document.querySelector('.main-content').style.display = 'none';
-    document.getElementById('history-view').style.display = 'none';
-    document.getElementById('profile-view').style.display = 'block';
-    document.getElementById('visit-detail-view').style.display = 'none';
-    document.getElementById('main-tab').classList.remove('active');
-    document.getElementById('history-tab').classList.remove('active');
-    document.getElementById('profile-tab').classList.add('active');
-    tg.BackButton.show();
-    tg.BackButton.onClick(showMainView);
 }
 
 function showVisitDetail(visitId) {
-    currentView = 'visit-detail';
     const visit = visits[visitId];
+    let worksHtml = visit.works.map(work => `<li>${work}</li>`).join('');
 
-    let worksHtml = '';
-    visit.works.forEach(work => {
-        worksHtml += `<li>${work}</li>`;
-    });
-
-    const detailContent = `
+    document.getElementById('visit-detail-content').innerHTML = `
         <div class="history-car-info">
             <div class="history-car-model">${visit.model}</div>
             <div class="history-car-number">${visit.number}</div>
             <div class="history-date">${visit.date}</div>
         </div>
-
         <div class="history-carousel">
             <div class="history-carousel-inner">
                 <div class="history-carousel-item">
@@ -166,12 +201,10 @@ function showVisitDetail(visitId) {
                 </div>
             </div>
         </div>
-
         <div class="history-work-list">
             <h3>Выполненные работы:</h3>
             <ul>${worksHtml}</ul>
         </div>
-
         <div class="current-status-card" style="margin-top: 20px;">
             <div class="current-status-title">Итоговая смета</div>
             <div class="current-status-text">Общая сумма: ${visit.total}</div>
@@ -181,25 +214,16 @@ function showVisitDetail(visitId) {
         </div>
     `;
 
-    document.getElementById('visit-detail-content').innerHTML = detailContent;
-    document.querySelector('.main-content').style.display = 'none';
-    document.getElementById('history-view').style.display = 'none';
-    document.getElementById('profile-view').style.display = 'none';
     document.getElementById('visit-detail-view').style.display = 'block';
-
     tg.BackButton.show();
-    tg.BackButton.onClick(backToHistory);
-}
-
-function backToHistory() {
-    showHistoryView();
+    tg.BackButton.onClick(() => showView('history'));
 }
 
 function showEstimate() {
     tg.showAlert('Смета согласована 15.04.2023. Общая сумма: 125 430 руб.');
 }
 
-// Функции карусели
+// Работа с каруселью
 function updateCarousel() {
     document.querySelector('.carousel-inner').style.transform = `translateX(-${currentSlide * 100}%)`;
 }
@@ -235,38 +259,14 @@ function handleTouchEnd() {
     isDragging = false;
 }
 
-// Инициализация приложения
-document.addEventListener('DOMContentLoaded', () => {
-    // Показываем сплеш-скрин 1.5 секунды, затем форму авторизации
-    setTimeout(() => {
-        showAuthView();
-        updateCarousel();
-    }, 1500);
+// Поддержка iOS
+if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    document.body.style.minHeight = '100vh';
+    document.body.style.minHeight = '-webkit-fill-available';
+    document.getElementById('app').style.minHeight = '-webkit-fill-available';
+}
 
-    // Обработчики кнопок
-    document.getElementById('loginBtn').addEventListener('click', login);
-    document.getElementById('callBtn')?.addEventListener('click', () => tg.openTelegramLink('tel:+79991234567'));
-    document.getElementById('chatBtn')?.addEventListener('click', () => tg.openTelegramLink('https://t.me/AutoService_Support'));
-    document.getElementById('history-tab').addEventListener('click', showHistoryView);
-    document.getElementById('main-tab').addEventListener('click', showMainView);
-    document.getElementById('profile-tab').addEventListener('click', showProfileView);
-
-    // Обработчики карусели
-    const carousel = document.getElementById('carousel');
-    carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
-    carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
-    carousel.addEventListener('touchend', handleTouchEnd);
-
-    // Поддержка iOS
-    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        document.body.style.minHeight = '100vh';
-        document.body.style.minHeight = '-webkit-fill-available';
-        document.getElementById('app').style.minHeight = '-webkit-fill-available';
-    }
-
-    // Инициализация Telegram WebApp
-    tg.ready();
-    tg.expand();
-    tg.enableClosingConfirmation();
-    tg.BackButton.hide();
-});
+// Глобальные функции
+window.logout = logout;
+window.showVisitDetail = showVisitDetail;
+window.showEstimate = showEstimate;
