@@ -38,34 +38,56 @@ const visits = {
     }
 };
 
-// Инициализация приложения
-function initApp() {
-    // Скрываем сплеш-скрин и показываем основное приложение
-    setTimeout(() => {
+// Основная инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    // Скрываем сплеш-скрин через 1.5 секунды и показываем авторизацию
+    setTimeout(function() {
         document.getElementById('splash').classList.add('hidden');
-
-        // Инициализация основного функционала
-        showMainView();
-        updateCarousel();
-
-        // Настройка обработчиков событий
-        setupEventListeners();
-
-        tg.ready();
-        tg.expand();
-        tg.enableClosingConfirmation();
-        tg.BackButton.hide();
+        document.getElementById('auth-view').classList.remove('hidden');
     }, 1500);
+
+    // Обработчик формы авторизации
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleLogin();
+    });
+});
+
+// Обработка входа
+function handleLogin() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (users[username] && users[username].password === password) {
+        document.getElementById('auth-view').classList.add('hidden');
+
+        if (users[username].role === 'admin') {
+            document.getElementById('admin-panel').classList.remove('hidden');
+        } else {
+            document.getElementById('app').classList.remove('hidden');
+            initApp();
+        }
+    } else {
+        tg.showAlert('Неверный логин или пароль');
+    }
 }
 
-// Настройка обработчиков событий
-function setupEventListeners() {
-    document.getElementById('callBtn')?.addEventListener('click', () => tg.openTelegramLink('tel:+79991234567'));
-    document.getElementById('chatBtn')?.addEventListener('click', () => tg.openTelegramLink('https://t.me/AutoService_Support'));
+// Инициализация приложения
+function initApp() {
+    // Настройка обработчиков
+    document.getElementById('callBtn')?.addEventListener('click', function() {
+        tg.openTelegramLink('tel:+79991234567');
+    });
+
+    document.getElementById('chatBtn')?.addEventListener('click', function() {
+        tg.openTelegramLink('https://t.me/AutoService_Support');
+    });
+
     document.getElementById('history-tab').addEventListener('click', showHistoryView);
     document.getElementById('main-tab').addEventListener('click', showMainView);
     document.getElementById('profile-tab').addEventListener('click', showProfileView);
 
+    // Инициализация карусели
     const carousel = document.getElementById('carousel');
     if (carousel) {
         carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -79,34 +101,19 @@ function setupEventListeners() {
         document.body.style.minHeight = '-webkit-fill-available';
         document.getElementById('app').style.minHeight = '-webkit-fill-available';
     }
+
+    // Инициализация Telegram WebApp
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+    tg.BackButton.hide();
+
+    // Показать главный экран
+    showMainView();
+    updateCarousel();
 }
 
-// Обработчик формы авторизации
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    // Проверка учетных данных
-    if (users[username] && users[username].password === password) {
-        // Успешная авторизация
-        document.getElementById('auth-view').classList.add('hidden');
-
-        if (users[username].role === 'admin') {
-            // Показываем админ-панель
-            document.getElementById('admin-panel').classList.remove('hidden');
-        } else {
-            // Показываем основное приложение
-            document.getElementById('app').classList.remove('hidden');
-            initApp();
-        }
-    } else {
-        tg.showAlert('Неверный логин или пароль');
-    }
-});
-
-// Навигация по приложению
+// Навигация
 function showMainView() {
     currentView = 'main';
     document.querySelector('.main-content').style.display = 'block';
@@ -145,6 +152,7 @@ function showProfileView() {
     tg.BackButton.onClick(showMainView);
 }
 
+// Детали посещения
 function showVisitDetail(visitId) {
     currentView = 'visit-detail';
     const visit = visits[visitId];
@@ -206,7 +214,7 @@ function showEstimate() {
     tg.showAlert('Смета согласована 15.04.2023. Общая сумма: 125 430 руб.');
 }
 
-// Карусель изображений
+// Карусель
 function updateCarousel() {
     document.querySelector('.carousel-inner').style.transform = `translateX(-${currentSlide * 100}%)`;
 }
@@ -241,9 +249,3 @@ function handleTouchMove(e) {
 function handleTouchEnd() {
     isDragging = false;
 }
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    // Показываем форму авторизации при первой загрузке
-    document.getElementById('auth-view').classList.remove('hidden');
-});
