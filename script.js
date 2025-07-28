@@ -49,9 +49,9 @@ const blackScreen = `
 
 // Функции авторизации
 function showAuthView() {
+    document.getElementById('splash').classList.add('hidden');
     document.getElementById('auth-view').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
-    document.getElementById('splash').style.display = 'none';
 }
 
 function hideAuthView() {
@@ -69,6 +69,7 @@ function login() {
             document.body.insertAdjacentHTML('beforeend', blackScreen);
             hideAuthView();
         } else {
+            document.getElementById('app').style.display = 'flex';
             document.getElementById('app').classList.add('visible');
             hideAuthView();
             showMainView();
@@ -236,8 +237,8 @@ function handleTouchEnd() {
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
+    // Показываем сплеш-скрин 1.5 секунды, затем форму авторизации
     setTimeout(() => {
-        document.getElementById('splash').classList.add('hidden');
         showAuthView();
         updateCarousel();
     }, 1500);
