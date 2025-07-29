@@ -4,117 +4,384 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoTrack</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
     <style>
         /* Nuclear CSS Reset */
-        #splash,
-        #auth-view,
-        #app,
-        #admin-panel {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-        }
-
-        #auth-view.show,
-        #app.show,
-        #admin-panel.show {
-            display: flex !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-
-        /* Basic styles */
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .container {
+        /* Base Styles */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Splash Screen */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100vh;
+            height: 100%;
+            background: linear-gradient(135deg, #2A5CFF 0%, #3A7BFF 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 0.5s ease 1s forwards;
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        /* Auth Form */
+        #auth-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            padding: 20px;
+        }
+
+        #auth-view.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-header {
+            margin-bottom: 2rem;
+        }
+
+        .app-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2A5CFF;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .auth-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background-color: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2A5CFF;
+            box-shadow: 0 0 0 3px rgba(42, 92, 255, 0.1);
+            background-color: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .auth-form {
-            width: 300px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .btn-primary {
+            background: #2A5CFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a4ce6;
+        }
+
+        .btn-primary:active {
+            background: #0a3ccc;
+        }
+
+        .footer-text {
+            margin-top: 1.5rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        /* Main App */
+        #app {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        #app.show {
+            display: flex;
+        }
+
+        .app-header {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .app-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .car-card h2 {
+            margin-bottom: 1rem;
+            color: #2A5CFF;
+        }
+
+        /* Tabbar */
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: white;
+            display: flex;
+            border-top: 1px solid #e9ecef;
+            padding: 0 1rem;
+            z-index: 100;
+        }
+
+        .tabbar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .tabbar-item.active {
+            color: #2A5CFF;
+        }
+
+        .tabbar-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-form {
+                padding: 1.5rem;
+            }
+
+            .auth-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 <!-- Splash Screen -->
 <div id="splash">
-    <img src="splash-image.jpg" alt="Loading" style="width:100%;height:100%;object-fit:cover;">
+    <div class="splash-logo">
+        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="60" fill="white"/>
+            <path d="M40 40L80 80M80 40L40 80" stroke="#2A5CFF" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+    </div>
 </div>
 
 <!-- Auth Form -->
 <div id="auth-view" class="container">
-    <div class="auth-form">
-        <h2>Вход в систему</h2>
-        <form id="login-form">
-            <div>
-                <label>Логин:</label>
-                <input type="text" id="username" required>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="app-logo">
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="40" fill="#2A5CFF"/>
+                    <path d="M30 30L70 70M70 30L30 70" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                </svg>
             </div>
-            <div>
-                <label>Пароль:</label>
-                <input type="password" id="password" required>
+            <h1 class="auth-title">AutoTrack</h1>
+            <p class="auth-subtitle">Система управления автомобилями</p>
+        </div>
+
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Логин</label>
+                <input type="text" id="username" class="form-input" placeholder="Введите ваш логин" required>
             </div>
-            <button type="submit">Войти</button>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" id="password" class="form-input" placeholder="Введите ваш пароль" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Войти</button>
         </form>
+
+        <p class="footer-text">© 2023 AutoTrack. Все права защищены.</p>
     </div>
 </div>
 
-<!-- Main App Template -->
-<template id="app-template">
-    <div id="app" class="show">
-        <!-- Вставьте сюда ВЕСЬ HTML вашего основного приложения -->
-        <div class="main-content">
-            <!-- Ваш существующий контент -->
-            <h1>Главный экран</h1>
-            <div class="car-card">
-                <!-- Содержимое карточки автомобиля -->
-            </div>
+<!-- Main App -->
+<div id="app">
+    <div class="app-header">
+        <h1 class="app-title">Мои автомобили</h1>
+    </div>
+
+    <div class="main-content">
+        <div class="car-card">
+            <h2>Volkswagen Tiguan</h2>
+            <p>Госномер: А123БВ777</p>
+            <p>Пробег: 45 230 км</p>
+            <p>Следующее ТО: через 2 500 км</p>
         </div>
 
-        <div id="history-view">
-            <!-- Содержимое истории -->
-        </div>
-
-        <div id="profile-view">
-            <!-- Содержимое профиля -->
-        </div>
-
-        <div class="tabbar">
-            <!-- Ваша навигация -->
+        <div class="car-card">
+            <h2>Kia Sportage</h2>
+            <p>Госномер: Х987УК177</p>
+            <p>Пробег: 18 750 км</p>
+            <p>Следующее ТО: через 6 000 км</p>
         </div>
     </div>
-</template>
 
-<!-- Admin Panel Template -->
-<template id="admin-template">
-    <div id="admin-panel" class="show">
-        <h1>Админ-панель</h1>
-        <p>Здесь будет интерфейс администратора</p>
-        <button class="btn-logout">Выйти</button>
+    <div class="tabbar">
+        <a href="#" class="tabbar-item active" id="main-tab">
+            <span class="tabbar-icon">🚗</span>
+            <span>Главная</span>
+        </a>
+        <a href="#" class="tabbar-item" id="history-tab">
+            <span class="tabbar-icon">📊</span>
+            <span>История</span>
+        </a>
+        <a href="#" class="tabbar-item" id="profile-tab">
+            <span class="tabbar-icon">👤</span>
+            <span>Профиль</span>
+        </a>
     </div>
-</template>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-panel">
+    <div class="app-header">
+        <h1 class="app-title">Админ-панель</h1>
+    </div>
+
+    <div class="main-content">
+        <div class="car-card">
+            <h2>Управление системой</h2>
+            <p>Всего пользователей: 42</p>
+            <p>Автомобилей в системе: 156</p>
+            <p>Последнее обновление: сегодня 15:30</p>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 1rem;">Выйти</button>
+    </div>
+</div>
 
 <script>
-    // FINAL WORKING SCRIPT
     document.addEventListener('DOMContentLoaded', function() {
         // 1. Show auth form after splash
         setTimeout(() => {
             const splash = document.getElementById('splash');
-            if (splash) splash.remove();
+            if (splash) splash.style.opacity = '0';
 
-            const authForm = document.getElementById('auth-view');
-            if (authForm) authForm.classList.add('show');
+            const authView = document.getElementById('auth-view');
+            if (authView) {
+                authView.classList.add('show');
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 500);
+            }
 
             // 2. Handle login
             const loginForm = document.getElementById('login-form');
@@ -124,36 +391,73 @@
                     handleLogin();
                 };
             }
-        }, 1000);
+        }, 1500);
 
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if ((username === '1' && password === '1') ||
-                (username === '2' && password === '2')) {
-
-                // Remove auth form
-                const authForm = document.getElementById('auth-view');
-                if (authForm) authForm.remove();
-
-                // Show appropriate interface
-                if (username === '2') {
-                    const adminPanel = document.getElementById('admin-template').content.cloneNode(true);
-                    document.body.appendChild(adminPanel);
-                } else {
-                    const app = document.getElementById('app-template').content.cloneNode(true);
-                    document.body.appendChild(app);
-                    initMainApp();
-                }
-            } else {
-                alert('Неверный логин или пароль');
+            // Simple fade out animation for auth form
+            const authView = document.getElementById('auth-view');
+            if (authView) {
+                authView.style.opacity = '0';
+                setTimeout(() => {
+                    authView.style.display = 'none';
+                    showAppInterface(username, password);
+                }, 500);
             }
         }
 
-        function initMainApp() {
-            // Initialize your main app components here
-            console.log('Main app initialized');
+        function showAppInterface(username, password) {
+            // Show appropriate interface
+            if (username === '2' && password === '2') {
+                // Admin panel
+                const adminPanel = document.getElementById('admin-panel');
+                if (adminPanel) {
+                    adminPanel.style.display = 'block';
+                    setTimeout(() => {
+                        adminPanel.style.opacity = '1';
+                    }, 50);
+
+                    // Logout button
+                    adminPanel.querySelector('button').addEventListener('click', () => {
+                        location.reload();
+                    });
+                }
+            } else if (username === '1' && password === '1') {
+                // Main app
+                const app = document.getElementById('app');
+                if (app) {
+                    app.classList.add('show');
+
+                    // Setup tab navigation
+                    document.getElementById('main-tab').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        setActiveTab('main');
+                    });
+
+                    document.getElementById('history-tab').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        setActiveTab('history');
+                    });
+
+                    document.getElementById('profile-tab').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        setActiveTab('profile');
+                    });
+                }
+            } else {
+                // Invalid credentials
+                alert('Неверный логин или пароль');
+                location.reload();
+            }
+        }
+
+        function setActiveTab(tabName) {
+            document.querySelectorAll('.tabbar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
         }
     });
 </script>
