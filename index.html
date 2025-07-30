@@ -3,10 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTrack</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <title>AutoBodyCare | Кузовной ремонт</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Nuclear CSS Reset */
+        :root {
+            --primary: #4361EE;
+            --primary-dark: #3A56D5;
+            --secondary: #3F37C9;
+            --accent: #4895EF;
+            --danger: #F72585;
+            --success: #4CC9F0;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gray: #6C757D;
+            --light-gray: #E9ECEF;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,13 +29,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Base Styles */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-            line-height: 1.5;
-            overflow-x: hidden;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
 
         /* Splash Screen */
@@ -30,7 +43,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #2A5CFF 0%, #3A7BFF 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -41,17 +54,27 @@
         .splash-logo {
             width: 120px;
             height: 120px;
+            background-color: white;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             animation: pulse 1.5s ease infinite;
         }
 
-        /* Auth Form */
+        .splash-logo i {
+            font-size: 48px;
+            color: var(--primary);
+        }
+
+        /* Auth View */
         #auth-view {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #f8f9fa;
+            background: var(--light);
             display: none;
             justify-content: center;
             align-items: center;
@@ -79,18 +102,28 @@
         .app-logo {
             width: 80px;
             height: 80px;
-            margin-bottom: 1rem;
+            background-color: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem;
+        }
+
+        .app-logo i {
+            font-size: 32px;
+            color: white;
         }
 
         .auth-title {
             font-size: 1.75rem;
-            font-weight: 600;
-            color: #2A5CFF;
+            font-weight: 700;
+            color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
         .auth-subtitle {
-            color: #6c757d;
+            color: var(--gray);
             font-size: 1rem;
         }
 
@@ -98,68 +131,69 @@
             background: white;
             padding: 2rem;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--card-shadow);
             text-align: left;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
-            color: #495057;
+            color: var(--dark);
         }
 
         .form-input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
             font-size: 1rem;
-            transition: all 0.2s;
-            background-color: #f8f9fa;
+            transition: var(--transition);
+            background-color: white;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #2A5CFF;
-            box-shadow: 0 0 0 3px rgba(42, 92, 255, 0.1);
-            background-color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
         .btn {
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: #2A5CFF;
+            background: var(--primary);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #1a4ce6;
+            background: var(--primary-dark);
         }
 
         .btn-primary:active {
-            background: #0a3ccc;
+            background: var(--secondary);
         }
 
         .footer-text {
             margin-top: 1.5rem;
-            color: #6c757d;
+            color: var(--gray);
             font-size: 0.875rem;
         }
 
@@ -169,7 +203,7 @@
             width: 100%;
             min-height: 100vh;
             flex-direction: column;
-            background: #f8f9fa;
+            background: var(--light);
         }
 
         #app.show {
@@ -178,34 +212,178 @@
 
         .app-header {
             background: white;
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            position: relative;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
             z-index: 10;
         }
 
         .app-title {
             font-size: 1.25rem;
-            font-weight: 600;
-            color: #212529;
+            font-weight: 700;
+            color: var(--dark);
         }
 
         .main-content {
             flex: 1;
-            padding: 1.5rem;
+            padding: 20px;
+            padding-bottom: 80px;
         }
 
+        /* Cars List */
         .car-card {
             background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .car-card:active {
+            transform: scale(0.98);
         }
 
         .car-card h2 {
-            margin-bottom: 1rem;
-            color: #2A5CFF;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .car-card p {
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .car-card .car-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .car-card .car-status {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-bottom-left-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Car Details */
+        .car-details {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+        }
+
+        .car-details h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .car-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .car-details .detail-label {
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        .car-details .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* History View */
+        .history-list {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .history-list h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .history-item {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item h3 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--dark);
+        }
+
+        .history-item p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .history-item .history-date {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Profile View */
+        .profile-view {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .profile-view h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .profile-info strong {
+            color: var(--dark);
+            font-weight: 600;
         }
 
         /* Tabbar */
@@ -217,8 +395,8 @@
             height: 72px;
             background: white;
             display: flex;
-            border-top: 1px solid #e9ecef;
-            padding: 0 1rem;
+            border-top: 1px solid var(--light-gray);
+            padding: 0 20px;
             z-index: 100;
         }
 
@@ -228,18 +406,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #6c757d;
+            color: var(--gray);
             text-decoration: none;
-            font-size: 0.75rem;
-            transition: all 0.2s;
+            font-size: 0.7rem;
+            transition: var(--transition);
         }
 
         .tabbar-item.active {
-            color: #2A5CFF;
+            color: var(--primary);
         }
 
         .tabbar-icon {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 4px;
         }
 
@@ -253,18 +431,21 @@
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .auth-form {
-                padding: 1.5rem;
+        /* iOS Safe Areas */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
 
-            .auth-title {
-                font-size: 1.5rem;
+            .tabbar {
+                padding-bottom: env(safe-area-inset-bottom);
+                height: calc(72px + env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -273,10 +454,7 @@
 <!-- Splash Screen -->
 <div id="splash">
     <div class="splash-logo">
-        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="60" fill="white"/>
-            <path d="M40 40L80 80M80 40L40 80" stroke="#2A5CFF" stroke-width="8" stroke-linecap="round"/>
-        </svg>
+        <i class="fas fa-car-crash"></i>
     </div>
 </div>
 
@@ -285,13 +463,10 @@
     <div class="auth-container">
         <div class="auth-header">
             <div class="app-logo">
-                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="40" cy="40" r="40" fill="#2A5CFF"/>
-                    <path d="M30 30L70 70M70 30L30 70" stroke="white" stroke-width="6" stroke-linecap="round"/>
-                </svg>
+                <i class="fas fa-car-crash"></i>
             </div>
-            <h1 class="auth-title">AutoTrack</h1>
-            <p class="auth-subtitle">Система управления автомобилями</p>
+            <h1 class="auth-title">AutoBodyCare</h1>
+            <p class="auth-subtitle">Кузовной ремонт и обслуживание</p>
         </div>
 
         <form id="login-form" class="auth-form">
@@ -305,160 +480,300 @@
                 <input type="password" id="password" class="form-input" placeholder="Введите ваш пароль" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Войти</button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Войти
+            </button>
         </form>
 
-        <p class="footer-text">© 2023 AutoTrack. Все права защищены.</p>
+        <p class="footer-text">© 2023 AutoBodyCare. Все права защищены.</p>
     </div>
 </div>
 
 <!-- Main App -->
 <div id="app">
     <div class="app-header">
-        <h1 class="app-title">Мои автомобили</h1>
+        <h1 class="app-title" id="current-screen-title">Мои автомобили</h1>
     </div>
 
-    <div class="main-content">
-        <div class="car-card">
-            <h2>Volkswagen Tiguan</h2>
-            <p>Госномер: А123БВ777</p>
-            <p>Пробег: 45 230 км</p>
-            <p>Следующее ТО: через 2 500 км</p>
-        </div>
+    <div class="main-content" id="main-content">
+        <!-- Cars List View -->
+        <div id="cars-list-view">
+            <div class="car-card" data-car-id="1" onclick="App.showCarDetails(1)">
+                <div class="car-status">В работе</div>
+                <h2><i class="fas fa-car"></i> Volkswagen Tiguan</h2>
+                <p>Госномер: А123БВ777</p>
+                <p>Год выпуска: 2019</p>
+                <div class="car-meta">
+                    <span><i class="fas fa-tachometer-alt"></i> 45 230 км</span>
+                    <span><i class="fas fa-wrench"></i> Кузовной ремонт</span>
+                </div>
+            </div>
 
-        <div class="car-card">
-            <h2>Kia Sportage</h2>
-            <p>Госномер: Х987УК177</p>
-            <p>Пробег: 18 750 км</p>
-            <p>Следующее ТО: через 6 000 км</p>
+            <div class="car-card" data-car-id="2" onclick="App.showCarDetails(2)">
+                <div class="car-status" style="background: var(--success)">Готов</div>
+                <h2><i class="fas fa-car"></i> Kia Sportage</h2>
+                <p>Госномер: Х987УК177</p>
+                <p>Год выпуска: 2021</div>
+            <div class="car-meta">
+                <span><i class="fas fa-tachometer-alt"></i> 18 750 км</span>
+                <span><i class="fas fa-wrench"></i> Покраска</span>
+            </div>
         </div>
     </div>
 
-    <div class="tabbar">
-        <a href="#" class="tabbar-item active" id="main-tab">
-            <span class="tabbar-icon">🚗</span>
-            <span>Главная</span>
-        </a>
-        <a href="#" class="tabbar-item" id="history-tab">
-            <span class="tabbar-icon">📊</span>
-            <span>История</span>
-        </a>
-        <a href="#" class="tabbar-item" id="profile-tab">
-            <span class="tabbar-icon">👤</span>
-            <span>Профиль</span>
-        </a>
+    <!-- Car Details View (hidden by default) -->
+    <div id="car-details-view" style="display: none;">
+        <div class="car-details">
+            <h2><i class="fas fa-car"></i> <span id="car-model">Volkswagen Tiguan</span></h2>
+
+            <div class="detail-row">
+                <span class="detail-label">Госномер:</span>
+                <span class="detail-value" id="car-plate">А123БВ777</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">VIN:</span>
+                <span class="detail-value" id="car-vin">WVGZZZ5NZJW123456</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Год выпуска:</span>
+                <span class="detail-value" id="car-year">2019</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Пробег:</span>
+                <span class="detail-value" id="car-mileage">45 230 км</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Статус:</span>
+                <span class="detail-value" id="car-status">В работе</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Тип работ:</span>
+                <span class="detail-value" id="car-work-type">Кузовной ремонт</span>
+            </div>
+
+            <button class="btn btn-primary" onclick="App.showServiceHistory()" style="margin-top: 20px;">
+                <i class="fas fa-history"></i> История обслуживания
+            </button>
+        </div>
+    </div>
+
+    <!-- History View (hidden by default) -->
+    <div id="history-view" style="display: none;">
+        <div class="history-list">
+            <h2><i class="fas fa-history"></i> История обслуживания</h2>
+
+            <div class="history-item">
+                <h3><span class="history-date">15.04.2023</span> - Кузовной ремонт</h3>
+                <p><i class="fas fa-car-crash"></i> Устранение повреждений правого борта</p>
+                <p><i class="fas fa-tachometer-alt"></i> Пробег: 45 230 км</p>
+                <p><i class="fas fa-ruble-sign"></i> Стоимость: 87 500 руб.</p>
+            </div>
+
+            <div class="history-item">
+                <h3><span class="history-date">10.01.2023</span> - Плановое ТО</h3>
+                <p><i class="fas fa-oil-can"></i> Замена масла и фильтров</p>
+                <p><i class="fas fa-tachometer-alt"></i> Пробег: 42 000 км</p>
+                <p><i class="fas fa-ruble-sign"></i> Стоимость: 12 500 руб.</p>
+            </div>
+
+            <div class="history-item">
+                <h3><span class="history-date">05.08.2022</span> - Диагностика</h3>
+                <p><i class="fas fa-search"></i> Полная диагностика ходовой части</p>
+                <p><i class="fas fa-tachometer-alt"></i> Пробег: 38 750 км</p>
+                <p><i class="fas fa-ruble-sign"></i> Стоимость: 3 200 руб.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile View (hidden by default) -->
+    <div id="profile-view" style="display: none;">
+        <div class="profile-view">
+            <h2><i class="fas fa-user"></i> Мой профиль</h2>
+
+            <div class="profile-info">
+                <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Иван Петров</p>
+                <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (912) 345-67-89</p>
+                <p><strong><i class="fas fa-envelope"></i> Email:</strong> ivan.petrov@example.com</p>
+                <p><strong><i class="fas fa-car"></i> Автомобилей:</strong> 2</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="App.logout()">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- Admin Panel -->
-<div id="admin-panel">
-    <div class="app-header">
-        <h1 class="app-title">Админ-панель</h1>
-    </div>
-
-    <div class="main-content">
-        <div class="car-card">
-            <h2>Управление системой</h2>
-            <p>Всего пользователей: 42</p>
-            <p>Автомобилей в системе: 156</p>
-            <p>Последнее обновление: сегодня 15:30</p>
-        </div>
-
-        <button class="btn btn-primary" style="margin-top: 1rem;">Выйти</button>
-    </div>
+<div class="tabbar">
+    <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
+        <span class="tabbar-icon"><i class="fas fa-car"></i></span>
+        <span>Авто</span>
+    </a>
+    <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
+        <span class="tabbar-icon"><i class="fas fa-history"></i></span>
+        <span>История</span>
+    </a>
+    <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
+        <span class="tabbar-icon"><i class="fas fa-user"></i></span>
+        <span>Профиль</span>
+    </a>
+</div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1. Show auth form after splash
-        setTimeout(() => {
-            const splash = document.getElementById('splash');
-            if (splash) splash.style.opacity = '0';
+    const App = {
+        currentView: 'main',
+        currentCar: null,
 
-            const authView = document.getElementById('auth-view');
-            if (authView) {
-                authView.classList.add('show');
+        init() {
+            // Show auth form after splash
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                document.getElementById('auth-view').classList.add('show');
+
                 setTimeout(() => {
-                    splash.style.display = 'none';
+                    document.getElementById('splash').style.display = 'none';
                 }, 500);
-            }
 
-            // 2. Handle login
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.onsubmit = function(e) {
-                    e.preventDefault();
-                    handleLogin();
-                };
-            }
-        }, 1500);
+                // Focus on username field
+                document.getElementById('username').focus();
+            }, 1500);
 
-        function handleLogin() {
+            // Handle login form
+            document.getElementById('login-form').onsubmit = (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            };
+        },
+
+        handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Simple fade out animation for auth form
-            const authView = document.getElementById('auth-view');
-            if (authView) {
-                authView.style.opacity = '0';
-                setTimeout(() => {
-                    authView.style.display = 'none';
-                    showAppInterface(username, password);
-                }, 500);
+            // Simple validation
+            if (!username || !password) {
+                alert('Введите логин и пароль');
+                return;
             }
-        }
 
-        function showAppInterface(username, password) {
-            // Show appropriate interface
-            if (username === '2' && password === '2') {
-                // Admin panel
-                const adminPanel = document.getElementById('admin-panel');
-                if (adminPanel) {
-                    adminPanel.style.display = 'block';
-                    setTimeout(() => {
-                        adminPanel.style.opacity = '1';
-                    }, 50);
+            // Hide auth form
+            document.getElementById('auth-view').style.opacity = '0';
 
-                    // Logout button
-                    adminPanel.querySelector('button').addEventListener('click', () => {
-                        location.reload();
-                    });
-                }
-            } else if (username === '1' && password === '1') {
-                // Main app
-                const app = document.getElementById('app');
-                if (app) {
-                    app.classList.add('show');
+            setTimeout(() => {
+                document.getElementById('auth-view').style.display = 'none';
+                this.showApp();
+            }, 500);
+        },
 
-                    // Setup tab navigation
-                    document.getElementById('main-tab').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        setActiveTab('main');
-                    });
+        showApp() {
+            document.getElementById('app').classList.add('show');
+            this.navigateTo('main');
+        },
 
-                    document.getElementById('history-tab').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        setActiveTab('history');
-                    });
+        navigateTo(view) {
+            this.currentView = view;
 
-                    document.getElementById('profile-tab').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        setActiveTab('profile');
-                    });
-                }
-            } else {
-                // Invalid credentials
-                alert('Неверный логин или пароль');
-                location.reload();
-            }
-        }
-
-        function setActiveTab(tabName) {
+            // Update active tab
             document.querySelectorAll('.tabbar-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.getElementById(`${tabName}-tab`).classList.add('active');
+            document.getElementById(`${view}-tab`).classList.add('active');
+
+            // Update title
+            const titles = {
+                'main': 'Мои автомобили',
+                'history': 'История обслуживания',
+                'profile': 'Мой профиль'
+            };
+            document.getElementById('current-screen-title').textContent = titles[view];
+
+            // Show appropriate view
+            document.getElementById('cars-list-view').style.display = 'none';
+            document.getElementById('car-details-view').style.display = 'none';
+            document.getElementById('history-view').style.display = 'none';
+            document.getElementById('profile-view').style.display = 'none';
+
+            switch(view) {
+                case 'main':
+                    document.getElementById('cars-list-view').style.display = 'block';
+                    break;
+                case 'history':
+                    document.getElementById('history-view').style.display = 'block';
+                    break;
+                case 'profile':
+                    document.getElementById('profile-view').style.display = 'block';
+                    break;
+            }
+        },
+
+        showCarDetails(carId) {
+            this.currentCar = carId;
+
+            // In a real app, we would fetch car details from API
+            const cars = {
+                1: {
+                    model: 'Volkswagen Tiguan',
+                    plate: 'А123БВ777',
+                    vin: 'WVGZZZ5NZJW123456',
+                    year: '2019',
+                    mileage: '45 230 км',
+                    status: 'В работе',
+                    workType: 'Кузовной ремонт'
+                },
+                2: {
+                    model: 'Kia Sportage',
+                    plate: 'Х987УК177',
+                    vin: 'KNDPMCAC5M7123456',
+                    year: '2021',
+                    mileage: '18 750 км',
+                    status: 'Готов',
+                    workType: 'Покраска'
+                }
+            };
+
+            const car = cars[carId];
+
+            // Update car details
+            document.getElementById('car-model').textContent = car.model;
+            document.getElementById('car-plate').textContent = car.plate;
+            document.getElementById('car-vin').textContent = car.vin;
+            document.getElementById('car-year').textContent = car.year;
+            document.getElementById('car-mileage').textContent = car.mileage;
+            document.getElementById('car-status').textContent = car.status;
+            document.getElementById('car-work-type').textContent = car.workType;
+
+            // Show car details view
+            document.getElementById('cars-list-view').style.display = 'none';
+            document.getElementById('car-details-view').style.display = 'block';
+            document.getElementById('current-screen-title').textContent = car.model;
+        },
+
+        showServiceHistory() {
+            this.navigateTo('history');
+        },
+
+        logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                document.getElementById('app').classList.remove('show');
+                document.getElementById('auth-view').style.display = 'flex';
+                document.getElementById('auth-view').style.opacity = '1';
+
+                // Reset form
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('username').focus();
+            }
         }
+    };
+
+    // Initialize app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        App.init();
     });
 </script>
 </body>
