@@ -16,22 +16,19 @@
             --danger: #F72585;
             --success: #4CC9F0;
             --warning: #F8961E;
-            --dark: #212529;
+            --light: #F8F9FA;
+            --dark: #1A1D21;
             --gray-dark: #495057;
             --gray: #6C757D;
             --gray-light: #ADB5BD;
             --light-gray: #E9ECEF;
-            --light: #F8F9FA;
             --white: #FFFFFF;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --transition-fast: all 0.15s ease;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
         }
 
         * {
@@ -74,10 +71,11 @@
             justify-content: center;
             align-items: center;
             animation: pulse 1.5s ease infinite;
+            box-shadow: 0 12px 24px rgba(67, 97, 238, 0.2);
         }
 
         .splash-logo i {
-            font-size: 3rem;
+            font-size: 48px;
             color: var(--primary);
         }
 
@@ -116,25 +114,28 @@
         .app-logo {
             width: 80px;
             height: 80px;
-            background-color: var(--primary);
-            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: var(--radius-md);
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0 auto 1rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 8px 16px rgba(67, 97, 238, 0.15);
         }
 
         .app-logo i {
-            font-size: 2rem;
+            font-size: 32px;
             color: var(--white);
         }
 
         .auth-title {
             font-size: 1.75rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--dark);
             margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .auth-subtitle {
@@ -147,7 +148,7 @@
             background: var(--white);
             padding: 2rem;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--card-shadow);
             text-align: left;
         }
 
@@ -181,6 +182,10 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
+        .form-input::placeholder {
+            color: var(--gray-light);
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -204,18 +209,19 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: var(--white);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
         }
 
         .btn-primary:active {
-            background: var(--secondary);
             transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
         }
 
         .footer-text {
@@ -240,7 +246,7 @@
         .app-header {
             background: var(--white);
             padding: 16px 20px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -263,7 +269,7 @@
             background: var(--white);
             border-radius: var(--radius-md);
             padding: 18px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--card-shadow);
             margin-bottom: 16px;
             transition: var(--transition);
             position: relative;
@@ -339,7 +345,7 @@
             background: var(--white);
             border-radius: var(--radius-md);
             padding: 18px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--card-shadow);
             margin-bottom: 16px;
         }
 
@@ -392,7 +398,7 @@
             background: var(--white);
             border-radius: var(--radius-md);
             padding: 18px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--card-shadow);
         }
 
         .history-list h2 {
@@ -442,12 +448,27 @@
             color: var(--primary);
         }
 
+        .parts-list {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .parts-list ul {
+            list-style-type: none;
+        }
+
+        .parts-list li {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: var(--gray-dark);
+        }
+
         /* Profile View */
         .profile-view {
             background: var(--white);
             border-radius: var(--radius-md);
             padding: 18px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--card-shadow);
         }
 
         .profile-view h2 {
@@ -496,6 +517,7 @@
             border-top: 1px solid var(--light-gray);
             padding: 0 20px;
             z-index: 100;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .tabbar-item {
@@ -517,6 +539,11 @@
         .tabbar-icon {
             font-size: 1.4rem;
             margin-bottom: 4px;
+            transition: var(--transition);
+        }
+
+        .tabbar-item.active .tabbar-icon {
+            transform: translateY(-4px);
         }
 
         /* Animations */
@@ -548,6 +575,26 @@
 
             .main-content {
                 padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .auth-form {
+                padding: 1.5rem;
+            }
+
+            .car-card, .car-details, .history-list, .profile-view {
+                padding: 16px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .detail-label {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -601,7 +648,7 @@
         <!-- Cars List View -->
         <div id="cars-list-view">
             <div class="car-card" data-car-id="1" onclick="App.showCarDetails(1)">
-                <div class="car-status warning">В работе</div>
+                <div class="car-status">В работе</div>
                 <h2><i class="fas fa-car"></i> Volkswagen Tiguan</h2>
                 <p>Госномер: А123БВ777</p>
                 <p>Год выпуска: 2019</p>
@@ -626,10 +673,11 @@
         <!-- Car Details View (hidden by default) -->
         <div id="car-details-view" style="display: none;">
             <div class="car-details">
-                <div class="car-image">
-                    <i class="fas fa-car-side"></i>
-                </div>
                 <h2><i class="fas fa-car"></i> <span id="car-model">Volkswagen Tiguan</span></h2>
+
+                <div class="car-image">
+                    <i class="fas fa-car"></i>
+                </div>
 
                 <div class="detail-row">
                     <span class="detail-label">Госномер:</span>
@@ -677,6 +725,13 @@
                     <p><i class="fas fa-car-crash"></i> Устранение повреждений правого борта</p>
                     <p><i class="fas fa-tachometer-alt"></i> Пробег: 45 230 км</p>
                     <p><i class="fas fa-ruble-sign"></i> Стоимость: 87 500 руб.</p>
+                    <div class="parts-list">
+                        <p><strong>Запчасти:</strong></p>
+                        <ul>
+                            <li>Крыло правое - 32 500 руб.</li>
+                            <li>Покраска - 55 000 руб.</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="history-item">
@@ -684,13 +739,6 @@
                     <p><i class="fas fa-oil-can"></i> Замена масла и фильтров</p>
                     <p><i class="fas fa-tachometer-alt"></i> Пробег: 42 000 км</p>
                     <p><i class="fas fa-ruble-sign"></i> Стоимость: 12 500 руб.</p>
-                </div>
-
-                <div class="history-item">
-                    <h3><span class="history-date">05.08.2022</span> - Диагностика</h3>
-                    <p><i class="fas fa-search"></i> Полная диагностика ходовой части</p>
-                    <p><i class="fas fa-tachometer-alt"></i> Пробег: 38 750 км</p>
-                    <p><i class="fas fa-ruble-sign"></i> Стоимость: 3 200 руб.</p>
                 </div>
             </div>
         </div>
@@ -713,21 +761,21 @@
             </div>
         </div>
     </div>
+</div>
 
-    <div class="tabbar">
-        <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
-            <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-            <span>Авто</span>
-        </a>
-        <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
-            <span class="tabbar-icon"><i class="fas fa-history"></i></span>
-            <span>История</span>
-        </a>
-        <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
-            <span class="tabbar-icon"><i class="fas fa-user"></i></span>
-            <span>Профиль</span>
-        </a>
-    </div>
+<div class="tabbar">
+    <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
+        <span class="tabbar-icon"><i class="fas fa-car"></i></span>
+        <span>Авто</span>
+    </a>
+    <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
+        <span class="tabbar-icon"><i class="fas fa-history"></i></span>
+        <span>История</span>
+    </a>
+    <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
+        <span class="tabbar-icon"><i class="fas fa-user"></i></span>
+        <span>Профиль</span>
+    </a>
 </div>
 
 <script>
