@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AutoBodyCare | Кузовной ремонт</title>
+    <title>MCSERVICE "Планета Авто" | Кузовной ремонт</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -224,6 +224,24 @@
             box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
         }
 
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--primary-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(67, 97, 238, 0.1);
+        }
+
         .footer-text {
             margin-top: 1.5rem;
             color: var(--gray);
@@ -246,7 +264,7 @@
         .app-header {
             background: var(--white);
             padding: 16px 20px;
-            padding-top: calc(32px + env(safe-area-inset-top));
+            padding-top: calc(40px + env(safe-area-inset-top));
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
@@ -506,6 +524,120 @@
             text-align: center;
         }
 
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Games Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .games-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .game-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background: var(--light);
+            transition: var(--transition);
+        }
+
+        .game-item:active {
+            transform: scale(0.98);
+        }
+
+        .game-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--white);
+            font-size: 1.2rem;
+        }
+
+        .game-info {
+            flex: 1;
+        }
+
+        .game-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 2px;
+        }
+
+        .game-desc {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
         /* Tabbar */
         .tabbar {
             position: fixed;
@@ -615,7 +747,7 @@
             <div class="app-logo">
                 <i class="fas fa-car-crash"></i>
             </div>
-            <h1 class="auth-title">AutoBodyCare</h1>
+            <h1 class="auth-title">MCSERVICE "Планета Авто"</h1>
             <p class="auth-subtitle">Кузовной ремонт и обслуживание</p>
         </div>
 
@@ -635,7 +767,7 @@
             </button>
         </form>
 
-        <p class="footer-text">© 2023 AutoBodyCare. Все права защищены.</p>
+        <p class="footer-text">© 2025 MCSERVICE "Планета Авто". Все права защищены.</p>
     </div>
 </div>
 
@@ -756,9 +888,69 @@
                     <p><strong><i class="fas fa-car"></i> Автомобилей:</strong> 2</p>
                 </div>
 
+                <div class="profile-actions">
+                    <button class="btn btn-secondary btn-block" onclick="App.showGames()">
+                        <i class="fas fa-gamepad"></i> Игры
+                    </button>
+                    <button class="btn btn-secondary btn-block" onclick="App.writeToManager()">
+                        <i class="fas fa-comment-dots"></i> Написать менеджеру
+                    </button>
+                    <button class="btn btn-secondary btn-block" onclick="App.callService()">
+                        <i class="fas fa-phone-alt"></i> Позвонить в автосервис
+                    </button>
+                </div>
+
                 <button class="btn btn-primary btn-block" onclick="App.logout()">
                     <i class="fas fa-sign-out-alt"></i> Выйти
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Games Modal -->
+<div id="games-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Игры</h3>
+            <button class="modal-close" onclick="App.hideGames()">&times;</button>
+        </div>
+        <div class="games-list">
+            <div class="game-item" onclick="App.openGame('2048')">
+                <div class="game-icon">
+                    <i class="fas fa-th"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">2048</div>
+                    <div class="game-desc">Соберите плитку 2048</div>
+                </div>
+            </div>
+            <div class="game-item" onclick="App.openGame('snake')">
+                <div class="game-icon">
+                    <i class="fas fa-snake"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Змейка</div>
+                    <div class="game-desc">Классическая змейка</div>
+                </div>
+            </div>
+            <div class="game-item" onclick="App.openGame('tetris')">
+                <div class="game-icon">
+                    <i class="fas fa-shapes"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Тетрис</div>
+                    <div class="game-desc">Собирайте линии</div>
+                </div>
+            </div>
+            <div class="game-item" onclick="App.openGame('minesweeper')">
+                <div class="game-icon">
+                    <i class="fas fa-bomb"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Сапер</div>
+                    <div class="game-desc">Найдите все мины</div>
+                </div>
             </div>
         </div>
     </div>
@@ -909,6 +1101,37 @@
 
         showServiceHistory() {
             this.navigateTo('history');
+        },
+
+        showGames() {
+            const modal = document.getElementById('games-modal');
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        },
+
+        hideGames() {
+            const modal = document.getElementById('games-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 300);
+        },
+
+        openGame(gameName) {
+            alert(`Открываем игру: ${gameName}\nЗдесь будет интеграция с @Zer0_Emission_Bot`);
+            this.hideGames();
+        },
+
+        writeToManager() {
+            alert('Открываем чат с менеджером');
+        },
+
+        callService() {
+            if (confirm('Позвонить в автосервис по номеру +7 (123) 456-78-90?')) {
+                window.location.href = 'tel:+71234567890';
+            }
         },
 
         logout() {
