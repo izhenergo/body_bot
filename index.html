@@ -412,6 +412,226 @@
             font-size: 3rem;
         }
 
+        /* Repair Status */
+        .repair-status {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+        }
+
+        .repair-status h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--light-gray);
+        }
+
+        .status-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .status-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .status-item.active .status-dot {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .status-item.completed .status-dot {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .status-dot {
+            position: absolute;
+            left: -30px;
+            top: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-light);
+            background: var(--white);
+            z-index: 1;
+        }
+
+        .status-date {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .status-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .status-desc {
+            font-size: 0.9rem;
+            color: var(--gray-dark);
+        }
+
+        /* Photo Gallery */
+        .photo-gallery {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+        }
+
+        .photo-gallery h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gallery-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .gallery-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .gallery-container::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 3px;
+        }
+
+        .gallery-item {
+            flex: 0 0 80%;
+            scroll-snap-align: start;
+            position: relative;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: var(--white);
+            padding: 8px;
+            font-size: 0.8rem;
+        }
+
+        /* Documents */
+        .documents-section {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+        }
+
+        .documents-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .document-item:last-child {
+            border-bottom: none;
+        }
+
+        .document-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary);
+        }
+
+        .document-info {
+            flex: 1;
+        }
+
+        .document-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .document-meta {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .document-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light);
+            color: var(--primary);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .document-btn:hover {
+            background: var(--primary-light);
+        }
+
         /* History View */
         .history-list {
             background: var(--white);
@@ -531,7 +751,7 @@
             margin-bottom: 20px;
         }
 
-        /* Games Modal */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -591,6 +811,7 @@
             padding: 5px;
         }
 
+        /* Games List */
         .games-list {
             display: grid;
             grid-template-columns: 1fr;
@@ -841,11 +1062,35 @@
                     <span class="detail-label">Тип работ:</span>
                     <span class="detail-value" id="car-work-type">Кузовной ремонт</span>
                 </div>
-
-                <button class="btn btn-primary btn-block" onclick="App.showServiceHistory()" style="margin-top: 20px;">
-                    <i class="fas fa-history"></i> История обслуживания
-                </button>
             </div>
+
+            <!-- Repair Status Timeline -->
+            <div class="repair-status" id="repair-status-section">
+                <h3><i class="fas fa-tasks"></i> Статус ремонта</h3>
+                <div class="status-timeline" id="status-timeline">
+                    <!-- Filled dynamically by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Photo Gallery -->
+            <div class="photo-gallery" id="photo-gallery-section">
+                <h3><i class="fas fa-camera"></i> Фотоотчет по ремонту</h3>
+                <div class="gallery-container" id="gallery-container">
+                    <!-- Filled dynamically by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div class="documents-section" id="documents-section">
+                <h3><i class="fas fa-file-alt"></i> Документы</h3>
+                <div class="document-list" id="document-list">
+                    <!-- Filled dynamically by JavaScript -->
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="App.showServiceHistory()" style="margin-top: 20px;">
+                <i class="fas fa-history"></i> История обслуживания
+            </button>
         </div>
 
         <!-- History View (hidden by default) -->
@@ -1069,7 +1314,103 @@
                     year: '2019',
                     mileage: '45 230 км',
                     status: 'В работе',
-                    workType: 'Кузовной ремонт'
+                    workType: 'Кузовной ремонт',
+                    repairStatus: [
+                        {
+                            id: 1,
+                            date: '10.05.2023',
+                            title: 'Приемка автомобиля',
+                            description: 'Автомобиль принят на ремонт после ДТП',
+                            status: 'completed',
+                            photos: [
+                                {
+                                    url: 'https://example.com/photo1.jpg',
+                                    caption: 'Передний вид с повреждениями'
+                                },
+                                {
+                                    url: 'https://example.com/photo2.jpg',
+                                    caption: 'Правая сторона с вмятинами'
+                                }
+                            ]
+                        },
+                        {
+                            id: 2,
+                            date: '12.05.2023',
+                            title: 'Дефектовка',
+                            description: 'Проведена дефектовка кузова, составлена смета',
+                            status: 'completed',
+                            photos: [
+                                {
+                                    url: 'https://example.com/photo3.jpg',
+                                    caption: 'Дефектовка передней части'
+                                }
+                            ]
+                        },
+                        {
+                            id: 3,
+                            date: '15.05.2023',
+                            title: 'Разборка и ремонт кузова',
+                            description: 'Демонтированы поврежденные элементы, начат ремонт кузова',
+                            status: 'active',
+                            photos: [
+                                {
+                                    url: 'https://example.com/photo4.jpg',
+                                    caption: 'Процесс ремонта правого крыла'
+                                },
+                                {
+                                    url: 'https://example.com/photo5.jpg',
+                                    caption: 'Подготовка к покраске'
+                                }
+                            ]
+                        },
+                        {
+                            id: 4,
+                            date: '18.05.2023',
+                            title: 'Покраска',
+                            description: 'Запланирована покраска восстановленных элементов',
+                            status: 'pending'
+                        },
+                        {
+                            id: 5,
+                            date: '20.05.2023',
+                            title: 'Сборка и полировка',
+                            description: 'Сборка автомобиля и финальная полировка',
+                            status: 'pending'
+                        },
+                        {
+                            id: 6,
+                            date: '22.05.2023',
+                            title: 'Готов к выдаче',
+                            description: 'Автомобиль прошел контроль качества',
+                            status: 'pending'
+                        }
+                    ],
+                    documents: [
+                        {
+                            id: 1,
+                            name: 'Смета ремонта',
+                            type: 'pdf',
+                            date: '12.05.2023',
+                            size: '2.4 MB',
+                            url: 'https://example.com/estimate.pdf'
+                        },
+                        {
+                            id: 2,
+                            name: 'Акт выполненных работ',
+                            type: 'pdf',
+                            date: '22.05.2023',
+                            size: '1.8 MB',
+                            url: 'https://example.com/act.pdf'
+                        },
+                        {
+                            id: 3,
+                            name: 'Чек об оплате',
+                            type: 'pdf',
+                            date: '22.05.2023',
+                            size: '0.5 MB',
+                            url: 'https://example.com/receipt.pdf'
+                        }
+                    ]
                 },
                 2: {
                     model: 'Kia Sportage',
@@ -1078,7 +1419,62 @@
                     year: '2021',
                     mileage: '18 750 км',
                     status: 'Готов',
-                    workType: 'Покраска'
+                    workType: 'Покраска',
+                    repairStatus: [
+                        {
+                            id: 1,
+                            date: '01.05.2023',
+                            title: 'Приемка автомобиля',
+                            description: 'Автомобиль принят на покраску',
+                            status: 'completed'
+                        },
+                        {
+                            id: 2,
+                            date: '03.05.2023',
+                            title: 'Подготовка к покраске',
+                            description: 'Поверхности подготовлены к покраске',
+                            status: 'completed'
+                        },
+                        {
+                            id: 3,
+                            date: '05.05.2023',
+                            title: 'Покраска',
+                            description: 'Элементы кузова покрашены',
+                            status: 'completed'
+                        },
+                        {
+                            id: 4,
+                            date: '07.05.2023',
+                            title: 'Полировка',
+                            description: 'Проведена финальная полировка',
+                            status: 'completed'
+                        },
+                        {
+                            id: 5,
+                            date: '08.05.2023',
+                            title: 'Готов к выдаче',
+                            description: 'Автомобиль прошел контроль качества',
+                            status: 'completed'
+                        }
+                    ],
+                    documents: [
+                        {
+                            id: 1,
+                            name: 'Смета покраски',
+                            type: 'pdf',
+                            date: '03.05.2023',
+                            size: '1.2 MB',
+                            url: 'https://example.com/paint_estimate.pdf'
+                        },
+                        {
+                            id: 2,
+                            name: 'Акт выполненных работ',
+                            type: 'pdf',
+                            date: '08.05.2023',
+                            size: '1.5 MB',
+                            url: 'https://example.com/paint_act.pdf'
+                        }
+                    ]
                 }
             };
 
@@ -1093,10 +1489,153 @@
             document.getElementById('car-status').textContent = car.status;
             document.getElementById('car-work-type').textContent = car.workType;
 
+            // Update repair status timeline
+            this.updateRepairStatus(car.repairStatus);
+
+            // Update photo gallery
+            this.updatePhotoGallery(car.repairStatus);
+
+            // Update documents
+            this.updateDocuments(car.documents);
+
+            // Show/hide sections based on repair status
+            document.getElementById('repair-status-section').style.display = car.status === 'Готов' ? 'none' : 'block';
+            document.getElementById('photo-gallery-section').style.display = car.repairStatus.some(s => s.photos && s.photos.length > 0) ? 'block' : 'none';
+            document.getElementById('documents-section').style.display = car.documents && car.documents.length > 0 ? 'block' : 'none';
+
             // Show car details view
             document.getElementById('cars-list-view').style.display = 'none';
             document.getElementById('car-details-view').style.display = 'block';
             document.getElementById('current-screen-title').textContent = car.model;
+        },
+
+        updateRepairStatus(statusItems) {
+            const timeline = document.getElementById('status-timeline');
+            timeline.innerHTML = '';
+
+            statusItems.forEach(item => {
+                const statusItem = document.createElement('div');
+                statusItem.className = `status-item ${item.status}`;
+
+                statusItem.innerHTML = `
+                    <div class="status-dot"></div>
+                    <div class="status-date">${item.date}</div>
+                    <div class="status-title">${item.title}</div>
+                    <div class="status-desc">${item.description}</div>
+                `;
+
+                timeline.appendChild(statusItem);
+            });
+        },
+
+        updatePhotoGallery(repairStatus) {
+            const gallery = document.getElementById('gallery-container');
+            gallery.innerHTML = '';
+
+            // Collect all photos from all status items
+            const allPhotos = [];
+            repairStatus.forEach(status => {
+                if (status.photos && status.photos.length > 0) {
+                    status.photos.forEach(photo => {
+                        allPhotos.push({
+                            ...photo,
+                            statusTitle: status.title
+                        });
+                    });
+                }
+            });
+
+            if (allPhotos.length === 0) {
+                gallery.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Фотографии по ремонту пока отсутствуют</p>';
+                return;
+            }
+
+            allPhotos.forEach(photo => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+
+                galleryItem.innerHTML = `
+                    <img src="${photo.url}" alt="Фото ремонта" class="gallery-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
+                    <div class="gallery-caption">${photo.statusTitle}: ${photo.caption}</div>
+                `;
+
+                gallery.appendChild(galleryItem);
+            });
+        },
+
+        updateDocuments(documents) {
+            const documentList = document.getElementById('document-list');
+            documentList.innerHTML = '';
+
+            if (!documents || documents.length === 0) {
+                documentList.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Документы пока отсутствуют</p>';
+                return;
+            }
+
+            documents.forEach(doc => {
+                const docItem = document.createElement('div');
+                docItem.className = 'document-item';
+
+                const icon = this.getDocumentIcon(doc.type);
+
+                docItem.innerHTML = `
+                    <div class="document-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="document-info">
+                        <div class="document-name">${doc.name}</div>
+                        <div class="document-meta">${doc.date} · ${doc.size}</div>
+                    </div>
+                    <div class="document-actions">
+                        <button class="document-btn" onclick="App.downloadDocument('${doc.url}', '${doc.name}')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="document-btn" onclick="App.shareDocument('${doc.url}', '${doc.name}')">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                `;
+
+                documentList.appendChild(docItem);
+            });
+        },
+
+        getDocumentIcon(type) {
+            switch(type) {
+                case 'pdf': return 'fas fa-file-pdf';
+                case 'doc':
+                case 'docx': return 'fas fa-file-word';
+                case 'xls':
+                case 'xlsx': return 'fas fa-file-excel';
+                case 'jpg':
+                case 'png':
+                case 'gif': return 'fas fa-file-image';
+                default: return 'fas fa-file';
+            }
+        },
+
+        downloadDocument(url, name) {
+            alert(`Документ "${name}" будет скачан с URL: ${url}\n\nВ реальном приложении здесь будет реализовано скачивание файла.`);
+            // В реальном приложении:
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.download = name;
+            // link.click();
+        },
+
+        shareDocument(url, name) {
+            if (navigator.share) {
+                navigator.share({
+                    title: name,
+                    text: `Документ из автосервиса: ${name}`,
+                    url: url
+                }).catch(err => {
+                    console.error('Ошибка при попытке поделиться:', err);
+                    alert('Не удалось поделиться документом. Скопируйте ссылку вручную.');
+                });
+            } else {
+                alert(`Ссылка на документ "${name}": ${url}\n\nСкопируйте и отправьте вручную.`);
+            }
         },
 
         showServiceHistory() {
