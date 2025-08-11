@@ -3,955 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>MCSERVICE "Планета Авто" | Кузовной ремонт</title>
+    <title>Автосервис - Личный кабинет</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4361EE;
-            --primary-dark: #3A56D5;
-            --primary-light: #E6EAFF;
-            --secondary: #3F37C9;
-            --accent: #4895EF;
-            --danger: #F72585;
-            --success: #4CC9F0;
-            --warning: #F8961E;
-            --light: #F8F9FA;
-            --dark: #1A1D21;
-            --gray-dark: #495057;
-            --gray: #6C757D;
-            --gray-light: #ADB5BD;
-            --light-gray: #E9ECEF;
-            --white: #FFFFFF;
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --radius-sm: 12px;
-            --radius-md: 16px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Splash Screen */
-        #splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeOut 0.5s ease 1s forwards;
-        }
-
-        .splash-logo {
-            width: 120px;
-            height: 120px;
-            background-color: var(--white);
-            border-radius: var(--radius-xl);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: pulse 1.5s ease infinite;
-            box-shadow: 0 12px 24px rgba(67, 97, 238, 0.2);
-        }
-
-        .splash-logo i {
-            font-size: 48px;
-            color: var(--primary);
-        }
-
-        /* Auth View */
-        #auth-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--light);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            padding: 20px;
-        }
-
-        #auth-view.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .auth-header {
-            margin-bottom: 2rem;
-        }
-
-        .app-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: var(--radius-md);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 1rem;
-            box-shadow: 0 8px 16px rgba(67, 97, 238, 0.15);
-        }
-
-        .app-logo i {
-            font-size: 32px;
-            color: var(--white);
-        }
-
-        .auth-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .auth-subtitle {
-            color: var(--gray);
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-
-        .auth-form {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--card-shadow);
-            text-align: left;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 0.95rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            transition: var(--transition);
-            background-color: var(--white);
-            color: var(--dark);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-
-        .form-input::placeholder {
-            color: var(--gray-light);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 20px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-            white-space: nowrap;
-            user-select: none;
-        }
-
-        .btn-block {
-            display: flex;
-            width: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
-        }
-
-        .btn-secondary {
-            background: var(--white);
-            color: var(--primary);
-            border: 1px solid var(--primary-light);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
-        }
-
-        .btn-secondary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 6px rgba(67, 97, 238, 0.1);
-        }
-
-        .footer-text {
-            margin-top: 1.5rem;
-            color: var(--gray);
-            font-size: 0.875rem;
-        }
-
-        /* Main App */
-        #app {
-            display: none;
-            width: 100%;
-            min-height: 100vh;
-            flex-direction: column;
-            background: var(--light);
-        }
-
-        #app.show {
-            display: flex;
-        }
-
-        .app-header {
-            background: var(--white);
-            padding: 16px 20px;
-            padding-top: calc(40px + env(safe-area-inset-top));
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .app-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            padding-bottom: 80px;
-        }
-
-        /* Cars List */
-        .car-card {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .car-card:active {
-            transform: scale(0.98);
-        }
-
-        .car-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .car-card h2 i {
-            font-size: 1.1em;
-        }
-
-        .car-card p {
-            margin-bottom: 8px;
-            color: var(--dark);
-            font-size: 0.95rem;
-        }
-
-        .car-card .car-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--light-gray);
-            font-size: 0.9rem;
-        }
-
-        .car-card .car-meta span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--gray-dark);
-        }
-
-        .car-card .car-meta i {
-            color: var(--primary);
-            font-size: 0.9em;
-        }
-
-        .car-card .car-status {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--primary);
-            color: var(--white);
-            padding: 4px 10px;
-            border-bottom-left-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .car-card .car-status.completed {
-            background: var(--success);
-        }
-
-        .car-card .car-status.warning {
-            background: var(--warning);
-        }
-
-        /* Car Details */
-        .car-details {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-        }
-
-        .car-details h2 {
-            font-size: 1.3rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .detail-label {
-            font-weight: 500;
-            color: var(--gray);
-        }
-
-        .detail-value {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .car-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: var(--radius-sm);
-            margin-bottom: 16px;
-            background-color: var(--light-gray);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-        }
-
-        .car-image i {
-            font-size: 3rem;
-        }
-
-        /* Repair Status */
-        .repair-status {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-        }
-
-        .repair-status h3 {
-            font-size: 1.1rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status-timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .status-timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--light-gray);
-        }
-
-        .status-item {
-            position: relative;
-            padding-bottom: 20px;
-        }
-
-        .status-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .status-item.active .status-dot {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .status-item.completed .status-dot {
-            background: var(--success);
-            border-color: var(--success);
-        }
-
-        .status-dot {
-            position: absolute;
-            left: -30px;
-            top: 3px;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 2px solid var(--gray-light);
-            background: var(--white);
-            z-index: 1;
-        }
-
-        .status-date {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-bottom: 4px;
-        }
-
-        .status-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .status-desc {
-            font-size: 0.9rem;
-            color: var(--gray-dark);
-        }
-
-        /* Photo Gallery */
-        .photo-gallery {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-        }
-
-        .photo-gallery h3 {
-            font-size: 1.1rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .gallery-container {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding-bottom: 10px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .gallery-container::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .gallery-container::-webkit-scrollbar-thumb {
-            background: var(--primary-light);
-            border-radius: 3px;
-        }
-
-        .gallery-item {
-            flex: 0 0 80%;
-            scroll-snap-align: start;
-            position: relative;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-        }
-
-        .gallery-image {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .gallery-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.6);
-            color: var(--white);
-            padding: 8px;
-            font-size: 0.8rem;
-        }
-
-        /* Documents */
-        .documents-section {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-        }
-
-        .documents-section h3 {
-            font-size: 1.1rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .document-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .document-item:last-child {
-            border-bottom: none;
-        }
-
-        .document-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-light);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            color: var(--primary);
-        }
-
-        .document-info {
-            flex: 1;
-        }
-
-        .document-name {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .document-meta {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        .document-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .document-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--light);
-            color: var(--primary);
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .document-btn:hover {
-            background: var(--primary-light);
-        }
-
-        /* History View */
-        .history-list {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .history-list h2 {
-            font-size: 1.3rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .history-item {
-            padding: 14px 0;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-item h3 {
-            font-size: 1rem;
-            margin-bottom: 6px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .history-item p {
-            font-size: 0.9rem;
-            color: var(--gray-dark);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .history-item i {
-            font-size: 0.9em;
-            color: var(--primary);
-            min-width: 18px;
-        }
-
-        .history-date {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .parts-list {
-            margin-top: 8px;
-            padding-left: 20px;
-        }
-
-        .parts-list ul {
-            list-style-type: none;
-        }
-
-        .parts-list li {
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            color: var(--gray-dark);
-        }
-
-        /* Profile View */
-        .profile-view {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 18px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .profile-view h2 {
-            font-size: 1.3rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .profile-info {
-            margin-bottom: 20px;
-        }
-
-        .profile-info p {
-            margin-bottom: 12px;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .profile-info strong {
-            color: var(--dark);
-            font-weight: 600;
-            min-width: 100px;
-            display: inline-block;
-        }
-
-        .profile-info i {
-            color: var(--primary);
-            width: 20px;
-            text-align: center;
-        }
-
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal-content {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.show .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Games List */
-        .games-list {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-
-        .game-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            background: var(--light);
-            transition: var(--transition);
-        }
-
-        .game-item:active {
-            transform: scale(0.98);
-        }
-
-        .game-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            color: var(--white);
-            font-size: 1.2rem;
-        }
-
-        .game-info {
-            flex: 1;
-        }
-
-        .game-name {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 2px;
-        }
-
-        .game-desc {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        /* Tabbar */
-        .tabbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 72px;
-            background: var(--white);
-            display: flex;
-            border-top: 1px solid var(--light-gray);
-            padding: 0 20px;
-            z-index: 100;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .tabbar-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.7rem;
-            transition: var(--transition);
-        }
-
-        .tabbar-item.active {
-            color: var(--primary);
-        }
-
-        .tabbar-icon {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
-            transition: var(--transition);
-        }
-
-        .tabbar-item.active .tabbar-icon {
-            transform: translateY(-4px);
-        }
-
-        /* Animations */
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* iOS Safe Areas */
-        @supports (padding: max(0px)) {
-            body {
-                padding-left: max(12px, env(safe-area-inset-left));
-                padding-right: max(12px, env(safe-area-inset-right));
-                padding-bottom: max(12px, env(safe-area-inset-bottom));
-            }
-
-            .tabbar {
-                padding-bottom: env(safe-area-inset-bottom);
-                height: calc(72px + env(safe-area-inset-bottom));
-            }
-
-            .main-content {
-                padding-bottom: calc(80px + env(safe-area-inset-bottom));
-            }
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 480px) {
-            .auth-form {
-                padding: 1.5rem;
-            }
-
-            .car-card, .car-details, .history-list, .profile-view {
-                padding: 16px;
-            }
-
-            .detail-row {
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .detail-label {
-                font-size: 0.85rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <!-- Splash Screen -->
@@ -992,7 +47,7 @@
     </div>
 </div>
 
-<!-- Main App -->
+<!-- Клиентское приложение -->
 <div id="app">
     <div class="app-header">
         <h1 class="app-title" id="current-screen-title">Мои автомобили</h1>
@@ -1005,7 +60,7 @@
                 <div class="car-status">В работе</div>
                 <h2><i class="fas fa-car"></i> Volkswagen Tiguan</h2>
                 <p>Госномер: А123БВ777</p>
-                <p>Год выпуска: 2019</p>
+                <p>Статус: Дефектовка</p>
                 <div class="car-meta">
                     <span><i class="fas fa-tachometer-alt"></i> 45 230 км</span>
                     <span><i class="fas fa-wrench"></i> Кузовной ремонт</span>
@@ -1016,7 +71,7 @@
                 <div class="car-status completed">Готов</div>
                 <h2><i class="fas fa-car"></i> Kia Sportage</h2>
                 <p>Госномер: Х987УК177</p>
-                <p>Год выпуска: 2021</p>
+                <p>Статус: Готов к выдаче</p>
                 <div class="car-meta">
                     <span><i class="fas fa-tachometer-alt"></i> 18 750 км</span>
                     <span><i class="fas fa-wrench"></i> Покраска</span>
@@ -1153,6 +208,171 @@
     </div>
 </div>
 
+<!-- Администраторская панель -->
+<div class="admin-container" id="adminSection">
+    <div class="admin-header">
+        <h1>Автосервис - Панель администратора</h1>
+    </div>
+
+    <div class="tab-container">
+        <div class="tab active" onclick="openTab('cars')">Авто</div>
+        <div class="tab" onclick="openTab('clients')">Клиенты</div>
+        <div class="tab" onclick="openTab('profile')">Профиль</div>
+    </div>
+
+    <!-- Вкладка автомобилей -->
+    <div id="cars" class="tab-content active">
+        <div class="search-box">
+            <input type="text" id="car-search" placeholder="Поиск по гос. номеру, марке, модели..." onkeyup="searchCars()">
+            <button class="btn btn-primary" onclick="showAddCarForm()" style="margin-top: 10px;">
+                <i class="fas fa-plus"></i> Добавить автомобиль
+            </button>
+        </div>
+
+        <div id="add-car-form" style="display: none; margin-bottom: 20px;">
+            <h3>Добавить новый автомобиль</h3>
+            <div class="form-group">
+                <label for="car-number">Гос. номер:</label>
+                <input type="text" id="car-number" placeholder="А123БВ777">
+            </div>
+            <div class="form-group">
+                <label for="car-brand">Марка:</label>
+                <input type="text" id="car-brand" placeholder="Toyota">
+            </div>
+            <div class="form-group">
+                <label for="car-model">Модель:</label>
+                <input type="text" id="car-model" placeholder="Camry">
+            </div>
+            <div class="form-group">
+                <label for="car-year">Год выпуска:</label>
+                <input type="number" id="car-year" placeholder="2018">
+            </div>
+            <div class="form-group">
+                <label for="car-vin">VIN:</label>
+                <input type="text" id="car-vin" placeholder="XTA210997654321">
+            </div>
+            <div class="form-group">
+                <label for="car-status">Статус:</label>
+                <select id="car-status">
+                    <option value="diagnostic">Дефектовка</option>
+                    <option value="repair">Ремонт</option>
+                    <option value="painting">Покраска</option>
+                    <option value="ready">Готов к выдаче</option>
+                    <option value="completed">Выдан клиенту</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="car-description">Описание работ:</label>
+                <textarea id="car-description"></textarea>
+            </div>
+            <button class="btn btn-success" onclick="addCar()">Добавить</button>
+            <button class="btn btn-secondary" onclick="hideAddCarForm()">Отмена</button>
+        </div>
+
+        <table id="cars-table">
+            <thead>
+            <tr>
+                <th>Гос. номер</th>
+                <th>Марка</th>
+                <th>Модель</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody id="cars-table-body">
+            <!-- Данные будут загружаться динамически -->
+            <tr>
+                <td>А123БВ777</td>
+                <td>Volkswagen</td>
+                <td>Tiguan</td>
+                <td>
+                    <select class="status-select" onchange="updateCarStatus(1, this.value)">
+                        <option value="diagnostic" selected>Дефектовка</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="painting">Покраска</option>
+                        <option value="ready">Готов к выдаче</option>
+                        <option value="completed">Выдан клиенту</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Х987УК177</td>
+                <td>Kia</td>
+                <td>Sportage</td>
+                <td>
+                    <select class="status-select" onchange="updateCarStatus(2, this.value)">
+                        <option value="diagnostic">Дефектовка</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="painting">Покраска</option>
+                        <option value="ready" selected>Готов к выдаче</option>
+                        <option value="completed">Выдан клиенту</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка клиентов -->
+    <div id="clients" class="tab-content">
+        <div class="search-box">
+            <input type="text" id="client-search" placeholder="Поиск по имени, телефону или автомобилю..." onkeyup="searchClients()">
+        </div>
+
+        <table id="clients-table">
+            <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>Автомобиль</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody id="clients-table-body">
+            <!-- Данные будут загружаться динамически -->
+            <tr>
+                <td>Иван Петров</td>
+                <td>+7 (912) 345-67-89</td>
+                <td>VW Tiguan (А123БВ777)</td>
+                <td><span class="status-in-progress">В ремонте</span></td>
+            </tr>
+            <tr>
+                <td>Мария Сидорова</td>
+                <td>+7 (912) 987-65-43</td>
+                <td>Kia Sportage (Х987УК177)</td>
+                <td><span class="status-completed">Готов</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка профиля -->
+    <div id="profile" class="tab-content">
+        <div class="profile-view">
+            <h2><i class="fas fa-user-cog"></i> Профиль администратора</h2>
+
+            <div class="profile-info">
+                <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Администратор Системы</p>
+                <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (900) 123-45-67</p>
+                <p><strong><i class="fas fa-envelope"></i> Email:</strong> admin@autoservice.ru</p>
+                <p><strong><i class="fas fa-calendar-alt"></i> Последний вход:</strong> 12.08.2025 14:30</p>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-secondary btn-block" onclick="changePassword()">
+                    <i class="fas fa-key"></i> Сменить пароль
+                </button>
+                <button class="btn btn-secondary btn-block" onclick="systemSettings()">
+                    <i class="fas fa-cog"></i> Настройки системы
+                </button>
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Games Modal -->
 <div id="games-modal" class="modal">
     <div class="modal-content">
@@ -1201,7 +421,8 @@
     </div>
 </div>
 
-<div class="tabbar">
+<!-- Tabbar для пользователя (по умолчанию) -->
+<div class="tabbar" id="user-tabbar">
     <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
         <span class="tabbar-icon"><i class="fas fa-car"></i></span>
         <span>Авто</span>
@@ -1216,7 +437,24 @@
     </a>
 </div>
 
+<!-- Tabbar для администратора (скрыт по умолчанию) -->
+<div class="tabbar" id="admin-tabbar" style="display: none;">
+    <a href="#" class="tabbar-item active" onclick="openTab('cars')">
+        <span class="tabbar-icon"><i class="fas fa-car"></i></span>
+        <span>Авто</span>
+    </a>
+    <a href="#" class="tabbar-item" onclick="openTab('clients')">
+        <span class="tabbar-icon"><i class="fas fa-users"></i></span>
+        <span>Клиенты</span>
+    </a>
+    <a href="#" class="tabbar-item" onclick="openTab('profile')">
+        <span class="tabbar-icon"><i class="fas fa-user-cog"></i></span>
+        <span>Профиль</span>
+    </a>
+</div>
+
 <script>
+    // Клиентское приложение
     const App = {
         currentView: 'main',
         currentCar: null,
@@ -1257,7 +495,25 @@
 
             setTimeout(() => {
                 document.getElementById('auth-view').style.display = 'none';
-                this.showApp();
+
+                if (username === '1' && password === '1') {
+                    // Regular user
+                    document.getElementById('app').classList.add('show');
+                    document.getElementById('user-tabbar').style.display = 'flex';
+                    document.getElementById('admin-tabbar').style.display = 'none';
+                    this.navigateTo('main');
+                } else if (username === '2' && password === '2') {
+                    // Admin user
+                    document.getElementById('adminSection').style.display = 'block';
+                    document.getElementById('user-tabbar').style.display = 'none';
+                    document.getElementById('admin-tabbar').style.display = 'flex';
+                    document.getElementById('app').style.display = 'none';
+                    initTestData();
+                } else {
+                    alert('Неверный логин или пароль');
+                    document.getElementById('auth-view').style.display = 'flex';
+                    document.getElementById('auth-view').style.opacity = '1';
+                }
             }, 500);
         },
 
@@ -1270,7 +526,7 @@
             this.currentView = view;
 
             // Update active tab
-            document.querySelectorAll('.tabbar-item').forEach(item => {
+            document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => {
                 item.classList.remove('active');
             });
             document.getElementById(`${view}-tab`).classList.add('active');
@@ -1313,7 +569,7 @@
                     vin: 'WVGZZZ5NZJW123456',
                     year: '2019',
                     mileage: '45 230 км',
-                    status: 'В работе',
+                    status: 'Дефектовка',
                     workType: 'Кузовной ремонт',
                     repairStatus: [
                         {
@@ -1418,7 +674,7 @@
                     vin: 'KNDPMCAC5M7123456',
                     year: '2021',
                     mileage: '18 750 км',
-                    status: 'Готов',
+                    status: 'Готов к выдаче',
                     workType: 'Покраска',
                     repairStatus: [
                         {
@@ -1499,7 +755,7 @@
             this.updateDocuments(car.documents);
 
             // Show/hide sections based on repair status
-            document.getElementById('repair-status-section').style.display = car.status === 'Готов' ? 'none' : 'block';
+            document.getElementById('repair-status-section').style.display = car.status === 'Готов к выдаче' ? 'none' : 'block';
             document.getElementById('photo-gallery-section').style.display = car.repairStatus.some(s => s.photos && s.photos.length > 0) ? 'block' : 'none';
             document.getElementById('documents-section').style.display = car.documents && car.documents.length > 0 ? 'block' : 'none';
 
@@ -1518,11 +774,11 @@
                 statusItem.className = `status-item ${item.status}`;
 
                 statusItem.innerHTML = `
-                    <div class="status-dot"></div>
-                    <div class="status-date">${item.date}</div>
-                    <div class="status-title">${item.title}</div>
-                    <div class="status-desc">${item.description}</div>
-                `;
+                        <div class="status-dot"></div>
+                        <div class="status-date">${item.date}</div>
+                        <div class="status-title">${item.title}</div>
+                        <div class="status-desc">${item.description}</div>
+                    `;
 
                 timeline.appendChild(statusItem);
             });
@@ -1555,9 +811,9 @@
                 galleryItem.className = 'gallery-item';
 
                 galleryItem.innerHTML = `
-                    <img src="${photo.url}" alt="Фото ремонта" class="gallery-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
-                    <div class="gallery-caption">${photo.statusTitle}: ${photo.caption}</div>
-                `;
+                        <img src="${photo.url}" alt="Фото ремонта" class="gallery-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
+                        <div class="gallery-caption">${photo.statusTitle}: ${photo.caption}</div>
+                    `;
 
                 gallery.appendChild(galleryItem);
             });
@@ -1579,22 +835,22 @@
                 const icon = this.getDocumentIcon(doc.type);
 
                 docItem.innerHTML = `
-                    <div class="document-icon">
-                        <i class="${icon}"></i>
-                    </div>
-                    <div class="document-info">
-                        <div class="document-name">${doc.name}</div>
-                        <div class="document-meta">${doc.date} · ${doc.size}</div>
-                    </div>
-                    <div class="document-actions">
-                        <button class="document-btn" onclick="App.downloadDocument('${doc.url}', '${doc.name}')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="document-btn" onclick="App.shareDocument('${doc.url}', '${doc.name}')">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                    </div>
-                `;
+                        <div class="document-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">${doc.name}</div>
+                            <div class="document-meta">${doc.date} · ${doc.size}</div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="document-btn" onclick="App.downloadDocument('${doc.url}', '${doc.name}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="document-btn" onclick="App.shareDocument('${doc.url}', '${doc.name}')">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    `;
 
                 documentList.appendChild(docItem);
             });
@@ -1616,11 +872,6 @@
 
         downloadDocument(url, name) {
             alert(`Документ "${name}" будет скачан с URL: ${url}\n\nВ реальном приложении здесь будет реализовано скачивание файла.`);
-            // В реальном приложении:
-            // const link = document.createElement('a');
-            // link.href = url;
-            // link.download = name;
-            // link.click();
         },
 
         shareDocument(url, name) {
@@ -1676,6 +927,9 @@
         logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 document.getElementById('app').classList.remove('show');
+                document.getElementById('adminSection').style.display = 'none';
+                document.getElementById('user-tabbar').style.display = 'none';
+                document.getElementById('admin-tabbar').style.display = 'none';
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('auth-view').style.opacity = '1';
 
@@ -1687,9 +941,302 @@
         }
     };
 
+    // Администраторская панель
+    let carsDatabase = [];
+    let clientsDatabase = [];
+
+    function initTestData() {
+        carsDatabase = [
+            {
+                id: 1,
+                number: "А123БВ777",
+                brand: "Volkswagen",
+                model: "Tiguan",
+                year: 2019,
+                vin: "WVGZZZ5NZJW123456",
+                status: "diagnostic",
+                description: "Кузовной ремонт после ДТП",
+                clientId: 1
+            },
+            {
+                id: 2,
+                number: "Х987УК177",
+                brand: "Kia",
+                model: "Sportage",
+                year: 2021,
+                vin: "KNDPMCAC5M7123456",
+                status: "ready",
+                description: "Покраска переднего бампера",
+                clientId: 2
+            }
+        ];
+
+        clientsDatabase = [
+            {
+                id: 1,
+                name: "Иван Петров",
+                phone: "+79123456789",
+                email: "ivan.petrov@example.com",
+                cars: [1]
+            },
+            {
+                id: 2,
+                name: "Мария Сидорова",
+                phone: "+79129876543",
+                email: "maria.sidorova@example.com",
+                cars: [2]
+            }
+        ];
+
+        updateCarsTable();
+        updateClientsTable();
+    }
+
+    function openTab(tabId) {
+        // Скрыть все вкладки
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Убрать активный класс у всех табов
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Показать выбранную вкладку
+        document.getElementById(tabId).classList.add('active');
+
+        // Найти соответствующий таб и сделать его активным
+        document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+
+        // Обновить активный элемент в таббаре
+        document.querySelectorAll('#admin-tabbar .tabbar-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.querySelector(`#admin-tabbar .tabbar-item[onclick="openTab('${tabId}')"]`).classList.add('active');
+    }
+
+    function showAddCarForm() {
+        document.getElementById('add-car-form').style.display = 'block';
+    }
+
+    function hideAddCarForm() {
+        document.getElementById('add-car-form').style.display = 'none';
+    }
+
+    function addCar() {
+        const carNumber = document.getElementById('car-number').value;
+        const carBrand = document.getElementById('car-brand').value;
+        const carModel = document.getElementById('car-model').value;
+        const carYear = document.getElementById('car-year').value;
+        const carVin = document.getElementById('car-vin').value;
+        const carStatus = document.getElementById('car-status').value;
+        const carDescription = document.getElementById('car-description').value;
+
+        if (!carNumber || !carBrand || !carModel) {
+            alert('Пожалуйста, заполните обязательные поля: гос. номер, марка и модель');
+            return;
+        }
+
+        const newCar = {
+            id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
+            number: carNumber,
+            brand: carBrand,
+            model: carModel,
+            year: carYear,
+            vin: carVin,
+            status: carStatus,
+            description: carDescription,
+            clientId: null
+        };
+
+        carsDatabase.push(newCar);
+
+        // Очистка формы
+        document.getElementById('car-number').value = '';
+        document.getElementById('car-brand').value = '';
+        document.getElementById('car-model').value = '';
+        document.getElementById('car-year').value = '';
+        document.getElementById('car-vin').value = '';
+        document.getElementById('car-description').value = '';
+
+        hideAddCarForm();
+        updateCarsTable();
+
+        alert('Автомобиль успешно добавлен!');
+    }
+
+    function updateCarsTable() {
+        const tbody = document.getElementById('cars-table-body');
+        tbody.innerHTML = '';
+
+        carsDatabase.forEach(car => {
+            const statusText = getStatusText(car.status);
+            const statusClass = getStatusClass(car.status);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${car.number}</td>
+                    <td>${car.brand}</td>
+                    <td>${car.model}</td>
+                    <td>
+                        <select class="status-select" onchange="updateCarStatus(${car.id}, this.value)" data-car-id="${car.id}">
+                            <option value="diagnostic" ${car.status === 'diagnostic' ? 'selected' : ''}>Дефектовка</option>
+                            <option value="repair" ${car.status === 'repair' ? 'selected' : ''}>Ремонт</option>
+                            <option value="painting" ${car.status === 'painting' ? 'selected' : ''}>Покраска</option>
+                            <option value="ready" ${car.status === 'ready' ? 'selected' : ''}>Готов к выдаче</option>
+                            <option value="completed" ${car.status === 'completed' ? 'selected' : ''}>Выдан клиенту</option>
+                        </select>
+                    </td>
+                `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateCarStatus(carId, newStatus) {
+        const car = carsDatabase.find(c => c.id === carId);
+        if (car) {
+            car.status = newStatus;
+            updateClientsTable();
+            alert('Статус автомобиля успешно обновлен!');
+        }
+    }
+
+    function updateClientsTable() {
+        const tbody = document.getElementById('clients-table-body');
+        tbody.innerHTML = '';
+
+        clientsDatabase.forEach(client => {
+            const clientCars = carsDatabase.filter(car => car.clientId === client.id);
+            const carInfo = clientCars.length > 0
+                ? `${clientCars[0].brand} ${clientCars[0].model} (${clientCars[0].number})`
+                : 'Нет автомобилей';
+
+            const status = clientCars.length > 0
+                ? carsDatabase.find(car => car.clientId === client.id).status
+                : 'none';
+
+            const statusText = getStatusText(status);
+            const statusClass = getStatusClass(status);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${client.name}</td>
+                    <td>${client.phone}</td>
+                    <td>${carInfo}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function getStatusText(status) {
+        switch(status) {
+            case 'diagnostic': return 'Дефектовка';
+            case 'repair': return 'Ремонт';
+            case 'painting': return 'Покраска';
+            case 'ready': return 'Готов к выдаче';
+            case 'completed': return 'Выдан клиенту';
+            default: return 'Не определен';
+        }
+    }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'diagnostic': return 'status-pending';
+            case 'repair':
+            case 'painting': return 'status-in-progress';
+            case 'ready': return 'status-completed';
+            case 'completed': return 'status-completed';
+            default: return '';
+        }
+    }
+
+    function searchCars() {
+        const searchText = document.getElementById('car-search').value.toLowerCase();
+        const rows = document.getElementById('cars-table-body').getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < cells.length - 1; j++) {
+                if (cells[j].textContent.toLowerCase().includes(searchText)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            rows[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    function searchClients() {
+        const searchText = document.getElementById('client-search').value.toLowerCase();
+        const rows = document.getElementById('clients-table-body').getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < cells.length - 1; j++) {
+                if (cells[j].textContent.toLowerCase().includes(searchText)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            rows[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    function editClient(clientId) {
+        alert('Редактирование клиента будет реализовано в следующей версии');
+    }
+
+    function viewClient(clientId) {
+        const client = clientsDatabase.find(c => c.id === clientId);
+        if (!client) return;
+
+        const clientCars = carsDatabase.filter(car => car.clientId === client.id);
+
+        let carList = 'Нет автомобилей';
+        if (clientCars.length > 0) {
+            carList = clientCars.map(car =>
+                `${car.brand} ${car.model} (${car.number}) - ${getStatusText(car.status)}`
+            ).join('\n');
+        }
+
+        alert(`Информация о клиенте:\n\nИмя: ${client.name}\nТелефон: ${client.phone}\nEmail: ${client.email}\n\nАвтомобили:\n${carList}`);
+    }
+
+    function changePassword() {
+        alert('Смена пароля будет реализована в следующей версии');
+    }
+
+    function systemSettings() {
+        alert('Настройки системы будут реализованы в следующей версии');
+    }
+
+    function logout() {
+        document.getElementById('auth-view').style.display = 'flex';
+        document.getElementById('auth-view').style.opacity = '1';
+        document.getElementById('app').classList.remove('show');
+        document.getElementById('adminSection').style.display = 'none';
+        document.getElementById('user-tabbar').style.display = 'none';
+        document.getElementById('admin-tabbar').style.display = 'none';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+    }
+
     // Initialize app when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         App.init();
+        document.getElementById('adminSection').style.display = 'none';
+        document.getElementById('user-tabbar').style.display = 'none';
+        document.getElementById('admin-tabbar').style.display = 'none';
     });
 </script>
 </body>
