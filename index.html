@@ -2,9 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MCSERVICE "Планета Авто" | Кузовной ремонт</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -47,11 +45,6 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            position: fixed;
-            touch-action: none;
         }
 
         /* Splash Screen */
@@ -66,6 +59,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeOut 0.5s ease 1s forwards;
         }
 
         .splash-logo {
@@ -261,7 +255,6 @@
             min-height: 100vh;
             flex-direction: column;
             background: var(--light);
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         #app.show {
@@ -287,9 +280,7 @@
         .main-content {
             flex: 1;
             padding: 20px;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            padding-bottom: 80px;
         }
 
         /* Cars List */
@@ -1231,9 +1222,6 @@
         currentCar: null,
 
         init() {
-            // Block swipe to close
-            this.preventSwipeToClose();
-
             // Show auth form after splash
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
@@ -1252,51 +1240,6 @@
                 e.preventDefault();
                 this.handleLogin();
             };
-        },
-
-        preventSwipeToClose() {
-            // Prevent touch events that could cause swipe to close
-            document.addEventListener('touchstart', this.handleTouchStart, { passive: false });
-            document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-            document.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-
-            // Disable pull-to-refresh
-            document.body.style.overscrollBehavior = 'none';
-
-            // Disable zooming
-            document.addEventListener('gesturestart', (e) => {
-                e.preventDefault();
-            });
-        },
-
-        handleTouchStart(e) {
-            // Store initial touch position
-            this.touchStartX = e.touches[0].clientX;
-            this.touchStartY = e.touches[0].clientY;
-        },
-
-        handleTouchMove(e) {
-            if (!this.touchStartX || !this.touchStartY) return;
-
-            const touchX = e.touches[0].clientX;
-            const touchY = e.touches[0].clientY;
-
-            // Calculate swipe direction
-            const diffX = this.touchStartX - touchX;
-            const diffY = this.touchStartY - touchY;
-
-            // Prevent swipe down to close (common in PWA)
-            if (Math.abs(diffY) > Math.abs(diffX) {
-                if (diffY > 0 && window.scrollY <= 0) {
-                    e.preventDefault();
-                }
-            }
-        },
-
-        handleTouchEnd() {
-            // Clear touch positions
-            this.touchStartX = null;
-            this.touchStartY = null;
         },
 
         handleLogin() {
@@ -1747,11 +1690,6 @@
     // Initialize app when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         App.init();
-
-        // Block swipe gestures
-        document.body.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        }, { passive: false });
     });
 </script>
 </body>
