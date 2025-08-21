@@ -1262,3 +1262,261 @@ tr:nth-child(even) {
         height: 80px;
     }
 }
+
+/* НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ ДОБАВЛЕНИЯ АВТОМОБИЛЯ */
+.add-car-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--white);
+    z-index: 1000;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.add-car-page.active {
+    transform: translateX(0);
+}
+
+.add-car-header {
+    background: var(--primary);
+    color: var(--white);
+    padding: 16px 20px;
+    padding-top: calc(40px + env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.add-car-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.add-car-content {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.add-car-form {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.add-car-form h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-align: center;
+}
+
+/* Стили для загрузки фотографий */
+.photo-upload-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--light);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--primary-light);
+}
+
+.photo-upload-section h4 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.photo-upload-area {
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 15px;
+}
+
+.photo-upload-area:hover {
+    border-color: var(--primary-dark);
+    background: var(--primary-light);
+}
+
+.photo-upload-area i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.photo-upload-text {
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.photo-upload-text strong {
+    color: var(--primary);
+}
+
+.photo-upload-input {
+    display: none;
+}
+
+.uploaded-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.photo-item {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    aspect-ratio: 1;
+}
+
+.photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--light-gray);
+}
+
+.photo-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.photo-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: var(--transition);
+}
+
+.photo-action-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.photo-drag-handle {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    color: var(--white);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    cursor: move;
+}
+
+.photo-counter {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: var(--primary);
+    color: var(--white);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Анимации для перетаскивания */
+.photo-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.photo-item.drag-over {
+    border: 2px solid var(--primary);
+}
+
+/* Кнопки действий */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.form-actions .btn {
+    flex: 1;
+}
+
+/* Адаптивность для страницы добавления */
+@media (max-width: 768px) {
+    .add-car-content {
+        padding: 15px;
+    }
+
+    .add-car-form {
+        padding: 16px;
+    }
+
+    .photo-upload-area {
+        padding: 20px;
+    }
+
+    .uploaded-photos {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .add-car-header {
+        padding: 12px 16px;
+        padding-top: calc(35px + env(safe-area-inset-top));
+    }
+
+    .add-car-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}

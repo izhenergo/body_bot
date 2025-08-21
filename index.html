@@ -207,49 +207,9 @@
     <div id="cars" class="tab-content active">
         <div class="search-box">
             <input type="text" id="car-search" placeholder="Поиск по гос. номеру, марке, модели..." onkeyup="searchCars()">
-            <button class="btn btn-primary" onclick="showAddCarForm()" style="margin-top: 10px;">
+            <button class="btn btn-primary" onclick="Admin.showAddCarPage()" style="margin-top: 10px;">
                 <i class="fas fa-plus"></i> Добавить автомобиль
             </button>
-        </div>
-
-        <div id="add-car-form" style="display: none; margin-bottom: 20px;">
-            <h3>Добавить новый автомобиль</h3>
-            <div class="form-group">
-                <label for="car-number">Гос. номер:</label>
-                <input type="text" id="car-number" placeholder="А123БВ777">
-            </div>
-            <div class="form-group">
-                <label for="car-brand">Марка:</label>
-                <input type="text" id="car-brand" placeholder="Toyota">
-            </div>
-            <div class="form-group">
-                <label for="car-model">Модель:</label>
-                <input type="text" id="car-model" placeholder="Camry">
-            </div>
-            <div class="form-group">
-                <label for="car-year">Год выпуска:</label>
-                <input type="number" id="car-year" placeholder="2018">
-            </div>
-            <div class="form-group">
-                <label for="car-vin">VIN:</label>
-                <input type="text" id="car-vin" placeholder="XTA210997654321">
-            </div>
-            <div class="form-group">
-                <label for="car-status">Статус:</label>
-                <select id="car-status">
-                    <option value="diagnostic">Дефектовка</option>
-                    <option value="repair">Ремонт</option>
-                    <option value="painting">Покраска</option>
-                    <option value="ready">Готов к выдаче</option>
-                    <option value="completed">Выдан клиенту</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="car-description">Описание работ:</label>
-                <textarea id="car-description"></textarea>
-            </div>
-            <button class="btn btn-success" onclick="addCar()">Добавить</button>
-            <button class="btn btn-secondary" onclick="hideAddCarForm()">Отмена</button>
         </div>
 
         <table id="cars-table">
@@ -319,7 +279,7 @@
                 <td><span class="status-in-progress">В ремонте</span></td>
             </tr>
             <tr>
-                <td>Мария Сидорова</td>
+                <td>Мария Сидорova</td>
                 <td>+7 (912) 987-65-43</td>
                 <td>Kia Sportage (Х987УК177)</td>
                 <td><span class="status-completed">Готов</span></td>
@@ -340,18 +300,92 @@
                 <p><strong><i class="fas fa-calendar-alt"></i> Последний вход:</strong> 12.08.2025 14:30</p>
             </div>
 
-            <div class="profile-actions">
-                <button class="btn btn-secondary btn-block" onclick="changePassword()">
-                    <i class="fas fa-key"></i> Сменить пароль
-                </button>
-                <button class="btn btn-secondary btn-block" onclick="systemSettings()">
-                    <i class="fas fa-cog"></i> Настройки системы
-                </button>
-            </div>
-
             <button class="btn btn-primary btn-block" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Выйти
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Страница добавления автомобиля -->
+<div id="add-car-page" class="add-car-page">
+    <div class="add-car-header">
+        <button class="back-button" onclick="Admin.hideAddCarPage()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2>Добавить автомобиль</h2>
+    </div>
+
+    <div class="add-car-content">
+        <div class="add-car-form">
+            <h3>Заполните данные о новом автомобиле</h3>
+
+            <div class="form-group">
+                <label for="new-car-brand">Марка:</label>
+                <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new-car-model">Модель:</label>
+                <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new-car-number">Гос. номер:</label>
+                <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new-car-odometer">Пробег:</label>
+                <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
+            </div>
+
+            <div class="form-group">
+                <label for="new-car-year">Год выпуска:</label>
+                <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
+            </div>
+
+            <div class="form-group">
+                <label for="new-car-vin">VIN:</label>
+                <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
+            </div>
+
+            <div class="form-group">
+                <label for="new-type-of-repair">Тип ремонта:</label>
+                <select id="new-type-of-repair" class="form-input">
+                    <option value="body-repair">Кузовной ремонт</option>
+                    <option value="general-car">Слесарный ремонт</option>
+                    <option value="oil-change">Замена масла</option>
+                    <option value="maintenance">Техническое обслуживание</option>
+                    <option value="diagnostic">Диагностика</option>
+                </select>
+            </div>
+
+            <!-- Секция загрузки фотографий -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-camera"></i> Фотографии автомобиля</h4>
+
+                <div class="photo-upload-area" onclick="document.getElementById('photo-upload-input').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="photo-upload-text">
+                        <strong>Нажмите для загрузки</strong> или перетащите фотографии сюда
+                    </div>
+                    <input type="file" id="photo-upload-input" class="photo-upload-input" multiple accept="image/*" onchange="Admin.handlePhotoUpload(this.files)">
+                </div>
+
+                <div class="uploaded-photos" id="uploaded-photos-container">
+                    <!-- Фотографии будут добавляться динамически -->
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="Admin.hideAddCarPage()">
+                    <i class="fas fa-times"></i> Отмена
+                </button>
+                <button class="btn btn-primary" onclick="Admin.addNewCar()">
+                    <i class="fas fa-check"></i> Сохранить
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -576,7 +610,7 @@
                             id: 2,
                             date: '12.05.2023',
                             title: 'Дефектовка',
-                            description: 'Проведена дефектовка кузова, составлена смета',
+                            description: 'Проведена дефектовка кузова, составлена сметa',
                             status: 'completed',
                             photos: [
                                 {
@@ -923,6 +957,176 @@
     };
 
     // Администраторская панель
+    const Admin = {
+        uploadedPhotos: [],
+        currentDragItem: null,
+
+        showAddCarPage() {
+            document.getElementById('add-car-page').classList.add('active');
+        },
+
+        hideAddCarPage() {
+            document.getElementById('add-car-page').classList.remove('active');
+            this.clearForm();
+        },
+
+        clearForm() {
+            document.getElementById('new-car-brand').value = '';
+            document.getElementById('new-car-model').value = '';
+            document.getElementById('new-car-number').value = '';
+            document.getElementById('new-car-odometer').value = '';
+            document.getElementById('new-car-year').value = '';
+            document.getElementById('new-car-vin').value = '';
+            document.getElementById('new-type-of-repair').value = 'body-repair';
+            this.uploadedPhotos = [];
+            this.updatePhotoGallery();
+        },
+
+        handlePhotoUpload(files) {
+            if (files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.uploadedPhotos.push({
+                            id: Date.now() + i,
+                            file: file,
+                            dataUrl: e.target.result,
+                            name: file.name
+                        });
+                        this.updatePhotoGallery();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        },
+
+        updatePhotoGallery() {
+            const container = document.getElementById('uploaded-photos-container');
+            container.innerHTML = '';
+
+            if (this.uploadedPhotos.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Нет загруженных фотографий</div>';
+                return;
+            }
+
+            this.uploadedPhotos.forEach((photo, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                photoItem.draggable = true;
+                photoItem.dataset.id = photo.id;
+
+                photoItem.innerHTML = `
+                    <img src="${photo.dataUrl}" alt="Фото автомобиля" class="photo-preview">
+                    <div class="photo-counter">${index + 1}</div>
+                    <div class="photo-actions">
+                        <button class="photo-action-btn" onclick="Admin.removePhoto(${photo.id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="photo-drag-handle">
+                        <i class="fas fa-grip-vertical"></i>
+                    </div>
+                `;
+
+                // Добавляем обработчики для drag and drop
+                photoItem.addEventListener('dragstart', (e) => {
+                    this.currentDragItem = photoItem;
+                    e.dataTransfer.setData('text/plain', photo.id);
+                    setTimeout(() => photoItem.classList.add('dragging'), 0);
+                });
+
+                photoItem.addEventListener('dragend', () => {
+                    document.querySelectorAll('.photo-item').forEach(item => {
+                        item.classList.remove('dragging', 'drag-over');
+                    });
+                });
+
+                photoItem.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    photoItem.classList.add('drag-over');
+                });
+
+                photoItem.addEventListener('dragleave', () => {
+                    photoItem.classList.remove('drag-over');
+                });
+
+                photoItem.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    photoItem.classList.remove('drag-over');
+
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    const targetId = photoItem.dataset.id;
+
+                    if (draggedId !== targetId) {
+                        this.reorderPhotos(draggedId, targetId);
+                    }
+                });
+
+                container.appendChild(photoItem);
+            });
+        },
+
+        removePhoto(photoId) {
+            this.uploadedPhotos = this.uploadedPhotos.filter(photo => photo.id !== photoId);
+            this.updatePhotoGallery();
+        },
+
+        reorderPhotos(draggedId, targetId) {
+            const draggedIndex = this.uploadedPhotos.findIndex(photo => photo.id == draggedId);
+            const targetIndex = this.uploadedPhotos.findIndex(photo => photo.id == targetId);
+
+            if (draggedIndex > -1 && targetIndex > -1) {
+                const [draggedItem] = this.uploadedPhotos.splice(draggedIndex, 1);
+                this.uploadedPhotos.splice(targetIndex, 0, draggedItem);
+                this.updatePhotoGallery();
+            }
+        },
+
+        addNewCar() {
+            const brand = document.getElementById('new-car-brand').value;
+            const model = document.getElementById('new-car-model').value;
+            const number = document.getElementById('new-car-number').value;
+            const odometer = document.getElementById('new-car-odometer').value;
+            const year = document.getElementById('new-car-year').value;
+            const vin = document.getElementById('new-car-vin').value;
+            const repairType = document.getElementById('new-type-of-repair').value;
+
+            if (!brand || !model || !number) {
+                alert('Пожалуйста, заполните обязательные поля: марка, модель и гос. номер');
+                return;
+            }
+
+            const newCar = {
+                id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
+                number: number,
+                brand: brand,
+                model: model,
+                year: year,
+                vin: vin,
+                odometer: odometer,
+                typeOfRepair: repairType,
+                status: 'diagnostic',
+                photos: this.uploadedPhotos.map(photo => ({
+                    name: photo.name,
+                    dataUrl: photo.dataUrl
+                })),
+                createdAt: new Date().toISOString()
+            };
+
+            carsDatabase.push(newCar);
+            this.hideAddCarPage();
+            updateCarsTable();
+
+            alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен!`);
+            if (this.uploadedPhotos.length > 0) {
+                alert(`Загружено ${this.uploadedPhotos.length} фотографий`);
+            }
+        }
+    };
+
     let carsDatabase = [];
     let clientsDatabase = [];
 
@@ -979,72 +1183,14 @@
             content.classList.remove('active');
         });
 
-        // Убрать активный класс у всех табов
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-
         // Показать выбранную вкладку
         document.getElementById(tabId).classList.add('active');
-
-        // Найти соответствующий таб и сделать его активным
-        document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
 
         // Обновить активный элемент в таббаре
         document.querySelectorAll('#admin-tabbar .tabbar-item').forEach(item => {
             item.classList.remove('active');
         });
         document.querySelector(`#admin-tabbar .tabbar-item[onclick="openTab('${tabId}')"]`).classList.add('active');
-    }
-
-    function showAddCarForm() {
-        document.getElementById('add-car-form').style.display = 'block';
-    }
-
-    function hideAddCarForm() {
-        document.getElementById('add-car-form').style.display = 'none';
-    }
-
-    function addCar() {
-        const carNumber = document.getElementById('car-number').value;
-        const carBrand = document.getElementById('car-brand').value;
-        const carModel = document.getElementById('car-model').value;
-        const carYear = document.getElementById('car-year').value;
-        const carVin = document.getElementById('car-vin').value;
-        const carStatus = document.getElementById('car-status').value;
-        const carDescription = document.getElementById('car-description').value;
-
-        if (!carNumber || !carBrand || !carModel) {
-            alert('Пожалуйста, заполните обязательные поля: гос. номер, марка и модель');
-            return;
-        }
-
-        const newCar = {
-            id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
-            number: carNumber,
-            brand: carBrand,
-            model: carModel,
-            year: carYear,
-            vin: carVin,
-            status: carStatus,
-            description: carDescription,
-            clientId: null
-        };
-
-        carsDatabase.push(newCar);
-
-        // Очистка формы
-        document.getElementById('car-number').value = '';
-        document.getElementById('car-brand').value = '';
-        document.getElementById('car-model').value = '';
-        document.getElementById('car-year').value = '';
-        document.getElementById('car-vin').value = '';
-        document.getElementById('car-description').value = '';
-
-        hideAddCarForm();
-        updateCarsTable();
-
-        alert('Автомобиль успешно добавлен!');
     }
 
     function updateCarsTable() {
@@ -1173,34 +1319,6 @@
         }
     }
 
-    function editClient(clientId) {
-        alert('Редактирование клиента будет реализовано в следующей версии');
-    }
-
-    function viewClient(clientId) {
-        const client = clientsDatabase.find(c => c.id === clientId);
-        if (!client) return;
-
-        const clientCars = carsDatabase.filter(car => car.clientId === client.id);
-
-        let carList = 'Нет автомобилей';
-        if (clientCars.length > 0) {
-            carList = clientCars.map(car =>
-                `${car.brand} ${car.model} (${car.number}) - ${getStatusText(car.status)}`
-            ).join('\n');
-        }
-
-        alert(`Информация о клиенте:\n\nИмя: ${client.name}\nТелефон: ${client.phone}\nEmail: ${client.email}\n\nАвтомобили:\n${carList}`);
-    }
-
-    function changePassword() {
-        alert('Смена пароля будет реализована в следующей версии');
-    }
-
-    function systemSettings() {
-        alert('Настройки системы будут реализованы в следующей версии');
-    }
-
     function logout() {
         document.getElementById('auth-view').style.display = 'flex';
         document.getElementById('auth-view').style.opacity = '1';
@@ -1218,6 +1336,30 @@
         document.getElementById('adminSection').style.display = 'none';
         document.getElementById('user-tabbar').style.display = 'none';
         document.getElementById('admin-tabbar').style.display = 'none';
+
+        // Добавляем обработчики для drag and drop на саму область загрузки
+        const uploadArea = document.querySelector('.photo-upload-area');
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-dark)';
+                uploadArea.style.background = 'var(--primary-light)';
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = '';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = '';
+
+                const files = e.dataTransfer.files;
+                Admin.handlePhotoUpload(files);
+            });
+        }
     });
 </script>
 </body>
