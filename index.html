@@ -157,7 +157,7 @@
                 </div>
 
                 <div class="history-item">
-                    <h3><span class="history-date">10.01.2023</span> - Плановое ТО</h3>
+                    <h3><span class="history-date">10.01.2023</span> - Планове ТО</h3>
                     <p><i class="fas fa-oil-can"></i> Замена масла и фильтров</p>
                     <p><i class="fas fa-tachometer-alt"></i> Пробег: 42 000 км</p>
                     <p><i class="fas fa-ruble-sign"></i> Стоимость: 12 500 руб.</p>
@@ -223,34 +223,6 @@
             </thead>
             <tbody id="cars-table-body">
             <!-- Данные будут загружаться динамически -->
-            <tr>
-                <td>А123БВ777</td>
-                <td>Volkswagen</td>
-                <td>Tiguan</td>
-                <td>
-                    <select class="status-select" onchange="updateCarStatus(1, this.value)">
-                        <option value="diagnostic" selected>Дефектовка</option>
-                        <option value="repair">Ремонт</option>
-                        <option value="painting">Покраска</option>
-                        <option value="ready">Готов к выдаче</option>
-                        <option value="completed">Выдан клиенту</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Х987УК177</td>
-                <td>Kia</td>
-                <td>Sportage</td>
-                <td>
-                    <select class="status-select" onchange="updateCarStatus(2, this.value)">
-                        <option value="diagnostic">Дефектовка</option>
-                        <option value="repair">Ремонт</option>
-                        <option value="painting">Покраска</option>
-                        <option value="ready" selected>Готов к выдаче</option>
-                        <option value="completed">Выдан клиенту</option>
-                    </select>
-                </td>
-            </tr>
             </tbody>
         </table>
     </div>
@@ -272,18 +244,6 @@
             </thead>
             <tbody id="clients-table-body">
             <!-- Данные будут загружаться динамически -->
-            <tr>
-                <td>Иван Петров</td>
-                <td>+7 (912) 345-67-89</td>
-                <td>VW Tiguan (А123БВ777)</td>
-                <td><span class="status-in-progress">В ремонте</span></td>
-            </tr>
-            <tr>
-                <td>Мария Сидорova</td>
-                <td>+7 (912) 987-65-43</td>
-                <td>Kia Sportage (Х987УК177)</td>
-                <td><span class="status-completed">Готов</span></td>
-            </tr>
             </tbody>
         </table>
     </div>
@@ -470,897 +430,198 @@
     </a>
 </div>
 
-<script>
-    // Клиентское приложение
-    const App = {
-        currentView: 'main',
-        currentCar: null,
-
-        init() {
-            // Show auth form after splash
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                document.getElementById('auth-view').classList.add('show');
-
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                }, 500);
-
-                // Focus on username field
-                document.getElementById('username').focus();
-            }, 1500);
-
-            // Handle login form
-            document.getElementById('login-form').onsubmit = (e) => {
-                e.preventDefault();
-                this.handleLogin();
-            };
-        },
-
-        handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            // Simple validation
-            if (!username || !password) {
-                alert('Введите логин и пароль');
-                return;
-            }
-
-            // Hide auth form
-            document.getElementById('auth-view').style.opacity = '0';
-
-            setTimeout(() => {
-                document.getElementById('auth-view').style.display = 'none';
-
-                if (username === '1' && password === '1') {
-                    // Regular user
-                    document.getElementById('app').classList.add('show');
-                    document.getElementById('user-tabbar').style.display = 'flex';
-                    document.getElementById('admin-tabbar').style.display = 'none';
-                    this.navigateTo('main');
-                } else if (username === '2' && password === '2') {
-                    // Admin user
-                    document.getElementById('adminSection').style.display = 'block';
-                    document.getElementById('user-tabbar').style.display = 'none';
-                    document.getElementById('admin-tabbar').style.display = 'flex';
-                    document.getElementById('app').style.display = 'none';
-                    initTestData();
-                } else {
-                    alert('Неверный логин или пароль');
-                    document.getElementById('auth-view').style.display = 'flex';
-                    document.getElementById('auth-view').style.opacity = '1';
-                }
-            }, 500);
-        },
-
-        showApp() {
-            document.getElementById('app').classList.add('show');
-            this.navigateTo('main');
-        },
-
-        navigateTo(view) {
-            this.currentView = view;
-
-            // Update active tab
-            document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.getElementById(`${view}-tab`).classList.add('active');
-
-            // Update title
-            const titles = {
-                'main': 'Мои автомобили',
-                'history': 'История обслуживания',
-                'profile': 'Мой профиль'
-            };
-            document.getElementById('current-screen-title').textContent = titles[view];
-
-            // Show appropriate view
-            document.getElementById('cars-list-view').style.display = 'none';
-            document.getElementById('car-details-view').style.display = 'none';
-            document.getElementById('history-view').style.display = 'none';
-            document.getElementById('profile-view').style.display = 'none';
-
-            switch(view) {
-                case 'main':
-                    document.getElementById('cars-list-view').style.display = 'block';
-                    break;
-                case 'history':
-                    document.getElementById('history-view').style.display = 'block';
-                    break;
-                case 'profile':
-                    document.getElementById('profile-view').style.display = 'block';
-                    break;
-            }
-        },
-
-        showCarDetails(carId) {
-            this.currentCar = carId;
-
-            // In a real app, we would fetch car details from API
-            const cars = {
-                1: {
-                    model: 'Volkswagen Tiguan',
-                    plate: 'А123БВ777',
-                    vin: 'WVGZZZ5NZJW123456',
-                    year: '2019',
-                    mileage: '45 230 км',
-                    status: 'Дефектовка',
-                    workType: 'Кузовной ремонт',
-                    repairStatus: [
-                        {
-                            id: 1,
-                            date: '10.05.2023',
-                            title: 'Приемка автомобиля',
-                            description: 'Автомобиль принят на ремонт после ДТП',
-                            status: 'completed',
-                            photos: [
-                                {
-                                    url: 'https://example.com/photo1.jpg',
-                                    caption: 'Передний вид с повреждениями'
-                                },
-                                {
-                                    url: 'https://example.com/photo2.jpg',
-                                    caption: 'Правая сторона с вмятинами'
-                                }
-                            ]
-                        },
-                        {
-                            id: 2,
-                            date: '12.05.2023',
-                            title: 'Дефектовка',
-                            description: 'Проведена дефектовка кузова, составлена сметa',
-                            status: 'completed',
-                            photos: [
-                                {
-                                    url: 'https://example.com/photo3.jpg',
-                                    caption: 'Дефектовка передней части'
-                                }
-                            ]
-                        },
-                        {
-                            id: 3,
-                            date: '15.05.2023',
-                            title: 'Разборка и ремонт кузова',
-                            description: 'Демонтированы поврежденные элементы, начат ремонт кузова',
-                            status: 'active',
-                            photos: [
-                                {
-                                    url: 'https://example.com/photo4.jpg',
-                                    caption: 'Процесс ремонта правого крыла'
-                                },
-                                {
-                                    url: 'https://example.com/photo5.jpg',
-                                    caption: 'Подготовка к покраске'
-                                }
-                            ]
-                        },
-                        {
-                            id: 4,
-                            date: '18.05.2023',
-                            title: 'Покраска',
-                            description: 'Запланирована покраска восстановленных элементов',
-                            status: 'pending'
-                        },
-                        {
-                            id: 5,
-                            date: '20.05.2023',
-                            title: 'Сборка и полировка',
-                            description: 'Сборка автомобиля и финальная полировка',
-                            status: 'pending'
-                        },
-                        {
-                            id: 6,
-                            date: '22.05.2023',
-                            title: 'Готов к выдаче',
-                            description: 'Автомобиль прошел контроль качества',
-                            status: 'pending'
-                        }
-                    ],
-                    documents: [
-                        {
-                            id: 1,
-                            name: 'Смета ремонта',
-                            type: 'pdf',
-                            date: '12.05.2023',
-                            size: '2.4 MB',
-                            url: 'https://example.com/estimate.pdf'
-                        },
-                        {
-                            id: 2,
-                            name: 'Акт выполненных работ',
-                            type: 'pdf',
-                            date: '22.05.2023',
-                            size: '1.8 MB',
-                            url: 'https://example.com/act.pdf'
-                        },
-                        {
-                            id: 3,
-                            name: 'Чек об оплате',
-                            type: 'pdf',
-                            date: '22.05.2023',
-                            size: '0.5 MB',
-                            url: 'https://example.com/receipt.pdf'
-                        }
-                    ]
-                },
-                2: {
-                    model: 'Kia Sportage',
-                    plate: 'Х987УК177',
-                    vin: 'KNDPMCAC5M7123456',
-                    year: '2021',
-                    mileage: '18 750 км',
-                    status: 'Готов к выдаче',
-                    workType: 'Покраска',
-                    repairStatus: [
-                        {
-                            id: 1,
-                            date: '01.05.2023',
-                            title: 'Приемка автомобиля',
-                            description: 'Автомобиль принят на покраску',
-                            status: 'completed'
-                        },
-                        {
-                            id: 2,
-                            date: '03.05.2023',
-                            title: 'Подготовка к покраске',
-                            description: 'Поверхности подготовлены к покраске',
-                            status: 'completed'
-                        },
-                        {
-                            id: 3,
-                            date: '05.05.2023',
-                            title: 'Покраска',
-                            description: 'Элементы кузова покрашены',
-                            status: 'completed'
-                        },
-                        {
-                            id: 4,
-                            date: '07.05.2023',
-                            title: 'Полировка',
-                            description: 'Проведена финальная полировка',
-                            status: 'completed'
-                        },
-                        {
-                            id: 5,
-                            date: '08.05.2023',
-                            title: 'Готов к выдаче',
-                            description: 'Автомобиль прошел контроль качества',
-                            status: 'completed'
-                        }
-                    ],
-                    documents: [
-                        {
-                            id: 1,
-                            name: 'Смета покраски',
-                            type: 'pdf',
-                            date: '03.05.2023',
-                            size: '1.2 MB',
-                            url: 'https://example.com/paint_estimate.pdf'
-                        },
-                        {
-                            id: 2,
-                            name: 'Акт выполненных работ',
-                            type: 'pdf',
-                            date: '08.05.2023',
-                            size: '1.5 MB',
-                            url: 'https://example.com/paint_act.pdf'
-                        }
-                    ]
-                }
-            };
-
-            const car = cars[carId];
-
-            // Update car details
-            document.getElementById('car-model').textContent = car.model;
-            document.getElementById('car-plate').textContent = car.plate;
-            document.getElementById('car-vin').textContent = car.vin;
-            document.getElementById('car-year').textContent = car.year;
-            document.getElementById('car-mileage').textContent = car.mileage;
-
-            // Update repair status timeline
-            this.updateRepairStatus(car.repairStatus);
-
-            // Update photo gallery
-            this.updatePhotoGallery(car.repairStatus);
-
-            // Update documents
-            this.updateDocuments(car.documents);
-
-            // Show/hide sections based on repair status
-            document.getElementById('repair-status-section').style.display = car.status === 'Готов к выдаче' ? 'none' : 'block';
-            document.getElementById('photo-gallery-section').style.display = car.repairStatus.some(s => s.photos && s.photos.length > 0) ? 'block' : 'none';
-            document.getElementById('documents-section').style.display = car.documents && car.documents.length > 0 ? 'block' : 'none';
-
-            // Show car details view
-            document.getElementById('cars-list-view').style.display = 'none';
-            document.getElementById('car-details-view').style.display = 'block';
-            document.getElementById('current-screen-title').textContent = car.model;
-        },
-
-        updateRepairStatus(statusItems) {
-            const timeline = document.getElementById('status-timeline');
-            timeline.innerHTML = '';
-
-            statusItems.forEach(item => {
-                const statusItem = document.createElement('div');
-                statusItem.className = `status-item ${item.status}`;
-
-                statusItem.innerHTML = `
-                        <div class="status-dot"></div>
-                        <div class="status-date">${item.date}</div>
-                        <div class="status-title">${item.title}</div>
-                        <div class="status-desc">${item.description}</div>
-                    `;
-
-                timeline.appendChild(statusItem);
-            });
-        },
-
-        updatePhotoGallery(repairStatus) {
-            const gallery = document.getElementById('gallery-container');
-            gallery.innerHTML = '';
-
-            // Collect all photos from all status items
-            const allPhotos = [];
-            repairStatus.forEach(status => {
-                if (status.photos && status.photos.length > 0) {
-                    status.photos.forEach(photo => {
-                        allPhotos.push({
-                            ...photo,
-                            statusTitle: status.title
-                        });
-                    });
-                }
-            });
-
-            if (allPhotos.length === 0) {
-                gallery.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Фотографии по ремонту пока отсутствуют</p>';
-                return;
-            }
-
-            allPhotos.forEach(photo => {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-
-                galleryItem.innerHTML = `
-                        <img src="${photo.url}" alt="Фото ремонта" class="gallery-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
-                        <div class="gallery-caption">${photo.statusTitle}: ${photo.caption}</div>
-                    `;
-
-                gallery.appendChild(galleryItem);
-            });
-        },
-
-        updateDocuments(documents) {
-            const documentList = document.getElementById('document-list');
-            documentList.innerHTML = '';
-
-            if (!documents || documents.length === 0) {
-                documentList.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Документы пока отсутствуют</p>';
-                return;
-            }
-
-            documents.forEach(doc => {
-                const docItem = document.createElement('div');
-                docItem.className = 'document-item';
-
-                const icon = this.getDocumentIcon(doc.type);
-
-                docItem.innerHTML = `
-                        <div class="document-icon">
-                            <i class="${icon}"></i>
-                        </div>
-                        <div class="document-info">
-                            <div class="document-name">${doc.name}</div>
-                            <div class="document-meta">${doc.date} · ${doc.size}</div>
-                        </div>
-                        <div class="document-actions">
-                            <button class="document-btn" onclick="App.downloadDocument('${doc.url}', '${doc.name}')">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="document-btn" onclick="App.shareDocument('${doc.url}', '${doc.name}')">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    `;
-
-                documentList.appendChild(docItem);
-            });
-        },
-
-        getDocumentIcon(type) {
-            switch(type) {
-                case 'pdf': return 'fas fa-file-pdf';
-                case 'doc':
-                case 'docx': return 'fas fa-file-word';
-                case 'xls':
-                case 'xlsx': return 'fas fa-file-excel';
-                case 'jpg':
-                case 'png':
-                case 'gif': return 'fas fa-file-image';
-                default: return 'fas fa-file';
-            }
-        },
-
-        downloadDocument(url, name) {
-            alert(`Документ "${name}" будет скачан с URL: ${url}\n\nВ реальном приложении здесь будет реализовано скачивание файла.`);
-        },
-
-        shareDocument(url, name) {
-            if (navigator.share) {
-                navigator.share({
-                    title: name,
-                    text: `Документ из автосервиса: ${name}`,
-                    url: url
-                }).catch(err => {
-                    console.error('Ошибка при попытке поделиться:', err);
-                    alert('Не удалось поделиться документом. Скопируйте ссылку вручную.');
-                });
-            } else {
-                alert(`Ссылка на документ "${name}": ${url}\n\nСкопируйте и отправьте вручную.`);
-            }
-        },
-
-        showServiceHistory() {
-            this.navigateTo('history');
-        },
-
-        showGames() {
-            const modal = document.getElementById('games-modal');
-            modal.classList.add('show');
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        },
-
-        hideGames() {
-            const modal = document.getElementById('games-modal');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.classList.remove('show');
-            }, 300);
-        },
-
-        openGame(gameName) {
-            alert(`Открываем игру: ${gameName}\nЗдесь будет интеграция с @Zer0_Emission_Bot`);
-            this.hideGames();
-        },
-
-        writeToManager() {
-            alert('Открываем чат с менеджером');
-        },
-
-        callService() {
-            if (confirm('Позвонить в автосервис по номеру +7 (123) 456-78-90?')) {
-                window.location.href = 'tel:+71234567890';
-            }
-        },
-
-        logout() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                document.getElementById('app').classList.remove('show');
-                document.getElementById('adminSection').style.display = 'none';
-                document.getElementById('user-tabbar').style.display = 'none';
-                document.getElementById('admin-tabbar').style.display = 'none';
-                document.getElementById('auth-view').style.display = 'flex';
-                document.getElementById('auth-view').style.opacity = '1';
-
-                // Reset form
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('username').focus();
-            }
-        }
-    };
-
-    // Администраторская панель
-    const Admin = {
-        uploadedPhotos: [],
-        currentDragItem: null,
-
-        showAddCarPage() {
-            document.getElementById('add-car-page').classList.add('active');
-        },
-
-        hideAddCarPage() {
-            document.getElementById('add-car-page').classList.remove('active');
-            this.clearForm();
-        },
-
-        clearForm() {
-            document.getElementById('new-car-brand').value = '';
-            document.getElementById('new-car-model').value = '';
-            document.getElementById('new-car-number').value = '';
-            document.getElementById('new-car-odometer').value = '';
-            document.getElementById('new-car-year').value = '';
-            document.getElementById('new-car-vin').value = '';
-            document.getElementById('new-type-of-repair').value = 'body-repair';
-            this.uploadedPhotos = [];
-            this.updatePhotoGallery();
-        },
-
-        handlePhotoUpload(files) {
-            if (files.length === 0) return;
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.uploadedPhotos.push({
-                            id: Date.now() + i,
-                            file: file,
-                            dataUrl: e.target.result,
-                            name: file.name
-                        });
-                        this.updatePhotoGallery();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        },
-
-        updatePhotoGallery() {
-            const container = document.getElementById('uploaded-photos-container');
-            container.innerHTML = '';
-
-            if (this.uploadedPhotos.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Нет загруженных фотографий</div>';
-                return;
-            }
-
-            this.uploadedPhotos.forEach((photo, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item';
-                photoItem.draggable = true;
-                photoItem.dataset.id = photo.id;
-
-                photoItem.innerHTML = `
-                    <img src="${photo.dataUrl}" alt="Фото автомобиля" class="photo-preview">
-                    <div class="photo-counter">${index + 1}</div>
-                    <div class="photo-actions">
-                        <button class="photo-action-btn" onclick="Admin.removePhoto(${photo.id})">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="photo-drag-handle">
-                        <i class="fas fa-grip-vertical"></i>
-                    </div>
-                `;
-
-                // Добавляем обработчики для drag and drop
-                photoItem.addEventListener('dragstart', (e) => {
-                    this.currentDragItem = photoItem;
-                    e.dataTransfer.setData('text/plain', photo.id);
-                    setTimeout(() => photoItem.classList.add('dragging'), 0);
-                });
-
-                photoItem.addEventListener('dragend', () => {
-                    document.querySelectorAll('.photo-item').forEach(item => {
-                        item.classList.remove('dragging', 'drag-over');
-                    });
-                });
-
-                photoItem.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    photoItem.classList.add('drag-over');
-                });
-
-                photoItem.addEventListener('dragleave', () => {
-                    photoItem.classList.remove('drag-over');
-                });
-
-                photoItem.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    photoItem.classList.remove('drag-over');
-
-                    const draggedId = e.dataTransfer.getData('text/plain');
-                    const targetId = photoItem.dataset.id;
-
-                    if (draggedId !== targetId) {
-                        this.reorderPhotos(draggedId, targetId);
-                    }
-                });
-
-                container.appendChild(photoItem);
-            });
-        },
-
-        removePhoto(photoId) {
-            this.uploadedPhotos = this.uploadedPhotos.filter(photo => photo.id !== photoId);
-            this.updatePhotoGallery();
-        },
-
-        reorderPhotos(draggedId, targetId) {
-            const draggedIndex = this.uploadedPhotos.findIndex(photo => photo.id == draggedId);
-            const targetIndex = this.uploadedPhotos.findIndex(photo => photo.id == targetId);
-
-            if (draggedIndex > -1 && targetIndex > -1) {
-                const [draggedItem] = this.uploadedPhotos.splice(draggedIndex, 1);
-                this.uploadedPhotos.splice(targetIndex, 0, draggedItem);
-                this.updatePhotoGallery();
-            }
-        },
-
-        addNewCar() {
-            const brand = document.getElementById('new-car-brand').value;
-            const model = document.getElementById('new-car-model').value;
-            const number = document.getElementById('new-car-number').value;
-            const odometer = document.getElementById('new-car-odometer').value;
-            const year = document.getElementById('new-car-year').value;
-            const vin = document.getElementById('new-car-vin').value;
-            const repairType = document.getElementById('new-type-of-repair').value;
-
-            if (!brand || !model || !number) {
-                alert('Пожалуйста, заполните обязательные поля: марка, модель и гос. номер');
-                return;
-            }
-
-            const newCar = {
-                id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
-                number: number,
-                brand: brand,
-                model: model,
-                year: year,
-                vin: vin,
-                odometer: odometer,
-                typeOfRepair: repairType,
-                status: 'diagnostic',
-                photos: this.uploadedPhotos.map(photo => ({
-                    name: photo.name,
-                    dataUrl: photo.dataUrl
-                })),
-                createdAt: new Date().toISOString()
-            };
-
-            carsDatabase.push(newCar);
-            this.hideAddCarPage();
-            updateCarsTable();
-
-            alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен!`);
-            if (this.uploadedPhotos.length > 0) {
-                alert(`Загружено ${this.uploadedPhotos.length} фотографий`);
-            }
-        }
-    };
-
-    let carsDatabase = [];
-    let clientsDatabase = [];
-
-    function initTestData() {
-        carsDatabase = [
-            {
-                id: 1,
-                number: "А123БВ777",
-                brand: "Volkswagen",
-                model: "Tiguan",
-                year: 2019,
-                vin: "WVGZZZ5NZJW123456",
-                status: "diagnostic",
-                description: "Кузовной ремонт после ДТП",
-                clientId: 1
-            },
-            {
-                id: 2,
-                number: "Х987УК177",
-                brand: "Kia",
-                model: "Sportage",
-                year: 2021,
-                vin: "KNDPMCAC5M7123456",
-                status: "ready",
-                description: "Покраска переднего бампера",
-                clientId: 2
-            }
-        ];
-
-        clientsDatabase = [
-            {
-                id: 1,
-                name: "Иван Петров",
-                phone: "+79123456789",
-                email: "ivan.petrov@example.com",
-                cars: [1]
-            },
-            {
-                id: 2,
-                name: "Мария Сидорова",
-                phone: "+79129876543",
-                email: "maria.sidorova@example.com",
-                cars: [2]
-            }
-        ];
-
-        updateCarsTable();
-        updateClientsTable();
-    }
-
-    function openTab(tabId) {
-        // Скрыть все вкладки
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // Показать выбранную вкладку
-        document.getElementById(tabId).classList.add('active');
-
-        // Обновить активный элемент в таббаре
-        document.querySelectorAll('#admin-tabbar .tabbar-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        document.querySelector(`#admin-tabbar .tabbar-item[onclick="openTab('${tabId}')"]`).classList.add('active');
-    }
-
-    function updateCarsTable() {
-        const tbody = document.getElementById('cars-table-body');
-        tbody.innerHTML = '';
-
-        carsDatabase.forEach(car => {
-            const statusText = getStatusText(car.status);
-            const statusClass = getStatusClass(car.status);
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                    <td>${car.number}</td>
-                    <td>${car.brand}</td>
-                    <td>${car.model}</td>
-                    <td>
-                        <select class="status-select" onchange="updateCarStatus(${car.id}, this.value)" data-car-id="${car.id}">
-                            <option value="diagnostic" ${car.status === 'diagnostic' ? 'selected' : ''}>Дефектовка</option>
-                            <option value="repair" ${car.status === 'repair' ? 'selected' : ''}>Ремонт</option>
-                            <option value="painting" ${car.status === 'painting' ? 'selected' : ''}>Покраска</option>
-                            <option value="ready" ${car.status === 'ready' ? 'selected' : ''}>Готов к выдаче</option>
-                            <option value="completed" ${car.status === 'completed' ? 'selected' : ''}>Выдан клиенту</option>
-                        </select>
-                    </td>
-                `;
-
-            tbody.appendChild(row);
-        });
-    }
-
-    function updateCarStatus(carId, newStatus) {
-        const car = carsDatabase.find(c => c.id === carId);
-        if (car) {
-            car.status = newStatus;
-            updateClientsTable();
-            alert('Статус автомобиля успешно обновлен!');
-        }
-    }
-
-    function updateClientsTable() {
-        const tbody = document.getElementById('clients-table-body');
-        tbody.innerHTML = '';
-
-        clientsDatabase.forEach(client => {
-            const clientCars = carsDatabase.filter(car => car.clientId === client.id);
-            const carInfo = clientCars.length > 0
-                ? `${clientCars[0].brand} ${clientCars[0].model} (${clientCars[0].number})`
-                : 'Нет автомобилей';
-
-            const status = clientCars.length > 0
-                ? carsDatabase.find(car => car.clientId === client.id).status
-                : 'none';
-
-            const statusText = getStatusText(status);
-            const statusClass = getStatusClass(status);
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                    <td>${client.name}</td>
-                    <td>${client.phone}</td>
-                    <td>${carInfo}</td>
-                    <td><span class="${statusClass}">${statusText}</span></td>
-                `;
-
-            tbody.appendChild(row);
-        });
-    }
-
-    function getStatusText(status) {
-        switch(status) {
-            case 'diagnostic': return 'Дефектовка';
-            case 'repair': return 'Ремонт';
-            case 'painting': return 'Покраска';
-            case 'ready': return 'Готов к выдаче';
-            case 'completed': return 'Выдан клиенту';
-            default: return 'Не определен';
-        }
-    }
-
-    function getStatusClass(status) {
-        switch(status) {
-            case 'diagnostic': return 'status-pending';
-            case 'repair':
-            case 'painting': return 'status-in-progress';
-            case 'ready': return 'status-completed';
-            case 'completed': return 'status-completed';
-            default: return '';
-        }
-    }
-
-    function searchCars() {
-        const searchText = document.getElementById('car-search').value.toLowerCase();
-        const rows = document.getElementById('cars-table-body').getElementsByTagName('tr');
-
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            let found = false;
-
-            for (let j = 0; j < cells.length - 1; j++) {
-                if (cells[j].textContent.toLowerCase().includes(searchText)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            rows[i].style.display = found ? '' : 'none';
-        }
-    }
-
-    function searchClients() {
-        const searchText = document.getElementById('client-search').value.toLowerCase();
-        const rows = document.getElementById('clients-table-body').getElementsByTagName('tr');
-
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            let found = false;
-
-            for (let j = 0; j < cells.length - 1; j++) {
-                if (cells[j].textContent.toLowerCase().includes(searchText)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            rows[i].style.display = found ? '' : 'none';
-        }
-    }
-
-    function logout() {
-        document.getElementById('auth-view').style.display = 'flex';
-        document.getElementById('auth-view').style.opacity = '1';
-        document.getElementById('app').classList.remove('show');
-        document.getElementById('adminSection').style.display = 'none';
-        document.getElementById('user-tabbar').style.display = 'none';
-        document.getElementById('admin-tabbar').style.display = 'none';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-    }
-
-    // Initialize app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-        App.init();
-        document.getElementById('adminSection').style.display = 'none';
-        document.getElementById('user-tabbar').style.display = 'none';
-        document.getElementById('admin-tabbar').style.display = 'none';
-
-        // Добавляем обработчики для drag and drop на саму область загрузки
-        const uploadArea = document.querySelector('.photo-upload-area');
-        if (uploadArea) {
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = 'var(--primary-dark)';
-                uploadArea.style.background = 'var(--primary-light)';
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = 'var(--primary)';
-                uploadArea.style.background = '';
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = 'var(--primary)';
-                uploadArea.style.background = '';
-
-                const files = e.dataTransfer.files;
-                Admin.handlePhotoUpload(files);
-            });
-        }
-    });
-</script>
+<!-- Модальное окно редактирования автомобиля -->
+<div id="edit-car-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Редактирование автомобиля</h3>
+            <button class="modal-close" onclick="Admin.hideEditCarForm()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-car-brand">Марка:</label>
+                <input type="text" id="edit-car-brand" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-model">Модель:</label>
+                <input type="text" id="edit-car-model" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-number">Гос. номер:</label>
+                <input type="text" id="edit-car-number" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-odometer">Пробег:</label>
+                <input type="number" id="edit-car-odometer" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-car-year">Год выпуска:</label>
+                <input type="number" id="edit-car-year" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-car-vin">VIN:</label>
+                <input type="text" id="edit-car-vin" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-type-of-repair">Тип ремонта:</label>
+                <select id="edit-type-of-repair" class="form-input">
+                    <option value="body-repair">Кузовной ремонт</option>
+                    <option value="general-car">Слесарный ремонт</option>
+                    <option value="oil-change">Замена масла</option>
+                    <option value="maintenance">Техническое обслуживание</option>
+                    <option value="diagnostic">Диагностика</option>
+                </select>
+            </div>
+
+            <!-- Загрузка фотографий -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-camera"></i> Фотографии</h4>
+                <div class="photo-upload-area" onclick="document.getElementById('edit-photo-upload-input').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="photo-upload-text">Добавить фотографии</div>
+                    <input type="file" id="edit-photo-upload-input" multiple accept="image/*" onchange="Admin.handlePhotoUpload(this.files)">
+                </div>
+                <div class="uploaded-photos" id="uploaded-photos-container"></div>
+            </div>
+
+            <!-- Загрузка документов -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-file"></i> Документы</h4>
+                <div class="photo-upload-area" onclick="document.getElementById('edit-document-upload-input').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="photo-upload-text">Добавить документы</div>
+                    <input type="file" id="edit-document-upload-input" multiple onchange="Admin.handleDocumentUpload(this.files)">
+                </div>
+                <div class="uploaded-documents" id="uploaded-documents-container"></div>
+            </div>
+
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="Admin.hideEditCarForm()">Отмена</button>
+            <button class="btn btn-primary" onclick="Admin.saveCarEdits()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Блок админ-контролей в карточке автомобиля -->
+<div id="admin-controls" style="display: none; margin-top: 20px; padding: 20px; background: var(--light); border-radius: var(--radius-md);">
+    <h3><i class="fas fa-cog"></i> Управление для администратора</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="Admin.showEditCarForm(App.currentCar)">
+            <i class="fas fa-edit"></i> Редактировать автомобиль
+        </button>
+        <button class="btn btn-secondary" onclick="Admin.handlePhotoUpload()">
+            <i class="fas fa-camera"></i> Добавить фото
+        </button>
+        <button class="btn btn-secondary" onclick="Admin.handleDocumentUpload()">
+            <i class="fas fa-file"></i> Добавить документы
+        </button>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования автомобиля -->
+<div id="edit-car-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Редактирование автомобиля</h3>
+            <button class="modal-close" onclick="Admin.hideEditCarForm()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-car-brand">Марка:</label>
+                <input type="text" id="edit-car-brand" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-model">Модель:</label>
+                <input type="text" id="edit-car-model" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-number">Гос. номер:</label>
+                <input type="text" id="edit-car-number" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-car-odometer">Пробег:</label>
+                <input type="number" id="edit-car-odometer" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-car-year">Год выпуска:</label>
+                <input type="number" id="edit-car-year" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-car-vin">VIN:</label>
+                <input type="text" id="edit-car-vin" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-type-of-repair">Тип ремонта:</label>
+                <select id="edit-type-of-repair" class="form-input">
+                    <option value="body-repair">Кузовной ремонт</option>
+                    <option value="general-car">Слесарный ремонт</option>
+                    <option value="oil-change">Замена масла</option>
+                    <option value="maintenance">Техническое обслуживание</option>
+                    <option value="diagnostic">Диагностика</option>
+                </select>
+            </div>
+
+            <!-- Загрузка фотографий -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-camera"></i> Фотографии</h4>
+                <div class="photo-upload-area" onclick="document.getElementById('edit-photo-upload-input').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="photo-upload-text">Добавить фотографии</div>
+                    <input type="file" id="edit-photo-upload-input" multiple accept="image/*" onchange="Admin.handlePhotoUpload(this.files)">
+                </div>
+                <div class="uploaded-photos" id="uploaded-photos-container"></div>
+            </div>
+
+            <!-- Загрузка документов -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-file"></i> Документы</h4>
+                <div class="photo-upload-area" onclick="document.getElementById('edit-document-upload-input').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="photo-upload-text">Добавить документы</div>
+                    <input type="file" id="edit-document-upload-input" multiple onchange="Admin.handleDocumentUpload(this.files)">
+                </div>
+                <div class="uploaded-documents" id="uploaded-documents-container"></div>
+            </div>
+
+            <!-- Изменение текущего статуса -->
+            <div class="photo-upload-section">
+                <h4><i class="fas fa-tasks"></i> Текущий статус ремонта</h4>
+                <div class="form-group">
+                    <select id="current-status-select" class="form-input" onchange="Admin.updateCurrentStatus(this.value)">
+                        <option value="diagnostic">Дефектовка</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="painting">Покраска</option>
+                        <option value="ready">Готов к выдаче</option>
+                        <option value="completed">Выдан клиенту</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="Admin.hideEditCarForm()">Отмена</button>
+            <button class="btn btn-primary" onclick="Admin.saveCarEdits()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Блок админ-контролей в карточке автомобиля -->
+<div id="admin-controls" style="display: none; margin-top: 20px; padding: 20px; background: var(--light); border-radius: var(--radius-md);">
+    <h3><i class="fas fa-cog"></i> Управление для администратора</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="Admin.showEditCarForm(App.currentCar)">
+            <i class="fas fa-edit"></i> Редактировать автомобиль
+        </button>
+        <button class="btn btn-secondary" onclick="document.getElementById('edit-photo-upload-input').click()">
+            <i class="fas fa-camera"></i> Добавить фото
+        </button>
+        <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
+            <i class="fas fa-file"></i> Добавить документы
+        </button>
+    </div>
+</div>
+
+<!-- Подключение внешнего JavaScript файла -->
+<script src="script.js"></script>
 </body>
 </html>

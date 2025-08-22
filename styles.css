@@ -1520,3 +1520,345 @@ tr:nth-child(even) {
         flex-direction: column;
     }
 }
+
+/* Стили для редактирования автомобиля */
+.edit-car-form {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+}
+
+.edit-car-form h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-align: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* Стили для загрузки документов */
+.document-upload-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--light);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--primary-light);
+}
+
+.document-upload-section h4 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.document-upload-area {
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 15px;
+}
+
+.document-upload-area:hover {
+    border-color: var(--primary-dark);
+    background: var(--primary-light);
+}
+
+.document-upload-area i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.document-upload-text {
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.document-upload-text strong {
+    color: var(--primary);
+}
+
+.document-upload-input {
+    display: none;
+}
+
+.uploaded-documents {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.document-item-admin {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.document-icon-admin {
+    font-size: 2rem;
+    color: var(--primary);
+    text-align: center;
+}
+
+.document-name-admin {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-word;
+}
+
+.document-actions-admin {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.document-action-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.document-action-btn.view {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.document-action-btn.delete {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.document-action-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Стили для таблицы автомобилей в админке (убрана колонка статуса) */
+#cars-table th:nth-child(4),
+#cars-table td:nth-child(4) {
+    display: none;
+}
+
+#cars-table th {
+    width: 25%; /* Равномерное распределение по ширине */
+    text-align: center;
+}
+
+#cars-table td {
+    text-align: center;
+}
+
+/* Стили для кнопок редактирования */
+.edit-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-btn.primary {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.edit-btn.secondary {
+    background: var(--secondary);
+    color: var(--white);
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для модального окна редактирования */
+.edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.edit-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.edit-modal-content {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.edit-modal.show .edit-modal-content {
+    transform: translateY(0);
+}
+
+.edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.edit-modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.edit-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray);
+    cursor: pointer;
+    padding: 5px;
+}
+
+.edit-modal-body {
+    margin-bottom: 20px;
+}
+
+.edit-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Адаптивные стили для редактирования */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .edit-modal-content {
+        padding: 15px;
+    }
+
+    .uploaded-documents {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Дополнительные стили для улучшения UX */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--light-gray);
+    border-top: 2px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.success-message {
+    background: var(--success-light);
+    color: var(--success-dark);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin: 10px 0;
+    text-align: center;
+}
+
+.error-message {
+    background: var(--danger-light);
+    color: var(--danger-dark);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* Дополнительные цветовые переменные */
+:root {
+    --success-light: #d1f7f4;
+    --success-dark: #0c6b58;
+    --danger-light: #fde8e8;
+    --danger-dark: #c81e1e;
+}
+
+/* Стили для кликабельных госномеров */
+.car-number-link {
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-color: var(--primary);
+    text-underline-offset: 2px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.car-number-link:hover {
+    color: var(--primary-dark);
+    text-decoration-color: var(--primary-dark);
+}
+
+/* Стили для модального окна редактирования */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid var(--light-gray);
+    margin-top: 20px;
+}
