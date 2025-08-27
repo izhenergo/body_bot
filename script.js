@@ -10,6 +10,9 @@ var App = {
     currentCar: null,
 
     init() {
+        // Инициализируем тестовые данные ДО авторизации
+        this.initTestData();
+
         // Show auth form after splash
         setTimeout(() => {
             document.getElementById('splash').style.opacity = '0';
@@ -28,6 +31,77 @@ var App = {
             e.preventDefault();
             this.handleLogin();
         };
+    },
+
+    // Инициализация тестовых данных для всех пользователей
+    initTestData() {
+        carsDatabase = [
+            {
+                id: 1,
+                number: "А123БВ777",
+                brand: "Volkswagen",
+                model: "Tiguan",
+                year: 2019,
+                vin: "WVGZZZ5NZJW123456",
+                odometer: "45230",
+                status: "diagnostic",
+                typeOfRepair: "body-repair",
+                description: "Кузовной ремонт после ДТП",
+                clientId: 1,
+                photos: [],
+                documents: [],
+                repairStatus: [
+                    {
+                        id: 1,
+                        date: '10.05.2023',
+                        title: 'Приемка автомобиля',
+                        description: 'Автомобиль принят на ремонт после ДТП',
+                        status: 'completed'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                number: "Х987УК177",
+                brand: "Kia",
+                model: "Sportage",
+                year: 2021,
+                vin: "KNDPMCAC5M7123456",
+                odometer: "18750",
+                status: "ready",
+                typeOfRepair: "painting",
+                description: "Покраска переднего бампера",
+                clientId: 2,
+                photos: [],
+                documents: [],
+                repairStatus: [
+                    {
+                        id: 1,
+                        date: '01.05.2023',
+                        title: 'Приемка автомобиля',
+                        description: 'Автомобиль принят на покраску',
+                        status: 'completed'
+                    }
+                ]
+            }
+        ];
+
+        clientsDatabase = [
+            {
+                id: 1,
+                name: "Иван Петров",
+                phone: "+79123456789",
+                email: "ivan.petrov@example.com",
+                cars: [1]
+            },
+            {
+                id: 2,
+                name: "Мария Сидорova",
+                phone: "+79129876543",
+                email: "maria.sidorova@example.com",
+                cars: [2]
+            }
+        ];
     },
 
     handleLogin() {
@@ -51,6 +125,9 @@ var App = {
                 document.getElementById('app').classList.add('show');
                 document.getElementById('user-tabbar').style.display = 'flex';
                 document.getElementById('admin-tabbar').style.display = 'none';
+
+                // Инициализируем интерфейс для пользователя
+                this.initUserInterface();
                 this.navigateTo('main');
             } else if (username === '2' && password === '2') {
                 // Admin user
@@ -58,13 +135,64 @@ var App = {
                 document.getElementById('user-tabbar').style.display = 'none';
                 document.getElementById('admin-tabbar').style.display = 'flex';
                 document.getElementById('app').style.display = 'none';
-                initTestData();
+
+                // Инициализируем интерфейс для администратора
+                updateCarsTable();
+                updateClientsTable();
             } else {
                 alert('Неверный логин или пароль');
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('auth-view').style.opacity = '1';
             }
         }, 500);
+    },
+
+    // Инициализация интерфейса для пользователя
+    initUserInterface() {
+        // Обновляем список автомобилей
+        this.updateCarsList();
+
+        // Устанавливаем правильный заголовок
+        document.getElementById('current-screen-title').textContent = 'Мои автомобили';
+
+        // Показываем основной контент
+        document.getElementById('cars-list-view').style.display = 'block';
+        document.getElementById('car-details-view').style.display = 'none';
+        document.getElementById('history-view').style.display = 'none';
+        document.getElementById('profile-view').style.display = 'none';
+    },
+
+    // Обновление списка автомобилей для пользователя
+    updateCarsList() {
+        const carsList = document.getElementById('cars-list-view');
+
+        // Очищаем существующий список
+        carsList.innerHTML = '';
+
+        // Добавляем автомобили из базы данных
+        carsDatabase.forEach(car => {
+            const carCard = document.createElement('div');
+            carCard.className = 'car-card';
+            carCard.setAttribute('data-car-id', car.id);
+            carCard.onclick = () => this.showCarDetails(car.id);
+
+            const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
+            const statusText = getStatusText(car.status);
+            const repairTypeText = getRepairTypeText(car.typeOfRepair);
+
+            carCard.innerHTML = `
+                <div class="car-status ${statusClass}">${statusText}</div>
+                <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
+                <p>Госномер: ${car.number}</p>
+                <p>Статус: ${statusText}</p>
+                <div class="car-meta">
+                    <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
+                    <span><i class="fas fa-wrench"></i> ${repairTypeText}</span>
+                </div>
+            `;
+
+            carsList.appendChild(carCard);
+        });
     },
 
     navigateTo(view) {
@@ -93,6 +221,7 @@ var App = {
         switch(view) {
             case 'main':
                 document.getElementById('cars-list-view').style.display = 'block';
+                this.updateCarsList();
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
@@ -585,76 +714,21 @@ var Admin = {
     }
 };
 
+// Вспомогательные функции
+function getRepairTypeText(type) {
+    switch(type) {
+        case 'body-repair': return 'Кузовной ремонт';
+        case 'general-car': return 'Слесарный ремонт';
+        case 'oil-change': return 'Замена масла';
+        case 'maintenance': return 'Техническое обслуживание';
+        case 'diagnostic': return 'Диагностика';
+        default: return 'Ремонт';
+    }
+}
+
 // Функции для работы с данными (глобальные)
 function initTestData() {
-    carsDatabase = [
-        {
-            id: 1,
-            number: "А123БВ777",
-            brand: "Volkswagen",
-            model: "Tiguan",
-            year: 2019,
-            vin: "WVGZZZ5NZJW123456",
-            odometer: "45230",
-            status: "diagnostic",
-            typeOfRepair: "body-repair",
-            description: "Кузовной ремонт после ДТП",
-            clientId: 1,
-            photos: [],
-            documents: [],
-            repairStatus: [
-                {
-                    id: 1,
-                    date: '10.05.2023',
-                    title: 'Приемка автомобиля',
-                    description: 'Автомобиль принят на ремонт после ДТП',
-                    status: 'completed'
-                }
-            ]
-        },
-        {
-            id: 2,
-            number: "Х987УК177",
-            brand: "Kia",
-            model: "Sportage",
-            year: 2021,
-            vin: "KNDPMCAC5M7123456",
-            odometer: "18750",
-            status: "ready",
-            typeOfRepair: "painting",
-            description: "Покраска переднего бампера",
-            clientId: 2,
-            photos: [],
-            documents: [],
-            repairStatus: [
-                {
-                    id: 1,
-                    date: '01.05.2023',
-                    title: 'Приемка автомобиля',
-                    description: 'Автомобиль принят на покраску',
-                    status: 'completed'
-                }
-            ]
-        }
-    ];
-
-    clientsDatabase = [
-        {
-            id: 1,
-            name: "Иван Петров",
-            phone: "+79123456789",
-            email: "ivan.petrov@example.com",
-            cars: [1]
-        },
-        {
-            id: 2,
-            name: "Мария Сидорова",
-            phone: "+79129876543",
-            email: "maria.sidorova@example.com",
-            cars: [2]
-        }
-    ];
-
+    // Эта функция теперь вызывается в App.initTestData()
     updateCarsTable();
     updateClientsTable();
 }
