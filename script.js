@@ -236,7 +236,7 @@ var App = {
         // Для администратора сразу открываем редактирование
         const isAdmin = document.getElementById('adminSection').style.display === 'block';
         if (isAdmin) {
-            Admin.showEditCarForm(carId);
+            Admin.showCarPage(carId);
             return;
         }
 
@@ -443,6 +443,7 @@ var App = {
 var Admin = {
     uploadedPhotos: [],
     uploadedDocuments: [],
+    currentCar: null,
 
     showAddCarPage() {
         document.getElementById('add-car-page').classList.add('active');
@@ -669,6 +670,176 @@ var Admin = {
         document.getElementById('edit-car-modal').classList.add('show');
     },
 
+    // НОВАЯ ФУНКЦИЯ: Показать страницу автомобиля для администратора
+    showCarPage(carId) {
+        const car = carsDatabase.find(c => c.id === carId);
+        if (!car) return;
+
+        this.currentCar = car;
+
+        // Создаем страницу если ее нет
+        let carPage = document.getElementById('admin-car-page');
+        if (!carPage) {
+            carPage = document.createElement('div');
+            carPage.id = 'admin-car-page';
+            carPage.className = 'admin-car-page';
+            carPage.innerHTML = this.getCarPageHTML();
+            document.body.appendChild(carPage);
+        } else {
+            carPage.innerHTML = this.getCarPageHTML();
+        }
+
+        // Заполняем данные
+        this.fillCarPageData(car);
+
+        // Показываем страницу
+        carPage.classList.add('active');
+    },
+
+    // НОВАЯ ФУНКЦИЯ: HTML для страницы автомобиля
+    getCarPageHTML() {
+        return `
+            <div class="admin-car-header">
+                <button class="back-button" onclick="Admin.hideCarPage()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2>Редактирование автомобиля</h2>
+            </div>
+            
+            <div class="admin-car-content">
+                <div class="admin-car-form">
+                    <h3>Информация об автомобиле</h3>
+                    
+                    <!-- Статус ремонта (самый верхний элемент) -->
+                    <div class="form-group">
+                        <label for="admin-repair-status">Статус ремонта:</label>
+                        <select id="admin-repair-status" class="repair-status-select" onchange="Admin.updateCarRepairStatus(this.value)">
+                            <option value="diagnostic" class="status-option-diagnostic">Дефектовка</option>
+                            <option value="repair" class="status-option-repair">Ремонт</option>
+                            <option value="painting" class="status-option-painting">Покраска</option>
+                            <option value="ready" class="status-option-ready">Готов к выдаче</option>
+                            <option value="completed" class="status-option-completed">Выдан клиенту</option>
+                        </select>
+                    </div>
+
+                    <!-- Основная информация об автомобиле -->
+                    <div class="form-group">
+                        <label for="admin-car-brand">Марка:</label>
+                        <input type="text" id="admin-car-brand" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-car-model">Модель:</label>
+                        <input type="text" id="admin-car-model" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-car-number">Гос. номер:</label>
+                        <input type="text" id="admin-car-number" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-car-odometer">Пробег:</label>
+                        <input type="number" id="admin-car-odometer" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-car-year">Год выпуска:</label>
+                        <input type="number" id="admin-car-year" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-car-vin">VIN:</label>
+                        <input type="text" id="admin-car-vin" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-type-of-repair">Тип ремонта:</label>
+                        <select id="admin-type-of-repair" class="form-input">
+                            <option value="body-repair">Кузовной ремонт</option>
+                            <option value="general-car">Слесарный ремонт</option>
+                            <option value="oil-change">Замена масла</option>
+                            <option value="maintenance">Техническое обслуживание</option>
+                            <option value="diagnostic">Диагностика</option>
+                        </select>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="Admin.hideCarPage()">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                        <button class="btn btn-primary" onclick="Admin.saveCarPage()">
+                            <i class="fas fa-check"></i> Сохранить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    // НОВАЯ ФУНКЦИЯ: Заполнить данные на странице автомобиля
+    fillCarPageData(car) {
+        document.getElementById('admin-repair-status').value = car.status;
+        document.getElementById('admin-car-brand').value = car.brand;
+        document.getElementById('admin-car-model').value = car.model;
+        document.getElementById('admin-car-number').value = car.number;
+        document.getElementById('admin-car-odometer').value = car.odometer || '';
+        document.getElementById('admin-car-year').value = car.year || '';
+        document.getElementById('admin-car-vin').value = car.vin || '';
+        document.getElementById('admin-type-of-repair').value = car.typeOfRepair;
+    },
+
+    // НОВАЯ ФУНКЦИЯ: Обновить статус ремонта
+    updateCarRepairStatus(newStatus) {
+        if (this.currentCar) {
+            this.currentCar.status = newStatus;
+
+            // Добавляем запись в историю статусов
+            if (!this.currentCar.repairStatus) this.currentCar.repairStatus = [];
+            this.currentCar.repairStatus.push({
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ru-RU'),
+                title: `Статус изменен на: ${getStatusText(newStatus)}`,
+                description: 'Статус ремонта обновлен администратором',
+                status: 'completed'
+            });
+
+            // Обновляем таблицу
+            updateCarsTable();
+        }
+    },
+
+    // НОВАЯ ФУНКЦИЯ: Сохранить изменения на странице автомобиля
+    saveCarPage() {
+        if (!this.currentCar) return;
+
+        // Обновляем данные
+        this.currentCar.brand = document.getElementById('admin-car-brand').value;
+        this.currentCar.model = document.getElementById('admin-car-model').value;
+        this.currentCar.number = document.getElementById('admin-car-number').value;
+        this.currentCar.odometer = document.getElementById('admin-car-odometer').value;
+        this.currentCar.year = document.getElementById('admin-car-year').value;
+        this.currentCar.vin = document.getElementById('admin-car-vin').value;
+        this.currentCar.typeOfRepair = document.getElementById('admin-type-of-repair').value;
+
+        // Обновляем таблицу
+        updateCarsTable();
+
+        // Закрываем страницу
+        this.hideCarPage();
+
+        alert('Данные автомобиля успешно обновлены!');
+    },
+
+    // НОВАЯ ФУНКЦИЯ: Скрыть страницу автомобиля
+    hideCarPage() {
+        const carPage = document.getElementById('admin-car-page');
+        if (carPage) {
+            carPage.classList.remove('active');
+        }
+    },
+
     updateCurrentStatus(newStatus) {
         const car = carsDatabase.find(c => c.id === currentEditingCarId);
         if (car) {
@@ -757,8 +928,8 @@ function updateCarsTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>
-                    <a href="javascript:void(0)" onclick="App.showCarDetails(${car.id})" 
-                       style="color: var(--primary); text-decoration: underline; text-decoration-color: var(--primary); text-underline-offset: 2px; cursor: pointer;">
+                    <a href="javascript:void(0)" onclick="Admin.showCarPage(${car.id})" 
+                       class="car-number-link">
                         ${car.number}
                     </a>
                 </td>
@@ -905,4 +1076,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adminSection').style.display = 'none';
     document.getElementById('user-tabbar').style.display = 'none';
     document.getElementById('admin-tabbar').style.display = 'none';
+
+    // Создаем элемент для страницы автомобиля администратора
+    const carPage = document.createElement('div');
+    carPage.id = 'admin-car-page';
+    carPage.className = 'admin-car-page';
+    document.body.appendChild(carPage);
 });

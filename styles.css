@@ -1659,21 +1659,6 @@ tr:nth-child(even) {
     transform: scale(1.05);
 }
 
-/* Стили для таблицы автомобилей в админке (убрана колонка статуса) */
-#cars-table th:nth-child(4),
-#cars-table td:nth-child(4) {
-    display: none;
-}
-
-#cars-table th {
-    width: 25%; /* Равномерное распределение по ширине */
-    text-align: center;
-}
-
-#cars-table td {
-    text-align: center;
-}
-
 /* Стили для кнопок редактирования */
 .edit-buttons {
     display: flex;
@@ -1861,4 +1846,161 @@ tr:nth-child(even) {
     padding-top: 20px;
     border-top: 1px solid var(--light-gray);
     margin-top: 20px;
+}
+
+/* НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ АВТОМОБИЛЯ АДМИНИСТРАТОРА */
+.admin-car-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--white);
+    z-index: 1000;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.admin-car-page.active {
+    transform: translateX(0);
+}
+
+.admin-car-header {
+    background: var(--primary);
+    color: var(--white);
+    padding: 16px 20px;
+    padding-top: calc(40px + env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-car-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.admin-car-content {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.admin-car-form {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.admin-car-form h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-align: center;
+}
+
+/* Стили для выпадающего списка статуса ремонта */
+.repair-status-select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--primary-light);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: var(--white);
+    color: var(--primary);
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 20px;
+}
+
+.repair-status-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+.repair-status-select option {
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+/* Стили для статусов */
+.status-option-diagnostic { color: var(--warning); }
+.status-option-repair { color: var(--accent); }
+.status-option-painting { color: var(--primary); }
+.status-option-ready { color: var(--success); }
+.status-option-completed { color: var(--success-dark); }
+
+/* Адаптивные стили для страницы автомобиля администратора */
+@media (max-width: 768px) {
+    .admin-car-content {
+        padding: 15px;
+    }
+
+    .admin-car-form {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-car-header {
+        padding: 12px 16px;
+        padding-top: calc(35px + env(safe-area-inset-top));
+    }
+
+    .admin-car-header h2 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Стили для таблицы автомобилей в админке */
+#cars-table th,
+#cars-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#cars-table th:nth-child(1),
+#cars-table td:nth-child(1) {
+    width: 25%;
+}
+
+#cars-table th:nth-child(2),
+#cars-table td:nth-child(2) {
+    width: 20%;
+}
+
+#cars-table th:nth-child(3),
+#cars-table td:nth-child(3) {
+    width: 25%;
+}
+
+#cars-table th:nth-child(4),
+#cars-table td:nth-child(4) {
+    width: 30%;
+}
+
+/* Стили для выпадающего списка в таблице */
+.status-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius-sm);
+    background-color: var(--white);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
 }
