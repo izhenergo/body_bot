@@ -3,6 +3,7 @@ var carsDatabase = [];
 var clientsDatabase = [];
 var currentDragItem = null;
 var currentEditingCarId = null;
+var autoSaveTimeout = null;
 
 // Клиентское приложение (глобальное)
 var App = {
@@ -45,11 +46,22 @@ var App = {
                 vin: "WVGZZZ5NZJW123456",
                 odometer: "45230",
                 status: "diagnostic",
-                typeOfRepair: "body-repair",
                 description: "Кузовной ремонт после ДТП",
                 clientId: 1,
-                photos: [],
-                documents: [],
+                photos: {
+                    diagnostic: [],
+                    repair: [],
+                    painting: [],
+                    ready: [],
+                    completed: []
+                },
+                documents: {
+                    'work-certificate': [],
+                    'payment-receipt': [],
+                    'invoice': [],
+                    'contract': [],
+                    'warranty': []
+                },
                 repairStatus: [
                     {
                         id: 1,
@@ -69,11 +81,22 @@ var App = {
                 vin: "KNDPMCAC5M7123456",
                 odometer: "18750",
                 status: "ready",
-                typeOfRepair: "painting",
                 description: "Покраска переднего бампера",
                 clientId: 2,
-                photos: [],
-                documents: [],
+                photos: {
+                    diagnostic: [],
+                    repair: [],
+                    painting: [],
+                    ready: [],
+                    completed: []
+                },
+                documents: {
+                    'work-certificate': [],
+                    'payment-receipt': [],
+                    'invoice': [],
+                    'contract': [],
+                    'warranty': []
+                },
                 repairStatus: [
                     {
                         id: 1,
@@ -96,7 +119,7 @@ var App = {
             },
             {
                 id: 2,
-                name: "Мария Сидорova",
+                name: "Мария Сидорова",
                 phone: "+79129876543",
                 email: "maria.sidorova@example.com",
                 cars: [2]
@@ -178,7 +201,6 @@ var App = {
 
             const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
             const statusText = getStatusText(car.status);
-            const repairTypeText = getRepairTypeText(car.typeOfRepair);
 
             carCard.innerHTML = `
                 <div class="car-status ${statusClass}">${statusText}</div>
@@ -187,7 +209,6 @@ var App = {
                 <p>Статус: ${statusText}</p>
                 <div class="car-meta">
                     <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
-                    <span><i class="fas fa-wrench"></i> ${repairTypeText}</span>
                 </div>
             `;
 
@@ -236,7 +257,7 @@ var App = {
         // Для администратора сразу открываем редактирование
         const isAdmin = document.getElementById('adminSection').style.display === 'block';
         if (isAdmin) {
-            Admin.showCarPage(carId);
+            Admin.showEditCarForm(carId);
             return;
         }
 
@@ -299,12 +320,20 @@ var App = {
         const gallery = document.getElementById('gallery-container');
         gallery.innerHTML = '';
 
-        if (photos.length === 0) {
+        // Собираем все фотографии из всех статусов
+        const allPhotos = [];
+        for (const status in photos) {
+            if (photos[status] && Array.isArray(photos[status])) {
+                allPhotos.push(...photos[status]);
+            }
+        }
+
+        if (allPhotos.length === 0) {
             gallery.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Фотографии по ремонту пока отсутствуют</p>';
             return;
         }
 
-        photos.forEach(photo => {
+        allPhotos.forEach(photo => {
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
 
@@ -321,12 +350,20 @@ var App = {
         const documentList = document.getElementById('document-list');
         documentList.innerHTML = '';
 
-        if (!documents || documents.length === 0) {
+        // Собираем все документы из всех типов
+        const allDocuments = [];
+        for (const type in documents) {
+            if (documents[type] && Array.isArray(documents[type])) {
+                allDocuments.push(...documents[type]);
+            }
+        }
+
+        if (allDocuments.length === 0) {
             documentList.innerHTML = '<p style="padding: 16px; text-align: center; color: var(--gray);">Документы пока отсутствуют</p>';
             return;
         }
 
-        documents.forEach(doc => {
+        allDocuments.forEach(doc => {
             const docItem = document.createElement('div');
             docItem.className = 'document-item';
 
@@ -444,6 +481,7 @@ var Admin = {
     uploadedPhotos: [],
     uploadedDocuments: [],
     currentCar: null,
+    currentPhotoStatus: null,
 
     showAddCarPage() {
         document.getElementById('add-car-page').classList.add('active');
@@ -461,7 +499,6 @@ var Admin = {
         document.getElementById('new-car-odometer').value = '';
         document.getElementById('new-car-year').value = '';
         document.getElementById('new-car-vin').value = '';
-        document.getElementById('new-type-of-repair').value = 'body-repair';
         this.uploadedPhotos = [];
         this.uploadedDocuments = [];
         this.updatePhotoGallery();
@@ -607,7 +644,6 @@ var Admin = {
         const odometer = document.getElementById('new-car-odometer').value;
         const year = document.getElementById('new-car-year').value;
         const vin = document.getElementById('new-car-vin').value;
-        const repairType = document.getElementById('new-type-of-repair').value;
 
         if (!brand || !model || !number) {
             alert('Пожалуйста, заполните обязательные поля: марка, модель и гос. номер');
@@ -622,10 +658,21 @@ var Admin = {
             year: year,
             vin: vin,
             odometer: odometer,
-            typeOfRepair: repairType,
             status: 'diagnostic',
-            photos: this.uploadedPhotos,
-            documents: this.uploadedDocuments,
+            photos: {
+                diagnostic: [],
+                repair: [],
+                painting: [],
+                ready: [],
+                completed: []
+            },
+            documents: {
+                'work-certificate': [],
+                'payment-receipt': [],
+                'invoice': [],
+                'contract': [],
+                'warranty': []
+            },
             repairStatus: [{
                 id: 1,
                 date: new Date().toLocaleDateString('ru-RU'),
@@ -649,195 +696,34 @@ var Admin = {
         if (!car) return;
 
         currentEditingCarId = carId;
+        this.currentCar = car;
 
         // Заполняем форму данными
+        document.getElementById('current-status-select').value = car.status;
         document.getElementById('edit-car-brand').value = car.brand;
         document.getElementById('edit-car-model').value = car.model;
         document.getElementById('edit-car-number').value = car.number;
         document.getElementById('edit-car-odometer').value = car.odometer;
         document.getElementById('edit-car-year').value = car.year;
         document.getElementById('edit-car-vin').value = car.vin;
-        document.getElementById('edit-type-of-repair').value = car.typeOfRepair;
-        document.getElementById('current-status-select').value = car.status;
 
         // Загружаем текущие фото и документы
-        this.uploadedPhotos = car.photos || [];
-        this.uploadedDocuments = car.documents || [];
-        this.updatePhotoGallery();
-        this.updateDocumentGallery();
+        this.uploadedPhotos = [];
+        this.uploadedDocuments = [];
 
         // Показываем модальное окно
         document.getElementById('edit-car-modal').classList.add('show');
     },
 
-    // НОВАЯ ФУНКЦИЯ: Показать страницу автомобиля для администратора
-    showCarPage(carId) {
-        const car = carsDatabase.find(c => c.id === carId);
-        if (!car) return;
-
-        this.currentCar = car;
-
-        // Создаем страницу если ее нет
-        let carPage = document.getElementById('admin-car-page');
-        if (!carPage) {
-            carPage = document.createElement('div');
-            carPage.id = 'admin-car-page';
-            carPage.className = 'admin-car-page';
-            carPage.innerHTML = this.getCarPageHTML();
-            document.body.appendChild(carPage);
-        } else {
-            carPage.innerHTML = this.getCarPageHTML();
+    // Автоматическое сохранение при изменении полей
+    autoSaveCar() {
+        if (autoSaveTimeout) {
+            clearTimeout(autoSaveTimeout);
         }
 
-        // Заполняем данные
-        this.fillCarPageData(car);
-
-        // Показываем страницу
-        carPage.classList.add('active');
-    },
-
-    // НОВАЯ ФУНКЦИЯ: HTML для страницы автомобиля
-    getCarPageHTML() {
-        return `
-            <div class="admin-car-header">
-                <button class="back-button" onclick="Admin.hideCarPage()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h2>Редактирование автомобиля</h2>
-            </div>
-            
-            <div class="admin-car-content">
-                <div class="admin-car-form">
-                    <h3>Информация об автомобиле</h3>
-                    
-                    <!-- Статус ремонта (самый верхний элемент) -->
-                    <div class="form-group">
-                        <label for="admin-repair-status">Статус ремонта:</label>
-                        <select id="admin-repair-status" class="repair-status-select" onchange="Admin.updateCarRepairStatus(this.value)">
-                            <option value="diagnostic" class="status-option-diagnostic">Дефектовка</option>
-                            <option value="repair" class="status-option-repair">Ремонт</option>
-                            <option value="painting" class="status-option-painting">Покраска</option>
-                            <option value="ready" class="status-option-ready">Готов к выдаче</option>
-                            <option value="completed" class="status-option-completed">Выдан клиенту</option>
-                        </select>
-                    </div>
-
-                    <!-- Основная информация об автомобиле -->
-                    <div class="form-group">
-                        <label for="admin-car-brand">Марка:</label>
-                        <input type="text" id="admin-car-brand" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-car-model">Модель:</label>
-                        <input type="text" id="admin-car-model" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-car-number">Гос. номер:</label>
-                        <input type="text" id="admin-car-number" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-car-odometer">Пробег:</label>
-                        <input type="number" id="admin-car-odometer" class="form-input">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-car-year">Год выпуска:</label>
-                        <input type="number" id="admin-car-year" class="form-input">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-car-vin">VIN:</label>
-                        <input type="text" id="admin-car-vin" class="form-input">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="admin-type-of-repair">Тип ремонта:</label>
-                        <select id="admin-type-of-repair" class="form-input">
-                            <option value="body-repair">Кузовной ремонт</option>
-                            <option value="general-car">Слесарный ремонт</option>
-                            <option value="oil-change">Замена масла</option>
-                            <option value="maintenance">Техническое обслуживание</option>
-                            <option value="diagnostic">Диагностика</option>
-                        </select>
-                    </div>
-
-                    <!-- Кнопки действий -->
-                    <div class="form-actions">
-                        <button class="btn btn-secondary" onclick="Admin.hideCarPage()">
-                            <i class="fas fa-times"></i> Отмена
-                        </button>
-                        <button class="btn btn-primary" onclick="Admin.saveCarPage()">
-                            <i class="fas fa-check"></i> Сохранить
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    // НОВАЯ ФУНКЦИЯ: Заполнить данные на странице автомобиля
-    fillCarPageData(car) {
-        document.getElementById('admin-repair-status').value = car.status;
-        document.getElementById('admin-car-brand').value = car.brand;
-        document.getElementById('admin-car-model').value = car.model;
-        document.getElementById('admin-car-number').value = car.number;
-        document.getElementById('admin-car-odometer').value = car.odometer || '';
-        document.getElementById('admin-car-year').value = car.year || '';
-        document.getElementById('admin-car-vin').value = car.vin || '';
-        document.getElementById('admin-type-of-repair').value = car.typeOfRepair;
-    },
-
-    // НОВАЯ ФУНКЦИЯ: Обновить статус ремонта
-    updateCarRepairStatus(newStatus) {
-        if (this.currentCar) {
-            this.currentCar.status = newStatus;
-
-            // Добавляем запись в историю статусов
-            if (!this.currentCar.repairStatus) this.currentCar.repairStatus = [];
-            this.currentCar.repairStatus.push({
-                id: Date.now(),
-                date: new Date().toLocaleDateString('ru-RU'),
-                title: `Статус изменен на: ${getStatusText(newStatus)}`,
-                description: 'Статус ремонта обновлен администратором',
-                status: 'completed'
-            });
-
-            // Обновляем таблицу
-            updateCarsTable();
-        }
-    },
-
-    // НОВАЯ ФУНКЦИЯ: Сохранить изменения на странице автомобиля
-    saveCarPage() {
-        if (!this.currentCar) return;
-
-        // Обновляем данные
-        this.currentCar.brand = document.getElementById('admin-car-brand').value;
-        this.currentCar.model = document.getElementById('admin-car-model').value;
-        this.currentCar.number = document.getElementById('admin-car-number').value;
-        this.currentCar.odometer = document.getElementById('admin-car-odometer').value;
-        this.currentCar.year = document.getElementById('admin-car-year').value;
-        this.currentCar.vin = document.getElementById('admin-car-vin').value;
-        this.currentCar.typeOfRepair = document.getElementById('admin-type-of-repair').value;
-
-        // Обновляем таблицу
-        updateCarsTable();
-
-        // Закрываем страницу
-        this.hideCarPage();
-
-        alert('Данные автомобиля успешно обновлены!');
-    },
-
-    // НОВАЯ ФУНКЦИЯ: Скрыть страницу автомобиля
-    hideCarPage() {
-        const carPage = document.getElementById('admin-car-page');
-        if (carPage) {
-            carPage.classList.remove('active');
-        }
+        autoSaveTimeout = setTimeout(() => {
+            this.saveCarEdits();
+        }, 1000);
     },
 
     updateCurrentStatus(newStatus) {
@@ -854,6 +740,8 @@ var Admin = {
                 description: 'Статус ремонта обновлен администратором',
                 status: 'completed'
             });
+
+            updateCarsTable();
         }
     },
 
@@ -868,12 +756,8 @@ var Admin = {
         car.odometer = document.getElementById('edit-car-odometer').value;
         car.year = document.getElementById('edit-car-year').value;
         car.vin = document.getElementById('edit-car-vin').value;
-        car.typeOfRepair = document.getElementById('edit-type-of-repair').value;
-        car.photos = this.uploadedPhotos;
-        car.documents = this.uploadedDocuments;
 
         updateCarsTable();
-        this.hideEditCarForm();
         alert('Данные автомобиля успешно обновлены!');
     },
 
@@ -882,18 +766,244 @@ var Admin = {
         this.uploadedPhotos = [];
         this.uploadedDocuments = [];
         currentEditingCarId = null;
+        this.currentCar = null;
+    },
+
+    // Функции для работы с фотографиями
+    showPhotoEditPage() {
+        if (!this.currentCar) return;
+
+        // Показываем страницу редактирования фотографий
+        document.getElementById('photo-edit-page').classList.add('active');
+
+        // Загружаем фотографии для текущего автомобиля
+        this.loadStatusPhotos();
+    },
+
+    hidePhotoEditPage() {
+        document.getElementById('photo-edit-page').classList.remove('active');
+    },
+
+    loadStatusPhotos() {
+        if (!this.currentCar) return;
+
+        const statuses = ['diagnostic', 'repair', 'painting', 'ready', 'completed'];
+
+        statuses.forEach(status => {
+            const container = document.getElementById(`${status}-photos`);
+            if (container) {
+                container.innerHTML = '';
+
+                if (this.currentCar.photos && this.currentCar.photos[status] && this.currentCar.photos[status].length > 0) {
+                    this.currentCar.photos[status].forEach(photo => {
+                        const photoElement = document.createElement('div');
+                        photoElement.className = 'status-photo-item';
+                        photoElement.innerHTML = `
+                            <img src="${photo.dataUrl}" alt="Фото статуса" class="status-photo">
+                            <button class="status-photo-delete" onclick="Admin.deleteStatusPhoto('${status}', ${photo.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        container.appendChild(photoElement);
+                    });
+                } else {
+                    container.innerHTML = '<p class="no-photos-message">Нет фотографий для этого статуса</p>';
+                }
+            }
+        });
+    },
+
+    uploadPhotoForStatus(status) {
+        if (!this.currentCar) return;
+
+        this.currentPhotoStatus = status;
+
+        // Создаем скрытый input для загрузки фото
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+        input.onchange = (e) => this.handleStatusPhotoUpload(e.target.files, status);
+        input.click();
+    },
+
+    handleStatusPhotoUpload(files, status) {
+        if (!files || files.length === 0) return;
+        if (!this.currentCar) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Инициализируем объект photos если его нет
+                    if (!this.currentCar.photos) {
+                        this.currentCar.photos = {
+                            diagnostic: [],
+                            repair: [],
+                            painting: [],
+                            ready: [],
+                            completed: []
+                        };
+                    }
+
+                    // Инициализируем массив для статуса если его нет
+                    if (!this.currentCar.photos[status]) {
+                        this.currentCar.photos[status] = [];
+                    }
+
+                    // Добавляем фото
+                    this.currentCar.photos[status].push({
+                        id: Date.now() + i,
+                        dataUrl: e.target.result,
+                        name: file.name,
+                        uploadedAt: new Date().toISOString()
+                    });
+
+                    // Обновляем отображение
+                    this.loadStatusPhotos();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    },
+
+    deleteStatusPhoto(status, photoId) {
+        if (!this.currentCar || !this.currentCar.photos || !this.currentCar.photos[status]) return;
+
+        this.currentCar.photos[status] = this.currentCar.photos[status].filter(photo => photo.id !== photoId);
+        this.loadStatusPhotos();
+    },
+
+    // Функции для работы с документами
+    showDocumentEditPage() {
+        if (!this.currentCar) return;
+
+        // Показываем страницу редактирования документов
+        document.getElementById('document-edit-page').classList.add('active');
+
+        // Загружаем документы для текущего автомобиля
+        this.loadStatusDocuments();
+    },
+
+    hideDocumentEditPage() {
+        document.getElementById('document-edit-page').classList.remove('active');
+    },
+
+    loadStatusDocuments() {
+        if (!this.currentCar) return;
+
+        const documentTypes = ['work-certificate', 'payment-receipt', 'invoice', 'contract', 'warranty'];
+
+        documentTypes.forEach(type => {
+            const container = document.getElementById(`${type}-docs`);
+            if (container) {
+                container.innerHTML = '';
+
+                if (this.currentCar.documents && this.currentCar.documents[type] && this.currentCar.documents[type].length > 0) {
+                    this.currentCar.documents[type].forEach(doc => {
+                        const docElement = document.createElement('div');
+                        docElement.className = 'status-photo-item';
+                        docElement.innerHTML = `
+                            <div class="document-preview">
+                                <i class="${App.getDocumentIcon(doc.type)}"></i>
+                                <span>${doc.name}</span>
+                            </div>
+                            <button class="status-photo-delete" onclick="Admin.deleteStatusDocument('${type}', ${doc.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        container.appendChild(docElement);
+                    });
+                } else {
+                    container.innerHTML = '<p class="no-photos-message">Нет документов этого типа</p>';
+                }
+            }
+        });
+    },
+
+    uploadDocumentForType(type) {
+        if (!this.currentCar) return;
+
+        // Создаем скрытый input для загрузки документа
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.onchange = (e) => this.handleStatusDocumentUpload(e.target.files, type);
+        input.click();
+    },
+
+    handleStatusDocumentUpload(files, type) {
+        if (!files || files.length === 0) return;
+        if (!this.currentCar) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Инициализируем объект documents если его нет
+                if (!this.currentCar.documents) {
+                    this.currentCar.documents = {
+                        'work-certificate': [],
+                        'payment-receipt': [],
+                        'invoice': [],
+                        'contract': [],
+                        'warranty': []
+                    };
+                }
+
+                // Инициализируем массив для типа если его нет
+                if (!this.currentCar.documents[type]) {
+                    this.currentCar.documents[type] = [];
+                }
+
+                const fileType = this.getFileType(file.name);
+
+                // Добавляем документ
+                this.currentCar.documents[type].push({
+                    id: Date.now() + i,
+                    dataUrl: e.target.result,
+                    name: file.name,
+                    type: fileType,
+                    size: this.formatFileSize(file.size),
+                    uploadedAt: new Date().toISOString()
+                });
+
+                // Обновляем отображение
+                this.loadStatusDocuments();
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    deleteStatusDocument(type, docId) {
+        if (!this.currentCar || !this.currentCar.documents || !this.currentCar.documents[type]) return;
+
+        this.currentCar.documents[type] = this.currentCar.documents[type].filter(doc => doc.id !== docId);
+        this.loadStatusDocuments();
     }
 };
 
 // Вспомогательные функции
-function getRepairTypeText(type) {
+function getStatusText(status) {
+    switch(status) {
+        case 'diagnostic': return 'Дефектовка';
+        case 'repair': return 'Ремонт';
+        case 'painting': return 'Покраска';
+        case 'ready': return 'Готов к выдаче';
+        case 'completed': return 'Выдан клиенту';
+        default: return 'Не определен';
+    }
+}
+
+function getDocumentTypeText(type) {
     switch(type) {
-        case 'body-repair': return 'Кузовной ремонт';
-        case 'general-car': return 'Слесарный ремонт';
-        case 'oil-change': return 'Замена масла';
-        case 'maintenance': return 'Техническое обслуживание';
-        case 'diagnostic': return 'Диагностика';
-        default: return 'Ремонт';
+        case 'work-certificate': return 'Акт выполненных работ';
+        case 'payment-receipt': return 'Чек об оплате';
+        case 'invoice': return 'Счет-фактура';
+        case 'contract': return 'Договор';
+        case 'warranty': return 'Гарантийный талон';
+        default: return 'Документ';
     }
 }
 
@@ -928,22 +1038,13 @@ function updateCarsTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>
-                    <a href="javascript:void(0)" onclick="Admin.showCarPage(${car.id})" 
+                    <a href="javascript:void(0)" onclick="Admin.showEditCarForm(${car.id})" 
                        class="car-number-link">
                         ${car.number}
                     </a>
                 </td>
                 <td>${car.brand}</td>
                 <td>${car.model}</td>
-                <td>
-                    <select class="status-select" onchange="updateCarStatus(${car.id}, this.value)" data-car-id="${car.id}">
-                        <option value="diagnostic" ${car.status === 'diagnostic' ? 'selected' : ''}>Дефектовка</option>
-                        <option value="repair" ${car.status === 'repair' ? 'selected' : ''}>Ремонт</option>
-                        <option value="painting" ${car.status === 'painting' ? 'selected' : ''}>Покраска</option>
-                        <option value="ready" ${car.status === 'ready' ? 'selected' : ''}>Готов к выдаче</option>
-                        <option value="completed" ${car.status === 'completed' ? 'selected' : ''}>Выдан клиенту</option>
-                    </select>
-                </td>
             `;
 
         tbody.appendChild(row);
@@ -976,9 +1077,13 @@ function updateClientsTable() {
 
     clientsDatabase.forEach(client => {
         const clientCars = carsDatabase.filter(car => car.clientId === client.id);
-        const carInfo = clientCars.length > 0
-            ? `${clientCars[0].brand} ${clientCars[0].model} (${clientCars[0].number})`
-            : 'Нет автомобилей';
+        let carInfo = 'Нет автомобилей';
+
+        if (clientCars.length > 0) {
+            const car = clientCars[0];
+            carInfo = `<a href="javascript:void(0)" onclick="Admin.showEditCarForm(${car.id})" 
+                         class="car-number-link">${car.number}</a>`;
+        }
 
         const status = clientCars.length > 0
             ? carsDatabase.find(car => car.clientId === client.id).status
@@ -997,17 +1102,6 @@ function updateClientsTable() {
 
         tbody.appendChild(row);
     });
-}
-
-function getStatusText(status) {
-    switch(status) {
-        case 'diagnostic': return 'Дефектовка';
-        case 'repair': return 'Ремонт';
-        case 'painting': return 'Покраска';
-        case 'ready': return 'Готов к выдаче';
-        case 'completed': return 'Выдан клиенту';
-        default: return 'Не определен';
-    }
 }
 
 function getStatusClass(status) {
@@ -1076,10 +1170,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adminSection').style.display = 'none';
     document.getElementById('user-tabbar').style.display = 'none';
     document.getElementById('admin-tabbar').style.display = 'none';
-
-    // Создаем элемент для страницы автомобиля администратора
-    const carPage = document.createElement('div');
-    carPage.id = 'admin-car-page';
-    carPage.className = 'admin-car-page';
-    document.body.appendChild(carPage);
 });
