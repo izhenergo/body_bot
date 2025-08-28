@@ -188,6 +188,7 @@ var App = {
     // Обновление списка автомобилей для пользователя
     updateCarsList() {
         const carsList = document.getElementById('cars-list-view');
+        if (!carsList) return;
 
         // Очищаем существующий список
         carsList.innerHTML = '';
@@ -223,7 +224,11 @@ var App = {
         document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.getElementById(`${view}-tab`).classList.add('active');
+
+        const viewTab = document.getElementById(`${view}-tab`);
+        if (viewTab) {
+            viewTab.classList.add('active');
+        }
 
         // Update title
         const titles = {
@@ -231,31 +236,47 @@ var App = {
             'history': 'История обслуживания',
             'profile': 'Мой профиль'
         };
-        document.getElementById('current-screen-title').textContent = titles[view];
+        const titleElement = document.getElementById('current-screen-title');
+        if (titleElement) {
+            titleElement.textContent = titles[view] || 'Мои автомобили';
+        }
 
         // Show appropriate view
-        document.getElementById('cars-list-view').style.display = 'none';
-        document.getElementById('car-details-view').style.display = 'none';
-        document.getElementById('history-view').style.display = 'none';
-        document.getElementById('profile-view').style.display = 'none';
+        const views = ['cars-list-view', 'car-details-view', 'history-view', 'profile-view'];
+        views.forEach(viewId => {
+            const element = document.getElementById(viewId);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
 
         switch(view) {
             case 'main':
-                document.getElementById('cars-list-view').style.display = 'block';
-                this.updateCarsList();
+                const carsListView = document.getElementById('cars-list-view');
+                if (carsListView) {
+                    carsListView.style.display = 'block';
+                    this.updateCarsList();
+                }
                 break;
             case 'history':
-                document.getElementById('history-view').style.display = 'block';
+                const historyView = document.getElementById('history-view');
+                if (historyView) {
+                    historyView.style.display = 'block';
+                }
                 break;
             case 'profile':
-                document.getElementById('profile-view').style.display = 'block';
+                const profileView = document.getElementById('profile-view');
+                if (profileView) {
+                    profileView.style.display = 'block';
+                }
                 break;
         }
     },
 
     showCarDetails(carId) {
         // Для администратора сразу открываем редактирование
-        const isAdmin = document.getElementById('adminSection').style.display === 'block';
+        const adminSection = document.getElementById('adminSection');
+        const isAdmin = adminSection && adminSection.style.display === 'block';
         if (isAdmin) {
             Admin.showEditCarForm(carId);
             return;
@@ -271,11 +292,11 @@ var App = {
         }
 
         // Update car details
-        document.getElementById('car-model').textContent = `${car.brand} ${car.model}`;
-        document.getElementById('car-plate').textContent = car.number;
-        document.getElementById('car-vin').textContent = car.vin || 'Не указан';
-        document.getElementById('car-year').textContent = car.year || 'Не указан';
-        document.getElementById('car-mileage').textContent = car.odometer ? `${car.odometer} км` : 'Не указан';
+        this.updateElementText('car-model', `${car.brand} ${car.model}`);
+        this.updateElementText('car-plate', car.number);
+        this.updateElementText('car-vin', car.vin || 'Не указан');
+        this.updateElementText('car-year', car.year || 'Не указан');
+        this.updateElementText('car-mileage', car.odometer ? `${car.odometer} км` : 'Не указан');
 
         // Update repair status timeline
         this.updateRepairStatus(car.repairStatus || []);
@@ -287,13 +308,40 @@ var App = {
         this.updateDocuments(car.documents || []);
 
         // Show car details view
-        document.getElementById('cars-list-view').style.display = 'none';
-        document.getElementById('car-details-view').style.display = 'block';
-        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
+        this.hideElement('cars-list-view');
+        this.showElement('car-details-view');
+
+        const titleElement = document.getElementById('current-screen-title');
+        if (titleElement) {
+            titleElement.textContent = `${car.brand} ${car.model}`;
+        }
+    },
+
+    updateElementText(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+        }
+    },
+
+    showElement(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'block';
+        }
+    },
+
+    hideElement(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'none';
+        }
     },
 
     updateRepairStatus(statusItems) {
         const timeline = document.getElementById('status-timeline');
+        if (!timeline) return;
+
         timeline.innerHTML = '';
 
         if (statusItems.length === 0) {
@@ -316,8 +364,15 @@ var App = {
         });
     },
 
-    updatePhotoGallery(photos) {
-        const gallery = document.getElementById('gallery-container');
+    updatePhotoGallery(photos, containerId = 'gallery-container') {
+        const gallery = document.getElementById(containerId);
+
+        // Проверяем существование элемента
+        if (!gallery) {
+            console.error(`Элемент с ID ${containerId} не найден!`);
+            return;
+        }
+
         gallery.innerHTML = '';
 
         // Собираем все фотографии из всех статусов
@@ -348,6 +403,8 @@ var App = {
 
     updateDocuments(documents) {
         const documentList = document.getElementById('document-list');
+        if (!documentList) return;
+
         documentList.innerHTML = '';
 
         // Собираем все документы из всех типов
@@ -430,18 +487,22 @@ var App = {
 
     showGames() {
         const modal = document.getElementById('games-modal');
-        modal.classList.add('show');
-        setTimeout(() => {
-            modal.style.opacity = '1';
-        }, 10);
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
     },
 
     hideGames() {
         const modal = document.getElementById('games-modal');
-        modal.style.opacity = '0';
-        setTimeout(() => {
-            modal.classList.remove('show');
-        }, 300);
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 300);
+        }
     },
 
     openGame(gameName) {
@@ -462,16 +523,29 @@ var App = {
     logout() {
         if (confirm('Вы уверены, что хотите выйти?')) {
             document.getElementById('app').classList.remove('show');
-            document.getElementById('adminSection').style.display = 'none';
+
+            const adminSection = document.getElementById('adminSection');
+            if (adminSection) {
+                adminSection.style.display = 'none';
+            }
+
             document.getElementById('user-tabbar').style.display = 'none';
             document.getElementById('admin-tabbar').style.display = 'none';
-            document.getElementById('auth-view').style.display = 'flex';
-            document.getElementById('auth-view').style.opacity = '1';
+
+            const authView = document.getElementById('auth-view');
+            if (authView) {
+                authView.style.display = 'flex';
+                authView.style.opacity = '1';
+            }
 
             // Reset form
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('username').focus();
+
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                usernameInput.focus();
+            }
         }
     }
 };
@@ -484,77 +558,90 @@ var Admin = {
     currentPhotoStatus: null,
 
     showAddCarPage() {
-        document.getElementById('add-car-page').classList.add('active');
-    },
-
-    hideAddCarPage() {
-        document.getElementById('add-car-page').classList.remove('active');
-        this.clearForm();
-    },
-
-    clearForm() {
-        document.getElementById('new-car-brand').value = '';
-        document.getElementById('new-car-model').value = '';
-        document.getElementById('new-car-number').value = '';
-        document.getElementById('new-car-odometer').value = '';
-        document.getElementById('new-car-year').value = '';
-        document.getElementById('new-car-vin').value = '';
-        this.uploadedPhotos = [];
-        this.uploadedDocuments = [];
-        this.updatePhotoGallery();
-        this.updateDocumentGallery();
-    },
-
-    handlePhotoUpload(files) {
-        if (files && files.length === 0) return;
-
-        if (files) {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.uploadedPhotos.push({
-                            id: Date.now() + i,
-                            file: file,
-                            dataUrl: e.target.result,
-                            name: file.name,
-                            type: 'image'
-                        });
-                        this.updatePhotoGallery();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        } else {
-            document.getElementById('edit-photo-upload-input').click();
+        const modal = document.getElementById('add-car-modal');
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
         }
     },
 
-    handleDocumentUpload(files) {
-        if (files && files.length === 0) return;
+    hideAddCarModal() {
+        const modal = document.getElementById('add-car-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.clearForm();
+            }, 300);
+        }
+    },
 
-        if (files) {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+    clearForm() {
+        this.setInputValue('new-car-brand', '');
+        this.setInputValue('new-car-model', '');
+        this.setInputValue('new-car-number', '');
+        this.setInputValue('new-car-odometer', '');
+        this.setInputValue('new-car-year', '');
+        this.setInputValue('new-car-vin', '');
+        this.setInputValue('new-car-status', 'diagnostic');
+
+        this.uploadedPhotos = [];
+        this.uploadedDocuments = [];
+        this.updateAdminPhotoGallery('new-uploaded-photos-container');
+        this.updateAdminDocumentGallery('new-uploaded-documents-container');
+    },
+
+    setInputValue(id, value) {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = value;
+        }
+    },
+
+    handlePhotoUpload(files, containerId = 'uploaded-photos-container') {
+        if (!files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const fileType = this.getFileType(file.name);
-                    this.uploadedDocuments.push({
+                    this.uploadedPhotos.push({
                         id: Date.now() + i,
                         file: file,
                         dataUrl: e.target.result,
                         name: file.name,
-                        type: fileType,
-                        size: this.formatFileSize(file.size),
-                        date: new Date().toLocaleDateString('ru-RU')
+                        type: 'image'
                     });
-                    this.updateDocumentGallery();
+                    this.updateAdminPhotoGallery(containerId);
                 };
                 reader.readAsDataURL(file);
             }
-        } else {
-            document.getElementById('edit-document-upload-input').click();
+        }
+    },
+
+    handleDocumentUpload(files, containerId = 'uploaded-documents-container') {
+        if (!files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileType = this.getFileType(file.name);
+                this.uploadedDocuments.push({
+                    id: Date.now() + i,
+                    file: file,
+                    dataUrl: e.target.result,
+                    name: file.name,
+                    type: fileType,
+                    size: this.formatFileSize(file.size),
+                    date: new Date().toLocaleDateString('ru-RU')
+                });
+                this.updateAdminDocumentGallery(containerId);
+            };
+            reader.readAsDataURL(file);
         }
     },
 
@@ -575,8 +662,10 @@ var Admin = {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     },
 
-    updatePhotoGallery() {
-        const container = document.getElementById('uploaded-photos-container');
+    updateAdminPhotoGallery(containerId = 'uploaded-photos-container') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
         container.innerHTML = '';
 
         if (this.uploadedPhotos.length === 0) {
@@ -600,8 +689,10 @@ var Admin = {
         });
     },
 
-    updateDocumentGallery() {
-        const container = document.getElementById('uploaded-documents-container');
+    updateAdminDocumentGallery(containerId = 'uploaded-documents-container') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
         container.innerHTML = '';
 
         if (this.uploadedDocuments.length === 0) {
@@ -629,21 +720,22 @@ var Admin = {
 
     removePhoto(photoId) {
         this.uploadedPhotos = this.uploadedPhotos.filter(photo => photo.id !== photoId);
-        this.updatePhotoGallery();
+        this.updateAdminPhotoGallery();
     },
 
     removeDocument(docId) {
         this.uploadedDocuments = this.uploadedDocuments.filter(doc => doc.id !== docId);
-        this.updateDocumentGallery();
+        this.updateAdminDocumentGallery();
     },
 
     addNewCar() {
-        const brand = document.getElementById('new-car-brand').value;
-        const model = document.getElementById('new-car-model').value;
-        const number = document.getElementById('new-car-number').value;
-        const odometer = document.getElementById('new-car-odometer').value;
-        const year = document.getElementById('new-car-year').value;
-        const vin = document.getElementById('new-car-vin').value;
+        const brand = document.getElementById('new-car-brand')?.value || '';
+        const model = document.getElementById('new-car-model')?.value || '';
+        const number = document.getElementById('new-car-number')?.value || '';
+        const odometer = document.getElementById('new-car-odometer')?.value || '';
+        const year = document.getElementById('new-car-year')?.value || '';
+        const vin = document.getElementById('new-car-vin')?.value || '';
+        const status = document.getElementById('new-car-status')?.value || 'diagnostic';
 
         if (!brand || !model || !number) {
             alert('Пожалуйста, заполните обязательные поля: марка, модель и гос. номер');
@@ -658,7 +750,7 @@ var Admin = {
             year: year,
             vin: vin,
             odometer: odometer,
-            status: 'diagnostic',
+            status: status,
             photos: {
                 diagnostic: [],
                 repair: [],
@@ -684,7 +776,7 @@ var Admin = {
         };
 
         carsDatabase.push(newCar);
-        this.hideAddCarPage();
+        this.hideAddCarModal();
         updateCarsTable();
 
         alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен!`);
@@ -699,20 +791,28 @@ var Admin = {
         this.currentCar = car;
 
         // Заполняем форму данными
-        document.getElementById('current-status-select').value = car.status;
-        document.getElementById('edit-car-brand').value = car.brand;
-        document.getElementById('edit-car-model').value = car.model;
-        document.getElementById('edit-car-number').value = car.number;
-        document.getElementById('edit-car-odometer').value = car.odometer;
-        document.getElementById('edit-car-year').value = car.year;
-        document.getElementById('edit-car-vin').value = car.vin;
+        this.setInputValue('edit-car-brand', car.brand);
+        this.setInputValue('edit-car-model', car.model);
+        this.setInputValue('edit-car-number', car.number);
+        this.setInputValue('edit-car-odometer', car.odometer);
+        this.setInputValue('edit-car-year', car.year);
+        this.setInputValue('edit-car-vin', car.vin);
+        this.setInputValue('current-status-select', car.status);
 
         // Загружаем текущие фото и документы
         this.uploadedPhotos = [];
         this.uploadedDocuments = [];
+        this.updateAdminPhotoGallery();
+        this.updateAdminDocumentGallery();
 
         // Показываем модальное окно
-        document.getElementById('edit-car-modal').classList.add('show');
+        const modal = document.getElementById('edit-car-modal');
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
     },
 
     // Автоматическое сохранение при изменении полей
@@ -750,23 +850,29 @@ var Admin = {
         if (!car) return;
 
         // Обновляем данные
-        car.brand = document.getElementById('edit-car-brand').value;
-        car.model = document.getElementById('edit-car-model').value;
-        car.number = document.getElementById('edit-car-number').value;
-        car.odometer = document.getElementById('edit-car-odometer').value;
-        car.year = document.getElementById('edit-car-year').value;
-        car.vin = document.getElementById('edit-car-vin').value;
+        car.brand = document.getElementById('edit-car-brand')?.value || car.brand;
+        car.model = document.getElementById('edit-car-model')?.value || car.model;
+        car.number = document.getElementById('edit-car-number')?.value || car.number;
+        car.odometer = document.getElementById('edit-car-odometer')?.value || car.odometer;
+        car.year = document.getElementById('edit-car-year')?.value || car.year;
+        car.vin = document.getElementById('edit-car-vin')?.value || car.vin;
 
         updateCarsTable();
         alert('Данные автомобиля успешно обновлены!');
     },
 
     hideEditCarForm() {
-        document.getElementById('edit-car-modal').classList.remove('show');
-        this.uploadedPhotos = [];
-        this.uploadedDocuments = [];
-        currentEditingCarId = null;
-        this.currentCar = null;
+        const modal = document.getElementById('edit-car-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.uploadedPhotos = [];
+                this.uploadedDocuments = [];
+                currentEditingCarId = null;
+                this.currentCar = null;
+            }, 300);
+        }
     },
 
     // Функции для работы с фотографиями
@@ -774,14 +880,20 @@ var Admin = {
         if (!this.currentCar) return;
 
         // Показываем страницу редактирования фотографий
-        document.getElementById('photo-edit-page').classList.add('active');
+        const page = document.getElementById('photo-edit-page');
+        if (page) {
+            page.classList.add('active');
+        }
 
         // Загружаем фотографии для текущего автомобиля
         this.loadStatusPhotos();
     },
 
     hidePhotoEditPage() {
-        document.getElementById('photo-edit-page').classList.remove('active');
+        const page = document.getElementById('photo-edit-page');
+        if (page) {
+            page.classList.remove('active');
+        }
     },
 
     loadStatusPhotos() {
@@ -880,14 +992,20 @@ var Admin = {
         if (!this.currentCar) return;
 
         // Показываем страницу редактирования документов
-        document.getElementById('document-edit-page').classList.add('active');
+        const page = document.getElementById('document-edit-page');
+        if (page) {
+            page.classList.add('active');
+        }
 
         // Загружаем документы для текущего автомобиля
         this.loadStatusDocuments();
     },
 
     hideDocumentEditPage() {
-        document.getElementById('document-edit-page').classList.remove('active');
+        const page = document.getElementById('document-edit-page');
+        if (page) {
+            page.classList.remove('active');
+        }
     },
 
     loadStatusDocuments() {
@@ -1009,7 +1127,6 @@ function getDocumentTypeText(type) {
 
 // Функции для работы с данными (глобальные)
 function initTestData() {
-    // Эта функция теперь вызывается в App.initTestData()
     updateCarsTable();
     updateClientsTable();
 }
@@ -1021,17 +1138,26 @@ function openTab(tabId) {
     });
 
     // Показать выбранную вкладку
-    document.getElementById(tabId).classList.add('active');
+    const tab = document.getElementById(tabId);
+    if (tab) {
+        tab.classList.add('active');
+    }
 
     // Обновить активный элемент в таббаре
     document.querySelectorAll('#admin-tabbar .tabbar-item').forEach(item => {
         item.classList.remove('active');
     });
-    document.querySelector(`#admin-tabbar .tabbar-item[onclick="openTab('${tabId}')"]`).classList.add('active');
+
+    const tabItem = document.querySelector(`#admin-tabbar .tabbar-item[onclick="openTab('${tabId}')"]`);
+    if (tabItem) {
+        tabItem.classList.add('active');
+    }
 }
 
 function updateCarsTable() {
     const tbody = document.getElementById('cars-table-body');
+    if (!tbody) return;
+
     tbody.innerHTML = '';
 
     carsDatabase.forEach(car => {
@@ -1073,6 +1199,8 @@ function updateCarStatus(carId, newStatus) {
 
 function updateClientsTable() {
     const tbody = document.getElementById('clients-table-body');
+    if (!tbody) return;
+
     tbody.innerHTML = '';
 
     clientsDatabase.forEach(client => {
@@ -1116,8 +1244,14 @@ function getStatusClass(status) {
 }
 
 function searchCars() {
-    const searchText = document.getElementById('car-search').value.toLowerCase();
-    const rows = document.getElementById('cars-table-body').getElementsByTagName('tr');
+    const searchInput = document.getElementById('car-search');
+    if (!searchInput) return;
+
+    const searchText = searchInput.value.toLowerCase();
+    const tbody = document.getElementById('cars-table-body');
+    if (!tbody) return;
+
+    const rows = tbody.getElementsByTagName('tr');
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
@@ -1135,8 +1269,14 @@ function searchCars() {
 }
 
 function searchClients() {
-    const searchText = document.getElementById('client-search').value.toLowerCase();
-    const rows = document.getElementById('clients-table-body').getElementsByTagName('tr');
+    const searchInput = document.getElementById('client-search');
+    if (!searchInput) return;
+
+    const searchText = searchInput.value.toLowerCase();
+    const tbody = document.getElementById('clients-table-body');
+    if (!tbody) return;
+
+    const rows = tbody.getElementsByTagName('tr');
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
@@ -1154,12 +1294,25 @@ function searchClients() {
 }
 
 function logout() {
-    document.getElementById('auth-view').style.display = 'flex';
-    document.getElementById('auth-view').style.opacity = '1';
-    document.getElementById('app').classList.remove('show');
-    document.getElementById('adminSection').style.display = 'none';
+    const authView = document.getElementById('auth-view');
+    if (authView) {
+        authView.style.display = 'flex';
+        authView.style.opacity = '1';
+    }
+
+    const app = document.getElementById('app');
+    if (app) {
+        app.classList.remove('show');
+    }
+
+    const adminSection = document.getElementById('adminSection');
+    if (adminSection) {
+        adminSection.style.display = 'none';
+    }
+
     document.getElementById('user-tabbar').style.display = 'none';
     document.getElementById('admin-tabbar').style.display = 'none';
+
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
 }
@@ -1167,7 +1320,12 @@ function logout() {
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
-    document.getElementById('adminSection').style.display = 'none';
+
+    const adminSection = document.getElementById('adminSection');
+    if (adminSection) {
+        adminSection.style.display = 'none';
+    }
+
     document.getElementById('user-tabbar').style.display = 'none';
     document.getElementById('admin-tabbar').style.display = 'none';
 });

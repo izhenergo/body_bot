@@ -266,74 +266,66 @@
     </div>
 </div>
 
-<!-- Страница добавления автомобиля -->
-<div id="add-car-page" class="add-car-page">
-    <div class="add-car-header">
-        <button class="back-button" onclick="Admin.hideAddCarPage()">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <h2>Добавить автомобиль</h2>
-    </div>
+<!-- Модальное окно добавления автомобиля -->
+<div id="add-car-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Добавить автомобиль</h3>
+            <button class="modal-close" onclick="Admin.hideAddCarModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Статус ремонта -->
+            <div class="form-group">
+                <label for="new-car-status">Статус ремонта:</label>
+                <select id="new-car-status" class="form-input">
+                    <option value="diagnostic">Дефектовка</option>
+                    <option value="repair">Ремонт</option>
+                    <option value="painting">Покраска</option>
+                    <option value="ready">Готов к выдаче</option>
+                    <option value="completed">Выдан клиенту</option>
+                </select>
+            </div>
 
-    <div class="add-car-content">
-        <div class="add-car-form">
-            <h3>Заполните данные о новом автомобиле</h3>
+            <!-- Кнопки редактирования фотографий и документов -->
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEditPage()" style="margin-top: 15px;">
+                    <i class="fas fa-camera"></i> Редактирование фотографий
+                </button>
+            </div>
 
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEditPage()" style="margin-top: 15px;">
+                    <i class="fas fa-file-alt"></i> Закрывающая документация
+                </button>
+            </div>
             <div class="form-group">
                 <label for="new-car-brand">Марка:</label>
                 <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
             </div>
-
             <div class="form-group">
                 <label for="new-car-model">Модель:</label>
                 <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
             </div>
-
             <div class="form-group">
                 <label for="new-car-number">Гос. номер:</label>
                 <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
             </div>
-
             <div class="form-group">
                 <label for="new-car-odometer">Пробег:</label>
                 <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
             </div>
-
             <div class="form-group">
                 <label for="new-car-year">Год выпуска:</label>
                 <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
             </div>
-
             <div class="form-group">
                 <label for="new-car-vin">VIN:</label>
                 <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
             </div>
-
-            <!-- Секция загрузки фотографий -->
-            <div class="photo-upload-section">
-                <h4><i class="fas fa-camera"></i> Фотографии автомобиля</h4>
-
-                <div class="photo-upload-area" onclick="document.getElementById('photo-upload-input').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <div class="photo-upload-text">
-                        <strong>Нажмите для загрузки</strong> или перетащите фотографии сюда
-                    </div>
-                    <input type="file" id="photo-upload-input" class="photo-upload-input" multiple accept="image/*" onchange="Admin.handlePhotoUpload(this.files)">
-                </div>
-
-                <div class="uploaded-photos" id="uploaded-photos-container">
-                    <!-- Фотографии будут добавляться динамически -->
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button class="btn btn-secondary" onclick="Admin.hideAddCarPage()">
-                    <i class="fas fa-times"></i> Отмена
-                </button>
-                <button class="btn btn-primary" onclick="Admin.addNewCar()">
-                    <i class="fas fa-check"></i> Сохранить
-                </button>
-            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="Admin.hideAddCarModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="Admin.addNewCar()">Сохранить</button>
         </div>
     </div>
 </div>
