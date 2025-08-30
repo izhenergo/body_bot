@@ -81,37 +81,47 @@
 
         <!-- Car Details View (hidden by default) -->
         <div id="car-details-view" style="display: none;">
-            <div class="car-details">
-                <h2><i class="fas fa-car"></i> <span id="car-model">Volkswagen Tiguan</span></h2>
-
-                <div class="car-image">
-                    <i class="fas fa-car"></i>
+            <!-- Компактная информация об автомобиле -->
+            <div class="car-details-compact">
+                <div class="car-header">
+                    <div class="car-image-small">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="car-basic-info">
+                        <h2 id="car-model">Volkswagen Tiguan</h2>
+                        <div class="car-status-badge" id="car-status-badge">
+                            <i class="fas fa-clock"></i> Дефектовка
+                        </div>
+                    </div>
                 </div>
 
-                <div class="detail-row">
-                    <span class="detail-label">Госномер:</span>
-                    <span class="detail-value" id="car-plate">А123БВ777</span>
-                </div>
-
-                <div class="detail-row">
-                    <span class="detail-label">VIN:</span>
-                    <span class="detail-value" id="car-vin">WVGZZZ5NZJW123456</span>
-                </div>
-
-                <div class="detail-row">
-                    <span class="detail-label">Год выпуска:</span>
-                    <span class="detail-value" id="car-year">2019</span>
-                </div>
-
-                <div class="detail-row">
-                    <span class="detail-label">Пробег:</span>
-                    <span class="detail-value" id="car-mileage">45 230 км</span>
+                <div class="car-details-grid">
+                    <div class="detail-item">
+                        <i class="fas fa-car-alt"></i>
+                        <span>Гос. номер:</span>
+                        <strong id="car-plate">А123БВ777</strong>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-barcode"></i>
+                        <span>VIN:</span>
+                        <span id="car-vin">WVGZZZ5NZJW123456</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Пробег:</span>
+                        <span id="car-mileage">45 230 км</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Год:</span>
+                        <span id="car-year">2019</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Repair Status Timeline -->
             <div class="repair-status" id="repair-status-section">
-                <h3><i class="fas fa-tasks"></i> Статус ремонта</h3>
+                <h3><i class="fas fa-tasks"></i> Ход ремонта</h3>
                 <div class="status-timeline" id="status-timeline">
                     <!-- Filled dynamically by JavaScript -->
                 </div>
@@ -119,7 +129,10 @@
 
             <!-- Photo Gallery -->
             <div class="photo-gallery" id="photo-gallery-section">
-                <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
+                <div class="gallery-header">
+                    <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
+                    <span class="photos-count" id="photos-count">0 фото</span>
+                </div>
                 <div class="gallery-container" id="gallery-container">
                     <!-- Filled dynamically by JavaScript -->
                 </div>
@@ -127,7 +140,10 @@
 
             <!-- Documents Section -->
             <div class="documents-section" id="documents-section">
-                <h3><i class="fas fa-file-alt"></i> Документы</h3>
+                <div class="documents-header">
+                    <h3><i class="fas fa-file-alt"></i> Документы</h3>
+                    <span class="documents-count" id="documents-count">0 документов</span>
+                </div>
                 <div class="document-list" id="document-list">
                     <!-- Filled dynamically by JavaScript -->
                 </div>
@@ -237,7 +253,7 @@
             <tr>
                 <th>ФИО</th>
                 <th>Телефон</th>
-                <th>Автомобили</th>
+                <th>Автомобиль</th>
             </tr>
             </thead>
             <tbody id="clients-table-body">
@@ -438,7 +454,7 @@
             <!-- Изменение текущего статуса -->
             <div class="form-group">
                 <label for="current-status-select">Статус ремонта:</label>
-                <select id="current-status-select" class="form-input" onchange="Admin.updateCurrentStatus(this.value)">
+                <select id="current-status-select" class="form-input" onchange="Admin.updateRepairStatuses()">
                     <option value="diagnostic">Дефектовка</option>
                     <option value="repair">Ремонт</option>
                     <option value="painting">Покраска</option>
@@ -485,6 +501,37 @@
                 <label for="edit-car-vin">VIN:</label>
                 <input type="text" id="edit-car-vin" class="form-input" oninput="Admin.autoSaveCar()">
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования клиента -->
+<div id="edit-client-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Редактирование клиента</h3>
+            <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-client-name">ФИО:</label>
+                <input type="text" id="edit-client-name" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-client-phone">Телефон:</label>
+                <input type="tel" id="edit-client-phone" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label>Автомобили клиента:</label>
+                <div id="client-cars-list" class="client-cars-list">
+                    <!-- Список автомобилей будет заполнен динамически -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
         </div>
     </div>
 </div>
@@ -634,37 +681,6 @@
         <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
             <i class="fas fa-file"></i> Добавить документы
         </button>
-    </div>
-</div>
-
-<!-- Модальное окно редактирования клиента -->
-<div id="edit-client-modal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title">Редактирование клиента</h3>
-            <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="edit-client-name">ФИО:</label>
-                <input type="text" id="edit-client-name" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-client-phone">Телефон:</label>
-                <input type="tel" id="edit-client-phone" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label>Автомобили клиента:</label>
-                <div id="client-cars-list" class="client-cars-list">
-                    <!-- Список автомобилей будет заполнен динамически -->
-                </div>
-            </div>
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
-            <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
-        </div>
     </div>
 </div>
 

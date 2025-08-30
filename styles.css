@@ -2345,3 +2345,321 @@ input[type="tel"] {
         font-size: 0.75rem;
     }
 }
+
+/* Компактное отображение информации об автомобиле */
+.car-details-compact {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 16px;
+}
+
+.car-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.car-image-small {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.5rem;
+}
+
+.car-basic-info {
+    flex: 1;
+}
+
+.car-basic-info h2 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    color: var(--dark);
+}
+
+.car-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.car-status-badge.diagnostic { background: #fff3cd; color: #856404; }
+.car-status-badge.repair { background: #d1ecf1; color: #0c5460; }
+.car-status-badge.painting { background: #d1ecf1; color: #0c5460; }
+.car-status-badge.ready { background: #d4edda; color: #155724; }
+.car-status-badge.completed { background: #d4edda; color: #155724; }
+
+.car-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+}
+
+.detail-item i {
+    color: var(--primary);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.detail-item span:first-of-type {
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+.detail-item strong {
+    font-size: 0.95rem;
+    color: var(--dark);
+}
+
+/* Улучшенный заголовок для галереи и документов */
+.gallery-header,
+.documents-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.gallery-header h3,
+.documents-header h3 {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+}
+
+.photos-count,
+.documents-count {
+    font-size: 0.85rem;
+    color: var(--gray);
+    background: var(--light);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+    .car-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .car-details-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .detail-item {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .detail-item i {
+        margin-bottom: 0;
+        font-size: 1rem;
+    }
+
+    .gallery-header,
+    .documents-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}
+
+/* Стили для статуса в подписи фотографии */
+.photo-status {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin-right: 6px;
+    font-weight: 600;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+/* Улучшенная галерея */
+.gallery-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.gallery-item {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-caption {
+    padding: 8px;
+    font-size: 0.8rem;
+    background: var(--white);
+    color: var(--gray-dark);
+}
+
+/* Стили для временной шкалы статусов */
+.status-item {
+    position: relative;
+    padding: 15px 0 15px 30px;
+    border-left: 2px solid var(--light-gray);
+    margin-left: 15px;
+}
+
+.status-item:last-child {
+    border-left: 2px solid transparent;
+}
+
+.status-dot {
+    position: absolute;
+    left: -8px;
+    top: 20px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gray-light);
+    z-index: 1;
+}
+
+.status-item.completed .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+}
+
+.status-item.active .status-dot {
+    background: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    animation: pulse 1.5s infinite;
+}
+
+.status-item.pending .status-dot {
+    background: var(--gray-light);
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.status-date {
+    font-size: 0.85rem;
+    color: var(--gray);
+    font-weight: 500;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.completed {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.status-badge.active {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.status-badge.pending {
+    background: var(--light-gray);
+    color: var(--gray-dark);
+}
+
+.status-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--dark);
+    font-size: 1rem;
+}
+
+.status-desc {
+    font-size: 0.9rem;
+    color: var(--gray-dark);
+    line-height: 1.4;
+}
+
+/* Анимация пульсации для активного статуса */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(67, 97, 238, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+}
+
+/* Адаптивность для временной шкалы */
+@media (max-width: 480px) {
+    .status-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .status-item {
+        padding: 12px 0 12px 25px;
+        margin-left: 10px;
+    }
+
+    .status-dot {
+        left: -6px;
+        top: 18px;
+        width: 12px;
+        height: 12px;
+    }
+}
