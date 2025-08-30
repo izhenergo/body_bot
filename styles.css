@@ -2043,3 +2043,305 @@ tr:nth-child(even) {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     }
 }
+
+/* Стили для кликабельных имен клиентов */
+.client-name-link {
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-color: var(--primary);
+    text-underline-offset: 2px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.client-name-link:hover {
+    color: var(--primary-dark);
+    text-decoration-color: var(--primary-dark);
+}
+
+/* Стили для списка автомобилей клиента */
+.client-cars-list {
+    margin-top: 10px;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.client-car-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.client-car-item:last-child {
+    margin-bottom: 0;
+}
+
+.client-car-item:hover {
+    background: var(--primary-light);
+}
+
+.client-car-info {
+    flex: 1;
+}
+
+.client-car-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.cars-count {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}
+
+/* Стили для ячейки с автомобилями клиента */
+.client-cars-cell {
+    max-width: 200px;
+    min-width: 150px;
+}
+
+.client-cars-cell .car-number-link {
+    display: block;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    border: 1px solid var(--primary-light);
+}
+
+.client-cars-cell .car-number-link:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(67, 97, 238, 0.2);
+}
+
+.client-cars-cell .car-number-link:last-child {
+    margin-bottom: 0;
+}
+
+/* Адаптивные стили для таблицы */
+@media (max-width: 768px) {
+    .client-cars-cell {
+        max-width: 120px;
+    }
+
+    .client-cars-cell .car-number-link {
+        padding: 4px 6px;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .client-cars-cell {
+        max-width: 100px;
+    }
+
+    .client-cars-cell .car-number-link {
+        padding: 3px 5px;
+        font-size: 0.75rem;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Упрощаем отображение на очень маленьких экранах */
+    .client-cars-cell .car-number-link::after {
+        content: " →";
+        font-weight: bold;
+    }
+
+    .client-cars-cell .car-number-link span {
+        display: none;
+    }
+}
+
+/* Стили для секций формы */
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+}
+
+.form-section h4 i {
+    font-size: 1rem;
+}
+
+/* Стили для полей ввода телефона */
+input[type="tel"] {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Подсказка для полей */
+.form-input::placeholder {
+    color: var(--gray-light);
+    font-size: 0.9rem;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .form-section h4 {
+        font-size: 1rem;
+        padding: 8px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+}
+
+/* Стили для обязательных полей */
+.required {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+.owner-section {
+    background: var(--primary-light);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary);
+}
+
+.owner-section h4 {
+    background: transparent !important;
+    padding: 0 0 10px 0 !important;
+    color: var(--primary-dark) !important;
+}
+
+/* Стили для валидации */
+.form-input:invalid {
+    border-color: var(--danger-light);
+}
+
+.form-input:focus:invalid {
+    box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.1);
+}
+
+/* Подсказка для обязательных полей */
+.form-group label::after {
+    content: '';
+    display: block;
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin-top: 2px;
+}
+
+.form-group label[for="new-car-owner-name"]::after {
+    content: 'Обязательное поле';
+}
+
+.form-group label[for="new-car-owner-phone"]::after {
+    content: 'Обязательное поле';
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .owner-section {
+        padding: 12px;
+    }
+
+    .form-group label::after {
+        font-size: 0.75rem;
+    }
+}
+
+/* Стили для обязательных полей */
+.required {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+.owner-section {
+    background: var(--primary-light);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary);
+}
+
+.owner-section h4 {
+    background: transparent !important;
+    padding: 0 0 10px 0 !important;
+    color: var(--primary-dark) !important;
+}
+
+/* Стили для валидации */
+.form-input:invalid {
+    border-color: var(--danger-light);
+}
+
+.form-input:focus:invalid {
+    box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.1);
+}
+
+/* Подсказка для обязательных полей */
+.form-group label::after {
+    content: '';
+    display: block;
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin-top: 2px;
+}
+
+.form-group label[for="new-car-owner-name"]::after {
+    content: 'Обязательное поле';
+}
+
+.form-group label[for="new-car-owner-phone"]::after {
+    content: 'Обязательное поле';
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .owner-section {
+        padding: 12px;
+    }
+
+    .form-group label::after {
+        font-size: 0.75rem;
+    }
+}

@@ -556,8 +556,31 @@ var Admin = {
     uploadedDocuments: [],
     currentCar: null,
     currentPhotoStatus: null,
+    tempNewCar: null,
+    currentEditingClientId: null,
 
     showAddCarPage() {
+        // Создаем временный объект автомобиля
+        this.tempNewCar = {
+            id: 'new-' + Date.now(),
+            photos: {
+                diagnostic: [],
+                repair: [],
+                painting: [],
+                ready: [],
+                completed: []
+            },
+            documents: {
+                'work-certificate': [],
+                'payment-receipt': [],
+                'invoice': [],
+                'contract': [],
+                'warranty': []
+            }
+        };
+
+        this.currentCar = this.tempNewCar;
+
         const modal = document.getElementById('add-car-modal');
         if (modal) {
             modal.classList.add('show');
@@ -574,11 +597,15 @@ var Admin = {
             setTimeout(() => {
                 modal.classList.remove('show');
                 this.clearForm();
+                this.tempNewCar = null;
+                this.currentCar = null;
             }, 300);
         }
     },
 
     clearForm() {
+        this.setInputValue('new-car-owner-name', '');
+        this.setInputValue('new-car-owner-phone', '');
         this.setInputValue('new-car-brand', '');
         this.setInputValue('new-car-model', '');
         this.setInputValue('new-car-number', '');
@@ -589,8 +616,6 @@ var Admin = {
 
         this.uploadedPhotos = [];
         this.uploadedDocuments = [];
-        this.updateAdminPhotoGallery('new-uploaded-photos-container');
-        this.updateAdminDocumentGallery('new-uploaded-documents-container');
     },
 
     setInputValue(id, value) {
@@ -600,132 +625,54 @@ var Admin = {
         }
     },
 
-    handlePhotoUpload(files, containerId = 'uploaded-photos-container') {
-        if (!files || files.length === 0) return;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.uploadedPhotos.push({
-                        id: Date.now() + i,
-                        file: file,
-                        dataUrl: e.target.result,
-                        name: file.name,
-                        type: 'image'
-                    });
-                    this.updateAdminPhotoGallery(containerId);
+    showPhotoEditPage() {
+        if (!this.currentCar) {
+            if (!this.tempNewCar) {
+                this.tempNewCar = {
+                    id: 'new-' + Date.now(),
+                    photos: {
+                        diagnostic: [],
+                        repair: [],
+                        painting: [],
+                        ready: [],
+                        completed: []
+                    }
                 };
-                reader.readAsDataURL(file);
             }
-        }
-    },
-
-    handleDocumentUpload(files, containerId = 'uploaded-documents-container') {
-        if (!files || files.length === 0) return;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const fileType = this.getFileType(file.name);
-                this.uploadedDocuments.push({
-                    id: Date.now() + i,
-                    file: file,
-                    dataUrl: e.target.result,
-                    name: file.name,
-                    type: fileType,
-                    size: this.formatFileSize(file.size),
-                    date: new Date().toLocaleDateString('ru-RU')
-                });
-                this.updateAdminDocumentGallery(containerId);
-            };
-            reader.readAsDataURL(file);
-        }
-    },
-
-    getFileType(filename) {
-        const ext = filename.split('.').pop().toLowerCase();
-        if (['pdf'].includes(ext)) return 'pdf';
-        if (['doc', 'docx'].includes(ext)) return 'doc';
-        if (['xls', 'xlsx'].includes(ext)) return 'xls';
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
-        return 'file';
-    },
-
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-
-    updateAdminPhotoGallery(containerId = 'uploaded-photos-container') {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (this.uploadedPhotos.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Нет загруженных фотографий</div>';
-            return;
+            this.currentCar = this.tempNewCar;
         }
 
-        this.uploadedPhotos.forEach((photo, index) => {
-            const photoItem = document.createElement('div');
-            photoItem.className = 'photo-item';
-            photoItem.innerHTML = `
-                <img src="${photo.dataUrl}" alt="Фото автомобиля" class="photo-preview">
-                <div class="photo-counter">${index + 1}</div>
-                <div class="photo-actions">
-                    <button class="photo-action-btn" onclick="Admin.removePhoto(${photo.id})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(photoItem);
-        });
-    },
-
-    updateAdminDocumentGallery(containerId = 'uploaded-documents-container') {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (this.uploadedDocuments.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Нет загруженных документов</div>';
-            return;
+        const page = document.getElementById('photo-edit-page');
+        if (page) {
+            page.classList.add('active');
         }
 
-        this.uploadedDocuments.forEach((doc, index) => {
-            const docItem = document.createElement('div');
-            docItem.className = 'document-item-admin';
-            docItem.innerHTML = `
-                <div class="document-icon-admin">
-                    <i class="${App.getDocumentIcon(doc.type)}"></i>
-                </div>
-                <div class="document-name-admin">${doc.name}</div>
-                <div class="document-actions-admin">
-                    <button class="document-action-btn delete" onclick="Admin.removeDocument(${doc.id})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(docItem);
-        });
+        this.loadStatusPhotos();
     },
 
-    removePhoto(photoId) {
-        this.uploadedPhotos = this.uploadedPhotos.filter(photo => photo.id !== photoId);
-        this.updateAdminPhotoGallery();
-    },
+    showDocumentEditPage() {
+        if (!this.currentCar) {
+            if (!this.tempNewCar) {
+                this.tempNewCar = {
+                    id: 'new-' + Date.now(),
+                    documents: {
+                        'work-certificate': [],
+                        'payment-receipt': [],
+                        'invoice': [],
+                        'contract': [],
+                        'warranty': []
+                    }
+                };
+            }
+            this.currentCar = this.tempNewCar;
+        }
 
-    removeDocument(docId) {
-        this.uploadedDocuments = this.uploadedDocuments.filter(doc => doc.id !== docId);
-        this.updateAdminDocumentGallery();
+        const page = document.getElementById('document-edit-page');
+        if (page) {
+            page.classList.add('active');
+        }
+
+        this.loadStatusDocuments();
     },
 
     addNewCar() {
@@ -737,10 +684,40 @@ var Admin = {
         const vin = document.getElementById('new-car-vin')?.value || '';
         const status = document.getElementById('new-car-status')?.value || 'diagnostic';
 
+        const ownerName = document.getElementById('new-car-owner-name')?.value || '';
+        const ownerPhone = document.getElementById('new-car-owner-phone')?.value || '';
+
         if (!brand || !model || !number) {
-            alert('Пожалуйста, заполните обязательные поля: марка, модель и гос. номер');
+            alert('Пожалуйста, заполните обязательные поля автомобиля: марка, модель и гос. номер');
             return;
         }
+
+        if (!ownerName || !ownerPhone) {
+            alert('Пожалуйста, заполните обязательные поля собственника: ФИО и телефон');
+            return;
+        }
+
+        const phoneRegex = /^(\+7|8)[\d\-\(\)\s]{10,15}$/;
+        if (!phoneRegex.test(ownerPhone.replace(/\s/g, ''))) {
+            alert('Пожалуйста, введите корректный номер телефона в формате +7 XXX XXX-XX-XX');
+            return;
+        }
+
+        const existingCar = carsDatabase.find(car => car.number === number);
+        if (existingCar) {
+            alert(`Автомобиль с гос. номером ${number} уже существует в базе!`);
+            return;
+        }
+
+        const clientId = this.findOrCreateClient(ownerName, ownerPhone);
+
+        const photos = this.tempNewCar ? this.tempNewCar.photos : {
+            diagnostic: [], repair: [], painting: [], ready: [], completed: []
+        };
+
+        const documents = this.tempNewCar ? this.tempNewCar.documents : {
+            'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': []
+        };
 
         const newCar = {
             id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
@@ -751,20 +728,9 @@ var Admin = {
             vin: vin,
             odometer: odometer,
             status: status,
-            photos: {
-                diagnostic: [],
-                repair: [],
-                painting: [],
-                ready: [],
-                completed: []
-            },
-            documents: {
-                'work-certificate': [],
-                'payment-receipt': [],
-                'invoice': [],
-                'contract': [],
-                'warranty': []
-            },
+            clientId: clientId,
+            photos: photos,
+            documents: documents,
             repairStatus: [{
                 id: 1,
                 date: new Date().toLocaleDateString('ru-RU'),
@@ -778,11 +744,37 @@ var Admin = {
         carsDatabase.push(newCar);
         this.hideAddCarModal();
         updateCarsTable();
+        updateClientsTable();
 
-        alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен!`);
+        alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен для клиента ${ownerName}!`);
     },
 
-    // Функции для редактирования автомобиля
+    findOrCreateClient(name, phone) {
+        const normalizedPhone = phone.replace(/\D/g, '');
+
+        let client = clientsDatabase.find(c => c.phone.replace(/\D/g, '') === normalizedPhone);
+
+        if (client) {
+            if (name && client.name !== name) {
+                client.name = name;
+            }
+            return client.id;
+        }
+
+        const newClientId = clientsDatabase.length > 0 ? Math.max(...clientsDatabase.map(c => c.id)) + 1 : 1;
+
+        const newClient = {
+            id: newClientId,
+            name: name,
+            phone: phone,
+            email: '',
+            cars: []
+        };
+
+        clientsDatabase.push(newClient);
+        return newClientId;
+    },
+
     showEditCarForm(carId) {
         const car = carsDatabase.find(c => c.id === carId);
         if (!car) return;
@@ -790,7 +782,6 @@ var Admin = {
         currentEditingCarId = carId;
         this.currentCar = car;
 
-        // Заполняем форму данными
         this.setInputValue('edit-car-brand', car.brand);
         this.setInputValue('edit-car-model', car.model);
         this.setInputValue('edit-car-number', car.number);
@@ -799,13 +790,9 @@ var Admin = {
         this.setInputValue('edit-car-vin', car.vin);
         this.setInputValue('current-status-select', car.status);
 
-        // Загружаем текущие фото и документы
         this.uploadedPhotos = [];
         this.uploadedDocuments = [];
-        this.updateAdminPhotoGallery();
-        this.updateAdminDocumentGallery();
 
-        // Показываем модальное окно
         const modal = document.getElementById('edit-car-modal');
         if (modal) {
             modal.classList.add('show');
@@ -815,7 +802,6 @@ var Admin = {
         }
     },
 
-    // Автоматическое сохранение при изменении полей
     autoSaveCar() {
         if (autoSaveTimeout) {
             clearTimeout(autoSaveTimeout);
@@ -831,7 +817,6 @@ var Admin = {
         if (car) {
             car.status = newStatus;
 
-            // Добавляем запись в историю статусов
             if (!car.repairStatus) car.repairStatus = [];
             car.repairStatus.push({
                 id: Date.now(),
@@ -849,7 +834,6 @@ var Admin = {
         const car = carsDatabase.find(c => c.id === currentEditingCarId);
         if (!car) return;
 
-        // Обновляем данные
         car.brand = document.getElementById('edit-car-brand')?.value || car.brand;
         car.model = document.getElementById('edit-car-model')?.value || car.model;
         car.number = document.getElementById('edit-car-number')?.value || car.number;
@@ -875,20 +859,6 @@ var Admin = {
         }
     },
 
-    // Функции для работы с фотографиями
-    showPhotoEditPage() {
-        if (!this.currentCar) return;
-
-        // Показываем страницу редактирования фотографий
-        const page = document.getElementById('photo-edit-page');
-        if (page) {
-            page.classList.add('active');
-        }
-
-        // Загружаем фотографии для текущего автомобиля
-        this.loadStatusPhotos();
-    },
-
     hidePhotoEditPage() {
         const page = document.getElementById('photo-edit-page');
         if (page) {
@@ -897,7 +867,8 @@ var Admin = {
     },
 
     loadStatusPhotos() {
-        if (!this.currentCar) return;
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar) return;
 
         const statuses = ['diagnostic', 'repair', 'painting', 'ready', 'completed'];
 
@@ -906,8 +877,8 @@ var Admin = {
             if (container) {
                 container.innerHTML = '';
 
-                if (this.currentCar.photos && this.currentCar.photos[status] && this.currentCar.photos[status].length > 0) {
-                    this.currentCar.photos[status].forEach(photo => {
+                if (targetCar.photos && targetCar.photos[status] && targetCar.photos[status].length > 0) {
+                    targetCar.photos[status].forEach(photo => {
                         const photoElement = document.createElement('div');
                         photoElement.className = 'status-photo-item';
                         photoElement.innerHTML = `
@@ -926,11 +897,10 @@ var Admin = {
     },
 
     uploadPhotoForStatus(status) {
-        if (!this.currentCar) return;
+        if (!this.currentCar && !this.tempNewCar) return;
 
         this.currentPhotoStatus = status;
 
-        // Создаем скрытый input для загрузки фото
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -941,16 +911,17 @@ var Admin = {
 
     handleStatusPhotoUpload(files, status) {
         if (!files || files.length === 0) return;
-        if (!this.currentCar) return;
+
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar) return;
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    // Инициализируем объект photos если его нет
-                    if (!this.currentCar.photos) {
-                        this.currentCar.photos = {
+                    if (!targetCar.photos) {
+                        targetCar.photos = {
                             diagnostic: [],
                             repair: [],
                             painting: [],
@@ -959,20 +930,17 @@ var Admin = {
                         };
                     }
 
-                    // Инициализируем массив для статуса если его нет
-                    if (!this.currentCar.photos[status]) {
-                        this.currentCar.photos[status] = [];
+                    if (!targetCar.photos[status]) {
+                        targetCar.photos[status] = [];
                     }
 
-                    // Добавляем фото
-                    this.currentCar.photos[status].push({
+                    targetCar.photos[status].push({
                         id: Date.now() + i,
                         dataUrl: e.target.result,
                         name: file.name,
                         uploadedAt: new Date().toISOString()
                     });
 
-                    // Обновляем отображение
                     this.loadStatusPhotos();
                 };
                 reader.readAsDataURL(file);
@@ -981,24 +949,11 @@ var Admin = {
     },
 
     deleteStatusPhoto(status, photoId) {
-        if (!this.currentCar || !this.currentCar.photos || !this.currentCar.photos[status]) return;
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar || !targetCar.photos || !targetCar.photos[status]) return;
 
-        this.currentCar.photos[status] = this.currentCar.photos[status].filter(photo => photo.id !== photoId);
+        targetCar.photos[status] = targetCar.photos[status].filter(photo => photo.id !== photoId);
         this.loadStatusPhotos();
-    },
-
-    // Функции для работы с документами
-    showDocumentEditPage() {
-        if (!this.currentCar) return;
-
-        // Показываем страницу редактирования документов
-        const page = document.getElementById('document-edit-page');
-        if (page) {
-            page.classList.add('active');
-        }
-
-        // Загружаем документы для текущего автомобиля
-        this.loadStatusDocuments();
     },
 
     hideDocumentEditPage() {
@@ -1009,7 +964,8 @@ var Admin = {
     },
 
     loadStatusDocuments() {
-        if (!this.currentCar) return;
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar) return;
 
         const documentTypes = ['work-certificate', 'payment-receipt', 'invoice', 'contract', 'warranty'];
 
@@ -1018,8 +974,8 @@ var Admin = {
             if (container) {
                 container.innerHTML = '';
 
-                if (this.currentCar.documents && this.currentCar.documents[type] && this.currentCar.documents[type].length > 0) {
-                    this.currentCar.documents[type].forEach(doc => {
+                if (targetCar.documents && targetCar.documents[type] && targetCar.documents[type].length > 0) {
+                    targetCar.documents[type].forEach(doc => {
                         const docElement = document.createElement('div');
                         docElement.className = 'status-photo-item';
                         docElement.innerHTML = `
@@ -1041,9 +997,8 @@ var Admin = {
     },
 
     uploadDocumentForType(type) {
-        if (!this.currentCar) return;
+        if (!this.currentCar && !this.tempNewCar) return;
 
-        // Создаем скрытый input для загрузки документа
         const input = document.createElement('input');
         input.type = 'file';
         input.multiple = true;
@@ -1053,15 +1008,16 @@ var Admin = {
 
     handleStatusDocumentUpload(files, type) {
         if (!files || files.length === 0) return;
-        if (!this.currentCar) return;
+
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar) return;
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const reader = new FileReader();
             reader.onload = (e) => {
-                // Инициализируем объект documents если его нет
-                if (!this.currentCar.documents) {
-                    this.currentCar.documents = {
+                if (!targetCar.documents) {
+                    targetCar.documents = {
                         'work-certificate': [],
                         'payment-receipt': [],
                         'invoice': [],
@@ -1070,15 +1026,13 @@ var Admin = {
                     };
                 }
 
-                // Инициализируем массив для типа если его нет
-                if (!this.currentCar.documents[type]) {
-                    this.currentCar.documents[type] = [];
+                if (!targetCar.documents[type]) {
+                    targetCar.documents[type] = [];
                 }
 
                 const fileType = this.getFileType(file.name);
 
-                // Добавляем документ
-                this.currentCar.documents[type].push({
+                targetCar.documents[type].push({
                     id: Date.now() + i,
                     dataUrl: e.target.result,
                     name: file.name,
@@ -1087,7 +1041,6 @@ var Admin = {
                     uploadedAt: new Date().toISOString()
                 });
 
-                // Обновляем отображение
                 this.loadStatusDocuments();
             };
             reader.readAsDataURL(file);
@@ -1095,10 +1048,105 @@ var Admin = {
     },
 
     deleteStatusDocument(type, docId) {
-        if (!this.currentCar || !this.currentCar.documents || !this.currentCar.documents[type]) return;
+        const targetCar = this.currentCar || this.tempNewCar;
+        if (!targetCar || !targetCar.documents || !targetCar.documents[type]) return;
 
-        this.currentCar.documents[type] = this.currentCar.documents[type].filter(doc => doc.id !== docId);
+        targetCar.documents[type] = targetCar.documents[type].filter(doc => doc.id !== docId);
         this.loadStatusDocuments();
+    },
+
+    getFileType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['pdf'].includes(ext)) return 'pdf';
+        if (['doc', 'docx'].includes(ext)) return 'doc';
+        if (['xls', 'xlsx'].includes(ext)) return 'xls';
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
+        return 'file';
+    },
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
+    showEditClientForm(clientId) {
+        const client = clientsDatabase.find(c => c.id === clientId);
+        if (!client) return;
+
+        this.currentEditingClientId = clientId;
+
+        this.setInputValue('edit-client-name', client.name);
+        this.setInputValue('edit-client-phone', client.phone);
+
+        this.loadClientCars(clientId);
+
+        const modal = document.getElementById('edit-client-modal');
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+    },
+
+    loadClientCars(clientId) {
+        const clientCarsList = document.getElementById('client-cars-list');
+        if (!clientCarsList) return;
+
+        const clientCars = carsDatabase.filter(car => car.clientId === clientId);
+
+        clientCarsList.innerHTML = '';
+
+        if (clientCars.length === 0) {
+            clientCarsList.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 20px;">У клиента нет автомобилей</p>';
+            return;
+        }
+
+        clientCars.forEach(car => {
+            const carItem = document.createElement('div');
+            carItem.className = 'client-car-item';
+
+            carItem.innerHTML = `
+                <div class="client-car-info">
+                    <strong>${car.brand} ${car.model}</strong>
+                    <div>${car.number}</div>
+                </div>
+                <div class="client-car-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="Admin.showEditCarForm(${car.id}); Admin.hideEditClientModal();">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `;
+
+            clientCarsList.appendChild(carItem);
+        });
+    },
+
+    saveClientChanges() {
+        const client = clientsDatabase.find(c => c.id === this.currentEditingClientId);
+        if (!client) return;
+
+        client.name = document.getElementById('edit-client-name')?.value || client.name;
+        client.phone = document.getElementById('edit-client-phone')?.value || client.phone;
+
+        updateClientsTable();
+
+        this.hideEditClientModal();
+        alert('Данные клиента успешно обновлены!');
+    },
+
+    hideEditClientModal() {
+        const modal = document.getElementById('edit-client-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.currentEditingClientId = null;
+            }, 300);
+        }
     }
 };
 
@@ -1132,18 +1180,15 @@ function initTestData() {
 }
 
 function openTab(tabId) {
-    // Скрыть все вкладки
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
 
-    // Показать выбранную вкладку
     const tab = document.getElementById(tabId);
     if (tab) {
         tab.classList.add('active');
     }
 
-    // Обновить активный элемент в таббаре
     document.querySelectorAll('#admin-tabbar .tabbar-item').forEach(item => {
         item.classList.remove('active');
     });
@@ -1177,26 +1222,6 @@ function updateCarsTable() {
     });
 }
 
-function updateCarStatus(carId, newStatus) {
-    const car = carsDatabase.find(c => c.id === carId);
-    if (car) {
-        car.status = newStatus;
-
-        // Добавляем запись в историю статусов
-        if (!car.repairStatus) car.repairStatus = [];
-        car.repairStatus.push({
-            id: Date.now(),
-            date: new Date().toLocaleDateString('ru-RU'),
-            title: `Статус изменен на: ${getStatusText(newStatus)}`,
-            description: 'Статус ремонта обновлен',
-            status: 'completed'
-        });
-
-        updateClientsTable();
-        alert('Статус автомобиля успешно обновлен!');
-    }
-}
-
 function updateClientsTable() {
     const tbody = document.getElementById('clients-table-body');
     if (!tbody) return;
@@ -1205,41 +1230,41 @@ function updateClientsTable() {
 
     clientsDatabase.forEach(client => {
         const clientCars = carsDatabase.filter(car => car.clientId === client.id);
-        let carInfo = 'Нет автомобилей';
 
+        let carsHtml = 'Нет автомобилей';
         if (clientCars.length > 0) {
-            const car = clientCars[0];
-            carInfo = `<a href="javascript:void(0)" onclick="Admin.showEditCarForm(${car.id})" 
-                         class="car-number-link">${car.number}</a>`;
+            carsHtml = clientCars.map(car =>
+                `<a href="javascript:void(0)" onclick="Admin.showEditCarForm(${car.id})" 
+                   class="car-number-link" style="display: block; margin-bottom: 4px;">
+                    ${car.number} (${car.brand} ${car.model})
+                 </a>`
+            ).join('');
         }
-
-        const status = clientCars.length > 0
-            ? carsDatabase.find(car => car.clientId === client.id).status
-            : 'none';
-
-        const statusText = getStatusText(status);
-        const statusClass = getStatusClass(status);
 
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td>${client.name}</td>
-                <td>${client.phone}</td>
-                <td>${carInfo}</td>
-                <td><span class="${statusClass}">${statusText}</span></td>
-            `;
+            <td>
+                <a href="javascript:void(0)" onclick="Admin.showEditClientForm(${client.id})" 
+                   class="client-name-link">
+                    ${client.name}
+                </a>
+            </td>
+            <td>${client.phone}</td>
+            <td class="client-cars-cell">${carsHtml}</td>
+        `;
 
         tbody.appendChild(row);
     });
-}
 
-function getStatusClass(status) {
-    switch(status) {
-        case 'diagnostic': return 'status-pending';
-        case 'repair':
-        case 'painting': return 'status-in-progress';
-        case 'ready': return 'status-completed';
-        case 'completed': return 'status-completed';
-        default: return '';
+    if (tbody.children.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 40px; color: var(--gray);">
+                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    Клиенты не найдены
+                </td>
+            </tr>
+        `;
     }
 }
 
@@ -1282,8 +1307,8 @@ function searchClients() {
         const cells = rows[i].getElementsByTagName('td');
         let found = false;
 
-        for (let j = 0; j < cells.length; j++) {
-            if (cells[j].textContent.toLowerCase().includes(searchText)) {
+        for (let j = 0; j < 3; j++) {
+            if (cells[j] && cells[j].textContent.toLowerCase().includes(searchText)) {
                 found = true;
                 break;
             }
@@ -1317,8 +1342,18 @@ function logout() {
     document.getElementById('password').value = '';
 }
 
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 0) {
+        value = value.match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+        input.value = !value[2] ? value[1] : '+7 (' + value[2] + ') ' + value[3] +
+            (value[4] ? '-' + value[4] : '') + (value[5] ? '-' + value[5] : '');
+    }
+}
+
 // Инициализация при загрузке DOM
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     App.init();
 
     const adminSection = document.getElementById('adminSection');
@@ -1328,4 +1363,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('user-tabbar').style.display = 'none';
     document.getElementById('admin-tabbar').style.display = 'none';
+
+    const phoneInput = document.getElementById('new-car-owner-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            formatPhoneNumber(this);
+        });
+    }
 });

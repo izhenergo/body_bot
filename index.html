@@ -237,8 +237,7 @@
             <tr>
                 <th>ФИО</th>
                 <th>Телефон</th>
-                <th>Автомобиль</th>
-                <th>Статус</th>
+                <th>Автомобили</th>
             </tr>
             </thead>
             <tbody id="clients-table-body">
@@ -274,16 +273,58 @@
             <button class="modal-close" onclick="Admin.hideAddCarModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <!-- Статус ремонта -->
-            <div class="form-group">
-                <label for="new-car-status">Статус ремонта:</label>
-                <select id="new-car-status" class="form-input">
-                    <option value="diagnostic">Дефектовка</option>
-                    <option value="repair">Ремонт</option>
-                    <option value="painting">Покраска</option>
-                    <option value="ready">Готов к выдаче</option>
-                    <option value="completed">Выдан клиенту</option>
-                </select>
+            <!-- Секция информации о собственнике (ОБЯЗАТЕЛЬНАЯ) -->
+            <div class="form-section owner-section">
+                <h4><i class="fas fa-user"></i> Информация о собственнике <span class="required">*</span></h4>
+                <div class="form-group">
+                    <label for="new-car-owner-name">ФИО собственника: <span class="required">*</span></label>
+                    <input type="text" id="new-car-owner-name" class="form-input" placeholder="Иванов Иван Иванович" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-car-owner-phone">Телефон собственника: <span class="required">*</span></label>
+                    <input type="tel" id="new-car-owner-phone" class="form-input" placeholder="+7 (912) 345-67-89" required>
+                </div>
+            </div>
+
+            <!-- Секция информации об автомобиле -->
+            <div class="form-section">
+                <h4><i class="fas fa-car"></i> Информация об автомобиле</h4>
+
+                <div class="form-group">
+                    <label for="new-car-status">Статус ремонта:</label>
+                    <select id="new-car-status" class="form-input">
+                        <option value="diagnostic">Дефектовка</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="painting">Покраска</option>
+                        <option value="ready">Готов к выдаче</option>
+                        <option value="completed">Выдан клиенту</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="new-car-brand">Марка: <span class="required">*</span></label>
+                    <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-car-model">Модель: <span class="required">*</span></label>
+                    <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-car-number">Гос. номер: <span class="required">*</span></label>
+                    <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-car-odometer">Пробег:</label>
+                    <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
+                </div>
+                <div class="form-group">
+                    <label for="new-car-year">Год выпуска:</label>
+                    <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
+                </div>
+                <div class="form-group">
+                    <label for="new-car-vin">VIN:</label>
+                    <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
+                </div>
             </div>
 
             <!-- Кнопки редактирования фотографий и документов -->
@@ -297,30 +338,6 @@
                 <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEditPage()" style="margin-top: 15px;">
                     <i class="fas fa-file-alt"></i> Закрывающая документация
                 </button>
-            </div>
-            <div class="form-group">
-                <label for="new-car-brand">Марка:</label>
-                <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
-            </div>
-            <div class="form-group">
-                <label for="new-car-model">Модель:</label>
-                <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
-            </div>
-            <div class="form-group">
-                <label for="new-car-number">Гос. номер:</label>
-                <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
-            </div>
-            <div class="form-group">
-                <label for="new-car-odometer">Пробег:</label>
-                <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
-            </div>
-            <div class="form-group">
-                <label for="new-car-year">Год выпуска:</label>
-                <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
-            </div>
-            <div class="form-group">
-                <label for="new-car-vin">VIN:</label>
-                <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
             </div>
         </div>
         <div class="modal-actions">
@@ -617,6 +634,37 @@
         <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
             <i class="fas fa-file"></i> Добавить документы
         </button>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования клиента -->
+<div id="edit-client-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Редактирование клиента</h3>
+            <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-client-name">ФИО:</label>
+                <input type="text" id="edit-client-name" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-client-phone">Телефон:</label>
+                <input type="tel" id="edit-client-phone" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label>Автомобили клиента:</label>
+                <div id="client-cars-list" class="client-cars-list">
+                    <!-- Список автомобилей будет заполнен динамически -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
+        </div>
     </div>
 </div>
 
