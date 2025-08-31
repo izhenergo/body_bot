@@ -9,8 +9,10 @@ var autoSaveTimeout = null;
 var App = {
     currentView: 'main',
     currentCar: null,
+    historyCarId: null,
 
     init() {
+        this.historyCarId = null;
         this.initTestData();
 
         setTimeout(() => {
@@ -310,7 +312,11 @@ var App = {
         const viewTab = document.getElementById(`${view}-tab`);
         if (viewTab) viewTab.classList.add('active');
 
-        const titles = { 'main': 'Мои автомобили', 'history': 'История обслуживания', 'profile': 'Мой профиль' };
+        const titles = {
+            'main': 'Мои автомобили',
+            'history': 'История обслуживания',
+            'profile': 'Мой профиль'
+        };
         const titleElement = document.getElementById('current-screen-title');
         if (titleElement) titleElement.textContent = titles[view] || 'Мои автомобили';
 
@@ -326,11 +332,236 @@ var App = {
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
+                // Если есть ID автомобиля, показываем его историю
+                if (this.historyCarId) {
+                    this.showCarHistory(this.historyCarId);
+                } else {
+                    // Иначе показываем стандартную историю с выбором
+                    this.showCarSelectionHistory();
+                }
                 break;
             case 'profile':
                 document.getElementById('profile-view').style.display = 'block';
                 break;
         }
+    },
+
+    navigateToHistoryFromCar: function(carId) {
+        // Сохраняем ID автомобиля для истории
+        this.historyCarId = carId;
+
+        // Переходим на вкладку истории
+        this.navigateTo('history');
+
+        // Показываем историю конкретного автомобиля
+        this.showCarHistory(carId);
+    },
+
+    showCarHistory: function(carId) {
+        const car = carsDatabase.find(c => c.id === carId);
+        if (!car) return;
+
+        // Обновляем заголовок
+        document.getElementById('current-screen-title').textContent = `История: ${car.brand} ${car.model}`;
+
+        // Показываем кнопку возврата к выбору автомобиля
+        const backButton = document.getElementById('history-back-button');
+        if (backButton) {
+            backButton.style.display = 'block';
+        }
+
+        // Используем существующую структуру истории
+        this.renderExistingHistory(carId);
+    },
+
+    showCarSelectionHistory: function() {
+        // Сбрасываем ID автомобиля
+        this.historyCarId = null;
+
+        // Обновляем заголовок
+        document.getElementById('current-screen-title').textContent = 'История обслуживания';
+
+        // Скрываем кнопку возврата
+        const backButton = document.getElementById('history-back-button');
+        if (backButton) {
+            backButton.style.display = 'none';
+        }
+
+        // Возвращаем стандартное содержимое истории
+        this.renderStandardHistory();
+    },
+
+    renderExistingHistory: function(carId) {
+        const historyView = document.getElementById('history-view');
+        if (!historyView) return;
+
+        const car = carsDatabase.find(c => c.id === carId);
+        const carTitle = car ? `${car.brand} ${car.model} (${car.number})` : 'Автомобиль';
+
+        // Получаем историю обслуживания для конкретного автомобиля
+        const serviceHistory = this.getServiceHistoryForCar(carId);
+
+        historyView.innerHTML = `
+        <div class="history-header">
+            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: block;">
+                <i class="fas fa-arrow-left"></i> Назад к выбору
+            </button>
+            <h2><i class="fas fa-history"></i> История обслуживания</h2>
+        </div>
+        <div class="history-list">
+            <h3>${carTitle}</h3>
+            
+            ${serviceHistory.length > 0 ?
+            serviceHistory.map(service => `
+                    <div class="history-item">
+                        <h3><span class="history-date">${service.date}</span> - ${service.title}</h3>
+                        <p><i class="fas fa-car-crash"></i> ${service.description}</p>
+                        <p><i class="fas fa-tachometer-alt"></i> Пробег: ${service.mileage} км</p>
+                        <p><i class="fas fa-ruble-sign"></i> Стоимость: ${service.totalCost.toLocaleString('ru-RU')} руб.</p>
+                        
+                        ${service.workItems && service.workItems.length > 0 ? `
+                            <div class="parts-list">
+                                <p><strong>Работы:</strong></p>
+                                <ul>
+                                    ${service.workItems.map(item => `<li>${item.name} - ${item.cost.toLocaleString('ru-RU')} руб.</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${service.parts && service.parts.length > 0 ? `
+                            <div class="parts-list">
+                                <p><strong>Запчасти:</strong></p>
+                                <ul>
+                                    ${service.parts.map(part => `<li>${part.name} - ${part.quantity} шт. × ${part.price.toLocaleString('ru-RU')} руб.</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')
+            :
+            '<p style="padding: 20px; text-align: center; color: var(--gray);">История обслуживания отсутствует</p>'
+        }
+        </div>
+    `;
+    },
+
+    renderStandardHistory: function() {
+        const historyView = document.getElementById('history-view');
+        if (!historyView) return;
+
+        // Возвращаем оригинальную разметку без примеров
+        historyView.innerHTML = `
+        <div class="history-header">
+            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
+                <i class="fas fa-arrow-left"></i> Назад к выбору
+            </button>
+            <h2><i class="fas fa-history"></i> История обслуживания</h2>
+        </div>
+        <div class="history-list">
+            <p>Выберите автомобиль для просмотра истории:</p>
+            <div id="history-cars-list">
+                <!-- Список автомобилей будет заполнен динамически -->
+            </div>
+        </div>
+    `;
+
+        // Заполняем список автомобилей
+        this.updateHistoryCarsList();
+    },
+
+    updateHistoryCarsList: function() {
+        const historyCarsList = document.getElementById('history-cars-list');
+        if (!historyCarsList) return;
+
+        historyCarsList.innerHTML = '';
+        carsDatabase.forEach(car => {
+            const carCard = document.createElement('div');
+            carCard.className = 'car-card';
+            carCard.onclick = () => this.showCarHistory(car.id);
+            carCard.innerHTML = `
+                <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
+                <p>Госномер: ${car.number}</p>
+                <div class="car-meta">
+                    <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
+                </div>
+            `;
+            historyCarsList.appendChild(carCard);
+        });
+    },
+
+    showServiceHistory: function() {
+        // Если мы в карточке автомобиля, переходим на историю этого автомобиля
+        if (this.currentCar) {
+            this.navigateToHistoryFromCar(this.currentCar);
+        } else {
+            // Иначе переходим на обычную историю с выбором автомобиля
+            this.historyCarId = null;
+            this.navigateTo('history');
+        }
+    },
+
+    getServiceHistoryForCar: function(carId) {
+        // Тестовая база данных истории обслуживания
+        const serviceHistoryDB = {
+            1: [ // Volkswagen Tiguan
+                {
+                    date: '15.04.2023',
+                    mileage: '45,230',
+                    title: 'Кузовной ремонт',
+                    description: 'Устранение повреждений правого борта после ДТП',
+                    workItems: [
+                        { name: 'Рихтовка правого борта', cost: 25000 },
+                        { name: 'Покраска элементов', cost: 40000 },
+                        { name: 'Замена молдинга', cost: 5000 }
+                    ],
+                    parts: [
+                        { name: 'Молдинг правого борта', quantity: 1, price: 3500 },
+                        { name: 'ЛКМ', quantity: 2, price: 7500 }
+                    ],
+                    totalCost: 87500,
+                    warranty: '12 месяцев'
+                },
+                {
+                    date: '10.01.2023',
+                    mileage: '42,000',
+                    title: 'Плановое ТО',
+                    description: 'Регламентное техническое обслуживание',
+                    workItems: [
+                        { name: 'Замена масла двигателя', cost: 3000 },
+                        { name: 'Замена масляного фильтра', cost: 1500 },
+                        { name: 'Замена воздушного фильтра', cost: 2000 },
+                        { name: 'Диагностика ходовой', cost: 2000 }
+                    ],
+                    parts: [
+                        { name: 'Масло моторное 5W-40', quantity: 5, price: 600 },
+                        { name: 'Фильтр масляный', quantity: 1, price: 1200 },
+                        { name: 'Фильтр воздушный', quantity: 1, price: 1500 }
+                    ],
+                    totalCost: 12500,
+                    warranty: '6 месяцев'
+                }
+            ],
+            2: [ // Kia Sportage
+                {
+                    date: '20.03.2023',
+                    mileage: '18,750',
+                    title: 'Покраска переднего бампера',
+                    description: 'Локальный ремонт ЛКП переднего бампера',
+                    workItems: [
+                        { name: 'Подготовка поверхности', cost: 5000 },
+                        { name: 'Покраска бампера', cost: 15000 }
+                    ],
+                    parts: [
+                        { name: 'ЛКМ', quantity: 1, price: 4000 },
+                        { name: 'Лак', quantity: 1, price: 3000 }
+                    ],
+                    totalCost: 27000,
+                    warranty: '12 месяцев'
+                }
+            ]
+        };
+
+        return serviceHistoryDB[carId] || [];
     },
 
     updateRepairStatus(statusItems) {
@@ -504,7 +735,6 @@ var App = {
         }
     },
 
-    showServiceHistory() { this.navigateTo('history'); },
     showGames() {
         const modal = document.getElementById('games-modal');
         if (modal) { modal.classList.add('show'); setTimeout(() => { modal.style.opacity = '1'; }, 10); }

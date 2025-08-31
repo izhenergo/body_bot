@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Автосервис - Личный кабинет</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -156,28 +157,15 @@
 
         <!-- History View (hidden by default) -->
         <div id="history-view" style="display: none;">
-            <div class="history-list">
+            <div class="history-header">
+                <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Назад к выбору
+                </button>
                 <h2><i class="fas fa-history"></i> История обслуживания</h2>
+            </div>
 
-                <div class="history-item">
-                    <h3><span class="history-date">15.04.2023</span> - Кузовной ремонт</h3>
-                    <p><i class="fas fa-car-crash"></i> Устранение повреждений правого борта</p>
-                    <p><i class="fas fa-tachometer-alt"></i> Пробег: 45 230 км</p>
-                    <p><i class="fas fa-ruble-sign"></i> Стоимость: 87 500 руб.</p>
-                    <div class="parts-list">
-                        <p><strong>Запчасти:</strong></p>
-                        <ul>
-                            <li>Крыло правое - 32 500 руб.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="history-item">
-                    <h3><span class="history-date">10.01.2023</span> - Планове ТО</h3>
-                    <p><i class="fas fa-oil-can"></i> Замена масла и фильтров</p>
-                    <p><i class="fas fa-tachometer-alt"></i> Пробег: 42 000 км</p>
-                    <p><i class="fas fa-ruble-sign"></i> Стоимость: 12 500 руб.</p>
-                </div>
+            <div class="history-list">
+                <!-- Контент будет заполняться динамически -->
             </div>
         </div>
 
