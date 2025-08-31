@@ -514,8 +514,11 @@ var App = {
         if (modal) { modal.style.opacity = '0'; setTimeout(() => { modal.classList.remove('show'); }, 300); }
     },
     openGame(gameName) { alert(`Открываем игру: ${gameName}\nЗдесь будет интеграция с @Zer0_Emission_Bot`); this.hideGames(); },
-    writeToManager() { alert('Открываем чат с менеджером'); },
-    callService() { if (confirm('Позвонить в автосервис по номеру +7 (123) 456-78-90?')) window.location.href = 'tel:+71234567890'; },
+    writeToManager() {
+        const telegramUrl = 'https://t.me/MobileApps18';
+        window.open(telegramUrl, '_blank');
+    },
+    callService() { if (confirm('Позвонить в автосервис по номеру +7 (999) 888-77-66?')) window.location.href = 'tel:+79998887766'; },
     logout() {
         if (confirm('Вы уверены, что хотите выйти?')) {
             document.getElementById('app').classList.remove('show', 'user-mode');
