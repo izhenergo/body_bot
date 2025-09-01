@@ -735,15 +735,6 @@ var App = {
         }
     },
 
-    showGames() {
-        const modal = document.getElementById('games-modal');
-        if (modal) { modal.classList.add('show'); setTimeout(() => { modal.style.opacity = '1'; }, 10); }
-    },
-    hideGames() {
-        const modal = document.getElementById('games-modal');
-        if (modal) { modal.style.opacity = '0'; setTimeout(() => { modal.classList.remove('show'); }, 300); }
-    },
-    openGame(gameName) { alert(`Открываем игру: ${gameName}\nЗдесь будет интеграция с @Zer0_Emission_Bot`); this.hideGames(); },
     writeToManager() {
         const telegramUrl = 'https://t.me/MobileApps18';
         window.open(telegramUrl, '_blank');

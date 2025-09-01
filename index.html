@@ -182,9 +182,6 @@
                 </div>
 
                 <div class="profile-actions">
-                    <button class="btn btn-secondary btn-block" onclick="App.showGames()">
-                        <i class="fas fa-gamepad"></i> Игры
-                    </button>
                     <button class="btn btn-secondary btn-block" onclick="App.writeToManager()">
                         <i class="fas fa-comment-dots"></i> Написать менеджеру
                     </button>
@@ -347,54 +344,6 @@
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="Admin.hideAddCarModal()">Отмена</button>
             <button class="btn btn-primary" onclick="Admin.addNewCar()">Сохранить</button>
-        </div>
-    </div>
-</div>
-
-<!-- Games Modal -->
-<div id="games-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title">Игры</h3>
-            <button class="modal-close" onclick="App.hideGames()">&times;</button>
-        </div>
-        <div class="games-list">
-            <div class="game-item" onclick="App.openGame('2048')">
-                <div class="game-icon">
-                    <i class="fas fa-th"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">2048</div>
-                    <div class="game-desc">Соберите плитку 2048</div>
-                </div>
-            </div>
-            <div class="game-item" onclick="App.openGame('snake')">
-                <div class="game-icon">
-                    <i class="fas fa-snake"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Змейка</div>
-                    <div class="game-desc">Классическая змейка</div>
-                </div>
-            </div>
-            <div class="game-item" onclick="App.openGame('tetris')">
-                <div class="game-icon">
-                    <i class="fas fa-shapes"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Тетрис</div>
-                    <div class="game-desc">Собирайте линии</div>
-                </div>
-            </div>
-            <div class="game-item" onclick="App.openGame('minesweeper')">
-                <div class="game-icon">
-                    <i class="fas fa-bomb"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Сапер</div>
-                    <div class="game-desc">Найдите все мины</div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

@@ -803,54 +803,6 @@ body {
     padding: 5px;
 }
 
-/* Games List */
-.games-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-.game-item {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    background: var(--light);
-    transition: var(--transition);
-}
-
-.game-item:active {
-    transform: scale(0.98);
-}
-
-.game-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    color: var(--white);
-    font-size: 1.2rem;
-}
-
-.game-info {
-    flex: 1;
-}
-
-.game-name {
-    font-weight: 600;
-    color: var(--dark);
-    margin-bottom: 2px;
-}
-
-.game-desc {
-    font-size: 0.8rem;
-    color: var(--gray);
-}
-
 /* Tabbar */
 .tabbar {
     position: fixed;
