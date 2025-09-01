@@ -50,7 +50,7 @@
 
 <!-- Клиентское приложение -->
 <div id="app">
-    <div class="app-header">
+    <div class="app-header" id="app-header" style="display: none;">
         <h1 class="app-title" id="current-screen-title">Мои автомобили</h1>
     </div>
 
@@ -151,7 +151,7 @@
             </div>
 
             <button class="btn btn-primary btn-block" onclick="App.showServiceHistory()" style="margin-top: 20px;">
-                <i class="fas fa-history"></i> История обслуживания
+                <i class="fas fa-history"></i> Посмотреть историю
             </button>
         </div>
 
@@ -161,7 +161,6 @@
                 <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
                     <i class="fas fa-arrow-left"></i> Назад к выбору
                 </button>
-                <h2><i class="fas fa-history"></i> История обслуживания</h2>
             </div>
 
             <div class="history-list">
@@ -352,7 +351,7 @@
 <div class="tabbar" id="user-tabbar">
     <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
         <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-        <span>Авто</span>
+        <span>Автомобили</span>
     </a>
     <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
         <span class="tabbar-icon"><i class="fas fa-history"></i></span>

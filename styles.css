@@ -256,7 +256,7 @@ body {
 .app-header {
     background: var(--white);
     padding: 16px 20px;
-    padding-top: calc(40px + env(safe-area-inset-top));
+    padding-top: calc(20px + env(safe-area-inset-top)); /* Уменьшаем верхний отступ */
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
@@ -2691,5 +2691,63 @@ html, body {
 
     .back-button {
         align-self: flex-start;
+    }
+}
+
+/* Стили для основного контента без заголовка */
+.user-mode .main-content {
+    padding-top: 20px; /* Уменьшаем отступ сверху */
+}
+
+/* Адаптивные отступы для безопасных зон */
+@supports (padding: max(0px)) {
+    .user-mode .main-content {
+        padding-top: max(20px, env(safe-area-inset-top));
+    }
+}
+
+/* Убираем лишние отступы на мобильных устройствах */
+@media (max-width: 480px) {
+    .user-mode .main-content {
+        padding-top: 16px;
+    }
+}
+
+/* Стили для истории без заголовка */
+.history-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.history-list h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-align: center;
+    padding: 10px;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+}
+
+.history-list > p {
+    text-align: center;
+    color: var(--gray);
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+/* Адаптивные стили для истории */
+@media (max-width: 480px) {
+    .history-list h3 {
+        font-size: 1.1rem;
+        padding: 8px;
+    }
+
+    .history-list > p {
+        font-size: 1rem;
+        margin-bottom: 16px;
     }
 }
