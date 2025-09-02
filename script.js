@@ -4,6 +4,7 @@ var clientsDatabase = [];
 var currentDragItem = null;
 var currentEditingCarId = null;
 var autoSaveTimeout = null;
+var isScrollEnabled = false;
 
 // Клиентское приложение (глобальное)
 var App = {
@@ -30,6 +31,40 @@ var App = {
             e.preventDefault();
             this.handleLogin();
         };
+
+        // Инициализация наблюдателя за изменениями DOM
+        this.initDOMObserver();
+    },
+
+    initDOMObserver() {
+        const observer = new MutationObserver(() => {
+            if (document.getElementById('app').classList.contains('show')) {
+                this.checkScrollNeeded();
+            }
+        });
+
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            observer.observe(mainContent, {
+                subtree: true,
+                childList: true,
+                characterData: true
+            });
+        }
+    },
+
+    checkScrollNeeded: function() {
+        const mainContent = document.getElementById('main-content');
+        if (!mainContent) return;
+
+        // Проверяем, нужен ли скролл
+        const needsScroll = mainContent.scrollHeight > mainContent.clientHeight;
+
+        if (needsScroll !== isScrollEnabled) {
+            isScrollEnabled = needsScroll;
+            document.body.classList.toggle('no-scroll', !needsScroll);
+            mainContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+        }
     },
 
     initTestData() {
@@ -180,22 +215,22 @@ var App = {
             document.getElementById('auth-view').style.display = 'none';
 
             if (username === '1' && password === '1') {
-                // Regular user - hide header
+                // Regular user - hide header and add user mode class
                 document.getElementById('app').classList.add('show', 'user-mode');
                 document.getElementById('user-tabbar').style.display = 'flex';
                 document.getElementById('admin-tabbar').style.display = 'none';
-                document.getElementById('app-header').style.display = 'none'; // Скрываем заголовок
+                document.getElementById('app-header').style.display = 'none';
 
                 this.initUserInterface();
                 this.navigateTo('main');
             } else if (username === '2' && password === '2') {
-                // Admin user - show header
+                // Admin user - remove user mode class and show admin interface
                 document.getElementById('app').classList.remove('user-mode');
                 document.getElementById('adminSection').style.display = 'block';
                 document.getElementById('user-tabbar').style.display = 'none';
                 document.getElementById('admin-tabbar').style.display = 'flex';
                 document.getElementById('app').style.display = 'none';
-                document.getElementById('app-header').style.display = 'block'; // Показываем заголовок
+                document.getElementById('app-header').style.display = 'block';
 
                 updateCarsTable();
                 updateClientsTable();
@@ -214,6 +249,9 @@ var App = {
         document.getElementById('car-details-view').style.display = 'none';
         document.getElementById('history-view').style.display = 'none';
         document.getElementById('profile-view').style.display = 'none';
+
+        // Проверяем нужен ли скролл после инициализации
+        setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     updateCarsList() {
@@ -240,6 +278,8 @@ var App = {
             `;
             carsList.appendChild(carCard);
         });
+
+        this.checkScrollNeeded();
     },
 
     showCarDetails(carId) {
@@ -291,6 +331,9 @@ var App = {
 
         const titleElement = document.getElementById('current-screen-title');
         if (titleElement) titleElement.textContent = `${car.brand} ${car.model}`;
+
+        // Проверяем нужен ли скролл после загрузки деталей
+        setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     updateElementText(elementId, text) {
@@ -314,19 +357,10 @@ var App = {
         const viewTab = document.getElementById(`${view}-tab`);
         if (viewTab) viewTab.classList.add('active');
 
-        // Скрываем заголовок для пользовательского режима
         const appHeader = document.getElementById('app-header');
         if (appHeader) {
             appHeader.style.display = 'none';
         }
-
-        const titles = {
-            'main': 'Мои автомобили',
-            'history': 'История обслуживания',
-            'profile': 'Мой профиль'
-        };
-        const titleElement = document.getElementById('current-screen-title');
-        if (titleElement) titleElement.textContent = titles[view] || 'Мои автомобили';
 
         ['cars-list-view', 'car-details-view', 'history-view', 'profile-view'].forEach(viewId => {
             const element = document.getElementById(viewId);
@@ -340,9 +374,11 @@ var App = {
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
+                // Если есть ID автомобиля, показываем его историю
                 if (this.historyCarId) {
                     this.showCarHistory(this.historyCarId);
                 } else {
+                    // Иначе показываем стандартную историю с выбором
                     this.showCarSelectionHistory();
                 }
                 break;
@@ -350,6 +386,9 @@ var App = {
                 document.getElementById('profile-view').style.display = 'block';
                 break;
         }
+
+        // Проверяем нужен ли скролл после смены вьюшки
+        setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     navigateToHistoryFromCar: function(carId) {
@@ -367,15 +406,19 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         if (!car) return;
 
-        // Обновляем заголовок - убираем "История:"
+        // Обновляем заголовок
         document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
 
+        // Показываем кнопку возврата к выбору автомобиля
         const backButton = document.getElementById('history-back-button');
         if (backButton) {
             backButton.style.display = 'block';
         }
 
+        // Используем существующую структуру истории
         this.renderExistingHistory(carId);
+
+        setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     showCarSelectionHistory: function() {
@@ -393,6 +436,8 @@ var App = {
 
         // Возвращаем стандартное содержимое истории
         this.renderStandardHistory();
+
+        setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     renderExistingHistory: function(carId) {
@@ -402,69 +447,72 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         const carTitle = car ? `${car.brand} ${car.model} (${car.number})` : 'Автомобиль';
 
+        // Получаем историю обслуживания для конкретного автомобиля
         const serviceHistory = this.getServiceHistoryForCar(carId);
 
         historyView.innerHTML = `
-    <div class="history-header">
-        <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: block;">
-            <i class="fas fa-arrow-left"></i> Назад к выбору
-        </button>
-    </div>
-    <div class="history-list">
-        <h3>${carTitle}</h3>
-        
-        ${serviceHistory.length > 0 ?
+        <div class="history-header">
+            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: block;">
+                <i class="fas fa-arrow-left"></i> Назад к выбору
+            </button>
+        </div>
+        <div class="history-list">
+            <h3>${carTitle}</h3>
+            
+            ${serviceHistory.length > 0 ?
             serviceHistory.map(service => `
-                <div class="history-item">
-                    <h3><span class="history-date">${service.date}</span> - ${service.title}</h3>
-                    <p><i class="fas fa-car-crash"></i> ${service.description}</p>
-                    <p><i class="fas fa-tachometer-alt"></i> Пробег: ${service.mileage} км</p>
-                    <p><i class="fas fa-ruble-sign"></i> Стоимость: ${service.totalCost.toLocaleString('ru-RU')} руб.</p>
-                    
-                    ${service.workItems && service.workItems.length > 0 ? `
-                        <div class="parts-list">
-                            <p><strong>Работы:</strong></p>
-                            <ul>
-                                ${service.workItems.map(item => `<li>${item.name} - ${item.cost.toLocaleString('ru-RU')} руб.</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    
-                    ${service.parts && service.parts.length > 0 ? `
-                        <div class="parts-list">
-                            <p><strong>Запчасти:</strong></p>
-                            <ul>
-                                ${service.parts.map(part => `<li>${part.name} - ${part.quantity} шт. × ${part.price.toLocaleString('ru-RU')} руб.</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('')
+                    <div class="history-item">
+                        <h3><span class="history-date">${service.date}</span> - ${service.title}</h3>
+                        <p><i class="fas fa-car-crash"></i> ${service.description}</p>
+                        <p><i class="fas fa-tachometer-alt"></i> Пробег: ${service.mileage} км</p>
+                        <p><i class="fas fa-ruble-sign"></i> Стоимость: ${service.totalCost.toLocaleString('ru-RU')} руб.</p>
+                        
+                        ${service.workItems && service.workItems.length > 0 ? `
+                            <div class="parts-list">
+                                <p><strong>Работы:</strong></p>
+                                <ul>
+                                    ${service.workItems.map(item => `<li>${item.name} - ${item.cost.toLocaleString('ru-RU')} руб.</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${service.parts && service.parts.length > 0 ? `
+                            <div class="parts-list">
+                                <p><strong>Запчасти:</strong></p>
+                                <ul>
+                                    ${service.parts.map(part => `<li>${part.name} - ${part.quantity} шт. × ${part.price.toLocaleString('ru-RU')} руб.</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')
             :
             '<p style="padding: 20px; text-align: center; color: var(--gray);">История обслуживания отсутствует</p>'
         }
-    </div>
-`;
+        </div>
+    `;
     },
 
     renderStandardHistory: function() {
         const historyView = document.getElementById('history-view');
         if (!historyView) return;
 
+        // Возвращаем оригинальную разметку без примеров
         historyView.innerHTML = `
-    <div class="history-header">
-        <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
-            <i class="fas fa-arrow-left"></i> Назад к выбору
-        </button>
-    </div>
-    <div class="history-list">
-        <p>Выберите автомобиль для просмотра истории:</p>
-        <div id="history-cars-list">
-            <!-- Список автомобилей будет заполнен динамически -->
+        <div class="history-header">
+            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
+                <i class="fas fa-arrow-left"></i> Назад к выбору
+            </button>
         </div>
-    </div>
-`;
+        <div class="history-list">
+            <p>Выберите автомобиль для просмотра истории:</p>
+            <div id="history-cars-list">
+                <!-- Список автомобилей будет заполнен динамически -->
+            </div>
+        </div>
+    `;
 
+        // Заполняем список автомобилей
         this.updateHistoryCarsList();
     },
 
@@ -486,6 +534,8 @@ var App = {
             `;
             historyCarsList.appendChild(carCard);
         });
+
+        this.checkScrollNeeded();
     },
 
     showServiceHistory: function() {
@@ -1262,4 +1312,11 @@ document.addEventListener('DOMContentLoaded', function() {
             formatPhoneNumber(this);
         });
     }
+
+    // Добавляем обработчик ресайза
+    window.addEventListener('resize', function() {
+        if (document.getElementById('app').classList.contains('show')) {
+            App.checkScrollNeeded();
+        }
+    });
 });

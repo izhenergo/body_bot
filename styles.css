@@ -2751,3 +2751,135 @@ html, body {
         margin-bottom: 16px;
     }
 }
+
+/* Отключаем скролл когда контент помещается на экран */
+body.no-scroll {
+    overflow: hidden;
+    height: 100vh;
+}
+
+#app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px;
+    padding-bottom: 80px;
+}
+
+/* Принудительно скрываем скроллбар для iOS */
+.main-content::-webkit-scrollbar {
+    display: none;
+    width: 0;
+}
+
+.main-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Гарантируем, что контент не выходит за пределы экрана */
+.user-mode .main-content {
+    max-height: calc(100vh - 80px); /* Высота экрана минус таббар */
+}
+
+/* Убираем bounce эффект на iOS */
+body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+}
+
+/* Фиксируем таббар внизу экрана */
+.tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: var(--white);
+    display: flex;
+    border-top: 1px solid var(--light-gray);
+    padding: 0 20px;
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Адаптация под безопасные зоны */
+@supports (padding: max(0px)) {
+    .tabbar {
+        padding-bottom: env(safe-area-inset-bottom);
+        height: calc(72px + env(safe-area-inset-bottom));
+    }
+
+    .main-content {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .user-mode .main-content {
+        max-height: calc(100vh - 72px - env(safe-area-inset-bottom));
+    }
+}
+
+/* Убеждаемся, что все карточки помещаются без скролла */
+.car-card, .car-details-compact, .repair-status,
+.photo-gallery, .documents-section, .profile-view {
+    box-sizing: border-box;
+}
+
+/* Оптимизируем отступы для мобильных устройств */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 16px;
+        padding-bottom: 72px;
+    }
+
+    .car-card, .car-details-compact, .repair-status,
+    .photo-gallery, .documents-section, .profile-view {
+        margin-bottom: 12px;
+    }
+}
+
+/* Специальные стили для предотвращения скролла */
+.no-scroll .main-content {
+    overflow: hidden;
+}
+
+/* Фикс для iOS чтобы убрать pull-to-refresh */
+body {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Убираем выделение при тапе на iOS */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Разрешаем выделение текста в нужных местах */
+.car-card, .history-item, .profile-info, .document-info {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Плавные переходы для всего интерфейса */
+#app {
+    transition: all 0.3s ease;
+}
+
+/* Фикс для быстрых кликов на iOS */
+.btn, .tabbar-item, .car-card {
+    transition: transform 0.1s ease;
+}
+
+.btn:active, .tabbar-item:active, .car-card:active {
+    transform: scale(0.97);
+}
