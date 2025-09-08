@@ -124,6 +124,13 @@ var App = {
                         title: 'Готов к выдаче',
                         description: 'Автомобиль будет готов к выдаче',
                         status: 'pending'
+                    },
+                    {
+                        id: 7,
+                        date: '22.05.2023',
+                        title: 'Выдан клиенту',
+                        description: 'Автомобиль выдан клиенту',
+                        status: 'done'
                     }
                 ]
             },
