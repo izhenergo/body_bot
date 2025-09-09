@@ -256,7 +256,6 @@ body {
 .app-header {
     background: var(--white);
     padding: 16px 20px;
-    padding-top: calc(20px + env(safe-area-inset-top)); /* Уменьшаем верхний отступ */
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
@@ -858,12 +857,18 @@ body {
     100% { transform: scale(1); }
 }
 
-/* iOS Safe Areas */
+/* iOS Safe Areas - ТОЛЬКО ЭТО ДОБАВИМ */
 @supports (padding: max(0px)) {
-    body {
-        padding-left: max(12px, env(safe-area-inset-left));
-        padding-right: max(12px, env(safe-area-inset-right));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    .user-mode .main-content {
+        padding-top: max(20px, env(safe-area-inset-top)) !important;
+    }
+
+    .app-header {
+        padding-top: max(16px, env(safe-area-inset-top)) !important;
+    }
+
+    #profile-view {
+        padding-top: max(15px, env(safe-area-inset-top)) !important;
     }
 
     .tabbar {
@@ -973,123 +978,6 @@ th {
 
 tr:nth-child(even) {
     background-color: var(--light);
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--light-gray);
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    transition: var(--transition);
-    background-color: var(--white);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-}
-
-.form-group textarea {
-    height: 100px;
-    resize: vertical;
-}
-
-.btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.btn:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-danger {
-    background: var(--danger);
-    color: white;
-}
-
-.btn-success {
-    background: var(--success);
-    color: white;
-}
-
-.status-pending {
-    color: var(--warning);
-}
-
-.status-in-progress {
-    color: var(--accent);
-}
-
-.status-completed {
-    color: var(--success);
-}
-
-.status-canceled {
-    color: var(--danger);
-}
-
-.photo-thumbnail {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.photo-thumbnail:hover {
-    transform: scale(1.05);
-}
-
-.document-link {
-    display: inline-block;
-    padding: 8px 12px;
-    background-color: var(--light-gray);
-    margin-right: 10px;
-    margin-bottom: 10px;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    color: var(--dark);
-    transition: var(--transition);
-}
-
-.document-link:hover {
-    background-color: var(--primary-light);
 }
 
 .search-box {
@@ -2226,63 +2114,6 @@ input[type="tel"] {
     }
 }
 
-/* Стили для обязательных полей */
-.required {
-    color: var(--danger);
-    font-weight: bold;
-}
-
-.owner-section {
-    background: var(--primary-light);
-    padding: 15px;
-    border-radius: var(--radius-md);
-    margin-bottom: 20px;
-    border-left: 4px solid var(--primary);
-}
-
-.owner-section h4 {
-    background: transparent !important;
-    padding: 0 0 10px 0 !important;
-    color: var(--primary-dark) !important;
-}
-
-/* Стили для валидации */
-.form-input:invalid {
-    border-color: var(--danger-light);
-}
-
-.form-input:focus:invalid {
-    box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.1);
-}
-
-/* Подсказка для обязательных полей */
-.form-group label::after {
-    content: '';
-    display: block;
-    font-size: 0.8rem;
-    color: var(--gray);
-    margin-top: 2px;
-}
-
-.form-group label[for="new-car-owner-name"]::after {
-    content: 'Обязательное поле';
-}
-
-.form-group label[for="new-car-owner-phone"]::after {
-    content: 'Обязательное поле';
-}
-
-/* Адаптивные стили */
-@media (max-width: 768px) {
-    .owner-section {
-        padding: 12px;
-    }
-
-    .form-group label::after {
-        font-size: 0.75rem;
-    }
-}
-
 /* Компактное отображение информации об автомобиле */
 .car-details-compact {
     background: var(--white);
@@ -2601,186 +2432,6 @@ input[type="tel"] {
     }
 }
 
-html, body {
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    background: var(--primary-light);
-    color: var(--primary);
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.back-button:hover {
-    background: var(--primary);
-    color: var(--white);
-}
-
-/* Стили для основного контента без заголовка */
-.user-mode .main-content {
-    padding-top: 20px; /* Уменьшаем отступ сверху */
-}
-
-/* Адаптивные отступы для безопасных зон */
-@supports (padding: max(0px)) {
-    .user-mode .main-content {
-        padding-top: max(20px, env(safe-area-inset-top));
-    }
-}
-
-/* Убираем лишние отступы на мобильных устройствах */
-@media (max-width: 480px) {
-    .user-mode .main-content {
-        padding-top: 16px;
-    }
-}
-
-.history-list h3 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    color: var(--primary);
-    text-align: center;
-    padding: 10px;
-    background: var(--primary-light);
-    border-radius: var(--radius-md);
-}
-
-.history-list > p {
-    text-align: center;
-    color: var(--gray);
-    margin-bottom: 20px;
-    font-size: 1.1rem;
-}
-
-/* Адаптивные стили для истории */
-@media (max-width: 480px) {
-    .history-list h3 {
-        font-size: 1.1rem;
-        padding: 8px;
-    }
-
-    .history-list > p {
-        font-size: 1rem;
-        margin-bottom: 16px;
-    }
-}
-
-/* Отключаем скролл когда контент помещается на экран */
-body.no-scroll {
-    overflow: hidden;
-    height: 100vh;
-}
-
-#app {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.main-content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 20px;
-    padding-bottom: 80px;
-}
-
-/* Принудительно скрываем скроллбар для iOS */
-.main-content::-webkit-scrollbar {
-    display: none;
-    width: 0;
-}
-
-.main-content {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-/* Гарантируем, что контент не выходит за пределы экрана */
-.user-mode .main-content {
-    max-height: calc(100vh - 80px); /* Высота экрана минус таббар */
-}
-
-/* Убираем bounce эффект на iOS */
-body {
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: auto;
-}
-
-/* Фиксируем таббар внизу экрана */
-.tabbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 72px;
-    background: var(--white);
-    display: flex;
-    border-top: 1px solid var(--light-gray);
-    padding: 0 20px;
-    z-index: 100;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Адаптация под безопасные зоны */
-@supports (padding: max(0px)) {
-    .tabbar {
-        padding-bottom: env(safe-area-inset-bottom);
-        height: calc(72px + env(safe-area-inset-bottom));
-    }
-
-    .main-content {
-        padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
-
-    .user-mode .main-content {
-        max-height: calc(100vh - 72px - env(safe-area-inset-bottom));
-    }
-}
-
-/* Убеждаемся, что все карточки помещаются без скролла */
-.car-card, .car-details-compact, .repair-status,
-.photo-gallery, .documents-section, .profile-view {
-    box-sizing: border-box;
-}
-
-/* Оптимизируем отступы для мобильных устройств */
-@media (max-width: 480px) {
-    .main-content {
-        padding: 16px;
-        padding-bottom: 72px;
-    }
-
-    .car-card, .car-details-compact, .repair-status,
-    .photo-gallery, .documents-section, .profile-view {
-        margin-bottom: 12px;
-    }
-}
-
-/* Специальные стили для предотвращения скролла */
-.no-scroll .main-content {
-    overflow: hidden;
-}
-
-/* Фикс для iOS чтобы убрать pull-to-refresh */
-body {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
-
 /* Убираем выделение при тапе на iOS */
 * {
     -webkit-tap-highlight-color: transparent;
@@ -2793,18 +2444,4 @@ body {
 .car-card, .history-item, .profile-info, .document-info {
     -webkit-user-select: text;
     user-select: text;
-}
-
-/* Плавные переходы для всего интерфейса */
-#app {
-    transition: all 0.3s ease;
-}
-
-/* Фикс для быстрых кликов на iOS */
-.btn, .tabbar-item, .car-card {
-    transition: transform 0.1s ease;
-}
-
-.btn:active, .tabbar-item:active, .car-card:active {
-    transform: scale(0.97);
 }

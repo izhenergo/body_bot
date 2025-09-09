@@ -15,6 +15,7 @@ var App = {
     init() {
         this.historyCarId = null;
         this.initTestData();
+        this.updateSafeAreaPadding();
 
         setTimeout(() => {
             document.getElementById('splash').style.opacity = '0';
@@ -64,6 +65,26 @@ var App = {
             isScrollEnabled = needsScroll;
             document.body.classList.toggle('no-scroll', !needsScroll);
             mainContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+        }
+    },
+
+    updateSafeAreaPadding: function() {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isIOS) {
+            document.body.classList.add('ios-device');
+            console.log('iOS device detected - applying safe area padding');
+        }
+    },
+
+    applyIOSFixes: function() {
+        if (document.body.classList.contains('ios-device')) {
+            // Динамически обновляем отступы для безопасных зон
+            const elements = document.querySelectorAll('.main-content, .profile-view, .car-details-compact');
+            elements.forEach(el => {
+                const currentPadding = parseInt(getComputedStyle(el).paddingTop) || 20;
+                el.style.paddingTop = `calc(${currentPadding}px + env(safe-area-inset-top))`;
+            });
         }
     },
 
@@ -396,6 +417,8 @@ var App = {
 
         // Проверяем нужен ли скролл после смены вьюшки
         setTimeout(() => this.checkScrollNeeded(), 100);
+
+        setTimeout(() => this.applyIOSFixes(), 100);
     },
 
     navigateToHistoryFromCar: function(carId) {
