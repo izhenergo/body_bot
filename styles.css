@@ -884,6 +884,7 @@ body {
 
     .car-card, .car-details, .history-list, .profile-view {
         padding: 16px;
+        margin-top: 30px;
     }
 
     .detail-row {
