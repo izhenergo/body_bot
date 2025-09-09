@@ -884,7 +884,6 @@ body {
 
     .car-card, .car-details, .history-list, .profile-view {
         padding: 16px;
-        margin-top: 30px;
     }
 
     .detail-row {
@@ -1251,49 +1250,6 @@ tr:nth-child(even) {
     font-size: 1.25rem;
     font-weight: 600;
     flex: 1;
-}
-
-/* Стили для кнопки назад в истории */
-.history-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--light-gray);
-}
-
-/* Адаптивные стили для истории */
-@media (max-width: 480px) {
-    .history-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .back-button {
-        align-self: flex-start;
-    }
-}
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    background: var(--primary-light);
-    color: var(--primary);
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.back-button:hover {
-    background: var(--primary);
-    color: var(--white);
 }
 
 .add-car-content {
@@ -2652,16 +2608,6 @@ html, body {
     user-select: none;
 }
 
-/* Стили для кнопки назад в истории */
-.history-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--light-gray);
-}
-
 .back-button {
     display: inline-flex;
     align-items: center;
@@ -2682,19 +2628,6 @@ html, body {
     color: var(--white);
 }
 
-/* Адаптивные стили для истории */
-@media (max-width: 480px) {
-    .history-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .back-button {
-        align-self: flex-start;
-    }
-}
-
 /* Стили для основного контента без заголовка */
 .user-mode .main-content {
     padding-top: 20px; /* Уменьшаем отступ сверху */
@@ -2712,15 +2645,6 @@ html, body {
     .user-mode .main-content {
         padding-top: 16px;
     }
-}
-
-/* Стили для истории без заголовка */
-.history-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--light-gray);
 }
 
 .history-list h3 {

@@ -435,12 +435,6 @@ var App = {
         // Обновляем заголовок
         document.getElementById('current-screen-title').textContent = 'История обслуживания';
 
-        // Скрываем кнопку возврата
-        const backButton = document.getElementById('history-back-button');
-        if (backButton) {
-            backButton.style.display = 'none';
-        }
-
         // Возвращаем стандартное содержимое истории
         this.renderStandardHistory();
 
@@ -454,15 +448,9 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         const carTitle = car ? `${car.brand} ${car.model} (${car.number})` : 'Автомобиль';
 
-        // Получаем историю обслуживания для конкретного автомобиля
         const serviceHistory = this.getServiceHistoryForCar(carId);
 
         historyView.innerHTML = `
-        <div class="history-header">
-            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: block;">
-                <i class="fas fa-arrow-left"></i> Назад к выбору
-            </button>
-        </div>
         <div class="history-list">
             <h3>${carTitle}</h3>
             
@@ -504,13 +492,7 @@ var App = {
         const historyView = document.getElementById('history-view');
         if (!historyView) return;
 
-        // Возвращаем оригинальную разметку без примеров
         historyView.innerHTML = `
-        <div class="history-header">
-            <button id="history-back-button" class="back-button" onclick="App.showCarSelectionHistory()" style="display: none;">
-                <i class="fas fa-arrow-left"></i> Назад к выбору
-            </button>
-        </div>
         <div class="history-list">
             <p>Выберите автомобиль для просмотра истории:</p>
             <div id="history-cars-list">
@@ -519,7 +501,6 @@ var App = {
         </div>
     `;
 
-        // Заполняем список автомобилей
         this.updateHistoryCarsList();
     },
 
