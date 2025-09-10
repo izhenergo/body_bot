@@ -37,70 +37,6 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Увеличиваем отступ сверху для Telegram */
-    padding-top: 60px !important;
-}
-
-/* Увеличиваем отступы для всех основных контейнеров */
-.main-content {
-    flex: 1;
-    padding: 25px 20px 80px 20px;
-}
-
-.app-header {
-    background: var(--white);
-    padding: 20px 20px 16px 20px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    /* Увеличиваем высоту хедера */
-    height: 70px;
-}
-
-.profile-view, .car-details, .history-list, .car-card {
-    margin-top: 10px;
-}
-
-/* Увеличиваем отступы для страницы добавления автомобиля */
-.add-car-header {
-    padding-top: calc(60px + env(safe-area-inset-top)) !important;
-}
-
-.photo-edit-header {
-    padding-top: calc(60px + env(safe-area-inset-top)) !important;
-}
-
-/* iOS Safe Areas - обновляем */
-@supports (padding: max(0px)) {
-    .main-content {
-        padding-top: max(25px, env(safe-area-inset-top)) !important;
-        padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
-
-    .app-header {
-        padding-top: max(20px, env(safe-area-inset-top)) !important;
-        height: calc(70px + env(safe-area-inset-top));
-    }
-
-    #profile-view {
-        padding-top: max(25px, env(safe-area-inset-top)) !important;
-    }
-
-    .tabbar {
-        padding-bottom: env(safe-area-inset-bottom);
-        height: calc(72px + env(safe-area-inset-bottom));
-    }
-
-    .add-car-header {
-        padding-top: calc(60px + env(safe-area-inset-top)) !important;
-    }
-
-    .photo-edit-header {
-        padding-top: calc(60px + env(safe-area-inset-top)) !important;
-    }
 }
 
 /* Splash Screen */
@@ -317,10 +253,25 @@ body {
     display: flex;
 }
 
+.app-header {
+    background: var(--white);
+    padding: 16px 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
 .app-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--dark);
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 80px;
 }
 
 /* Cars List */
@@ -904,6 +855,30 @@ body {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* iOS Safe Areas - ТОЛЬКО ЭТО ДОБАВИМ */
+@supports (padding: max(0px)) {
+    .user-mode .main-content {
+        padding-top: max(20px, env(safe-area-inset-top)) !important;
+    }
+
+    .app-header {
+        padding-top: max(16px, env(safe-area-inset-top)) !important;
+    }
+
+    #profile-view {
+        padding-top: max(15px, env(safe-area-inset-top)) !important;
+    }
+
+    .tabbar {
+        padding-bottom: env(safe-area-inset-bottom);
+        height: calc(72px + env(safe-area-inset-bottom));
+    }
+
+    .main-content {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
 }
 
 /* Responsive Adjustments */
@@ -2469,34 +2444,4 @@ input[type="tel"] {
 .car-card, .history-item, .profile-info, .document-info {
     -webkit-user-select: text;
     user-select: text;
-}
-
-/* Кнопка "Назад" в стиле Telegram */
-.tg-back-button {
-    padding: 0 16px;
-    margin-bottom: 16px;
-}
-
-.tg-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--white);
-    border: none;
-    border-radius: var(--radius-md);
-    color: var(--primary);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--card-shadow);
-}
-
-.tg-back-btn:hover {
-    background: var(--primary-light);
-    transform: translateY(-1px);
-}
-
-.tg-back-btn:active {
-    transform: translateY(0);
 }

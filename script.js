@@ -102,7 +102,58 @@ var App = {
                 description: "Кузовной ремонт после ДТП",
                 clientId: 1,
                 photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] },
-                documents: { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] },
+                documents: {
+                    'work-certificate': [
+                        {
+                            id: 1,
+                            name: 'Акт выполненных работ.pdf',
+                            type: 'pdf',
+                            size: '2.4 MB',
+                            date: '15.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'payment-receipt': [
+                        {
+                            id: 2,
+                            name: 'Чек об оплате.jpg',
+                            type: 'image',
+                            size: '1.2 MB',
+                            date: '15.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'invoice': [
+                        {
+                            id: 3,
+                            name: 'Счет-фактура №123.pdf',
+                            type: 'pdf',
+                            size: '1.8 MB',
+                            date: '14.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'contract': [
+                        {
+                            id: 4,
+                            name: 'Договор на ремонт.docx',
+                            type: 'doc',
+                            size: '3.1 MB',
+                            date: '10.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'warranty': [
+                        {
+                            id: 5,
+                            name: 'Гарантийный талон.pdf',
+                            type: 'pdf',
+                            size: '0.9 MB',
+                            date: '15.05.2023',
+                            url: '#'
+                        }
+                    ]
+                },
                 repairStatus: [
                     {
                         id: 1,
@@ -151,7 +202,7 @@ var App = {
                         date: '22.05.2023',
                         title: 'Выдан клиенту',
                         description: 'Автомобиль выдан клиенту',
-                        status: 'done'
+                        status: 'pending'
                     }
                 ]
             },
@@ -167,7 +218,58 @@ var App = {
                 description: "Покраска переднего бампера",
                 clientId: 2,
                 photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] },
-                documents: { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] },
+                documents: {
+                    'work-certificate': [
+                        {
+                            id: 1,
+                            name: 'Акт выполненных работ.pdf',
+                            type: 'pdf',
+                            size: '1.5 MB',
+                            date: '07.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'payment-receipt': [
+                        {
+                            id: 2,
+                            name: 'Квитанция об оплате.png',
+                            type: 'image',
+                            size: '0.8 MB',
+                            date: '07.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'invoice': [
+                        {
+                            id: 3,
+                            name: 'Счет №456.pdf',
+                            type: 'pdf',
+                            size: '1.2 MB',
+                            date: '06.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'contract': [
+                        {
+                            id: 4,
+                            name: 'Договор на покраску.docx',
+                            type: 'doc',
+                            size: '2.3 MB',
+                            date: '01.05.2023',
+                            url: '#'
+                        }
+                    ],
+                    'warranty': [
+                        {
+                            id: 5,
+                            name: 'Гарантия 12 месяцев.pdf',
+                            type: 'pdf',
+                            size: '0.7 MB',
+                            date: '07.05.2023',
+                            url: '#'
+                        }
+                    ]
+                },
                 repairStatus: [
                     {
                         id: 1,
@@ -208,7 +310,7 @@ var App = {
                         id: 6,
                         date: '06.05.2023',
                         title: 'Готов к выдаче',
-                        description: 'Автомobile прошел контроль качества',
+                        description: 'Автомобиль прошел контроль качества',
                         status: 'completed'
                     },
                     {
@@ -226,6 +328,9 @@ var App = {
             { id: 1, name: "Иван Петров", phone: "+79123456789", email: "ivan.petrov@example.com", cars: [1] },
             { id: 2, name: "Мария Сидорова", phone: "+79129876543", email: "maria.sidorova@example.com", cars: [2] }
         ];
+
+        updateCarsTable();
+        updateClientsTable();
     },
 
     handleLogin() {
@@ -436,60 +541,19 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         if (!car) return;
 
-        // Показываем кнопку "Назад"
+        // Обновляем заголовок
+        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
+
+        // Показываем кнопку возврата к выбору автомобиля
         const backButton = document.getElementById('history-back-button');
         if (backButton) {
             backButton.style.display = 'block';
         }
 
-        // Обновляем заголовок
-        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
-
         // Используем существующую структуру истории
         this.renderExistingHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
-    },
-
-    showCarSelectionHistory: function() {
-        // Сбрасываем ID автомобиля
-        this.historyCarId = null;
-
-        // Скрываем кнопку "Назад"
-        const backButton = document.getElementById('history-back-button');
-        if (backButton) {
-            backButton.style.display = 'none';
-        }
-
-        // Обновляем заголовок
-        document.getElementById('current-screen-title').textContent = 'История обслуживания';
-
-        // Возвращаем стандартное содержимое истории
-        this.renderStandardHistory();
-
-        setTimeout(() => this.checkScrollNeeded(), 100);
-    },
-
-    navigateToHistoryFromCar: function(carId) {
-        // Сохраняем ID автомобиля для истории
-        this.historyCarId = carId;
-
-        // Переходим на вкладку истории
-        this.navigateTo('history');
-
-        // Показываем историю конкретного автомобиля
-        this.showCarHistory(carId);
-    },
-
-    showServiceHistory: function() {
-        // Если мы в карточке автомобиля, переходим на историю этого автомобиля
-        if (this.currentCar) {
-            this.navigateToHistoryFromCar(this.currentCar);
-        } else {
-            // Иначе переходим на обычную историю с выбором автомобиля
-            this.historyCarId = null;
-            this.navigateTo('history');
-        }
     },
 
     showCarSelectionHistory: function() {
