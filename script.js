@@ -101,7 +101,36 @@ var App = {
                 status: "painting",
                 description: "Кузовной ремонт после ДТП",
                 clientId: 1,
-                photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] },
+                photos: {
+                    diagnostic: [
+                        {
+                            id: 1,
+                            dataUrl: 'images/diagnostic-1.jpg',
+                            caption: 'Первичный осмотр повреждений',
+                            uploadedAt: '2023-05-10',
+                            status: 'diagnostic'
+                        }
+                    ],
+                    repair: [
+                        {
+                            id: 2,
+                            dataUrl: 'images/repair-1.jpg',
+                            caption: 'Рихтовка правого крыла',
+                            uploadedAt: '2023-05-12',
+                            status: 'repair'
+                        },
+                        {
+                            id: 3,
+                            dataUrl: 'images/repair-2.jpg',
+                            caption: 'Замена элементов кузова',
+                            uploadedAt: '2023-05-13',
+                            status: 'repair'
+                        }
+                    ],
+                    painting: [],
+                    ready: [],
+                    completed: []
+                },
                 documents: {
                     'work-certificate': [
                         {
@@ -217,7 +246,36 @@ var App = {
                 status: "completed",
                 description: "Покраска переднего бампера",
                 clientId: 2,
-                photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] },
+                photos: {
+                    diagnostic: [
+                        {
+                            id: 4,
+                            dataUrl: 'images/diagnostic-1.jpg',
+                            caption: 'Осмотр бампера на повреждения',
+                            uploadedAt: '2023-05-01',
+                            status: 'diagnostic'
+                        }
+                    ],
+                    repair: [
+                        {
+                            id: 5,
+                            dataUrl: 'images/repair-1.jpg',
+                            caption: 'Подготовка поверхности бампера',
+                            uploadedAt: '2023-05-02',
+                            status: 'repair'
+                        },
+                        {
+                            id: 6,
+                            dataUrl: 'images/repair-2.jpg',
+                            caption: 'Шлифовка бампера',
+                            uploadedAt: '2023-05-03',
+                            status: 'repair'
+                        }
+                    ],
+                    painting: [],
+                    ready: [],
+                    completed: []
+                },
                 documents: {
                     'work-certificate': [
                         {
@@ -783,7 +841,9 @@ var App = {
         const gallery = document.getElementById(containerId);
         if (!gallery) return;
 
+        // Очищаем предыдущую карусель
         gallery.innerHTML = '';
+
         const allPhotos = [];
         for (const status in photos) {
             if (photos[status] && Array.isArray(photos[status])) {
@@ -796,19 +856,88 @@ var App = {
             return;
         }
 
-        allPhotos.sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
-        allPhotos.forEach(photo => {
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
-            galleryItem.innerHTML = `
-                <img src="${photo.dataUrl || photo.url}" alt="Фото автомобиля" class="gallery-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
-                <div class="gallery-caption">
-                    <span class="photo-status">${getStatusText(photo.status)}</span>
-                    ${photo.caption || 'Фото автомобиля'}
-                </div>
-            `;
-            gallery.appendChild(galleryItem);
+        // Создаем карусель
+        const carouselHTML = `
+        <div class="carousel-container" id="photo-carousel">
+            <div class="carousel-track" id="carousel-track">
+                ${allPhotos.map((photo, index) => `
+                    <div class="carousel-slide" data-index="${index}">
+                        <img src="${photo.dataUrl || photo.url}" 
+                             alt="Фото ремонта - ${getStatusText(photo.status)}" 
+                             class="carousel-image"
+                             onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
+                        <div class="carousel-caption">
+                            <div class="photo-status">${getStatusText(photo.status)}</div>
+                            ${photo.caption || 'Фото процесса ремонта'}
+                        </div>
+                        <div class="carousel-counter">${index + 1}/${allPhotos.length}</div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <button class="carousel-nav carousel-prev" onclick="App.prevPhoto()" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-nav carousel-next" onclick="App.nextPhoto()" ${allPhotos.length <= 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="carousel-indicators" id="carousel-indicators">
+                ${allPhotos.map((_, index) => `
+                    <div class="carousel-indicator ${index === 0 ? 'active' : ''}" 
+                         onclick="App.goToPhoto(${index})"></div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+        gallery.innerHTML = carouselHTML;
+
+        // Инициализируем карусель
+        this.initCarousel(allPhotos.length);
+    },
+
+    initCarousel(totalPhotos) {
+        this.carouselState = {
+            currentIndex: 0,
+            total: totalPhotos
+        };
+    },
+
+    prevPhoto() {
+        if (this.carouselState.currentIndex > 0) {
+            this.goToPhoto(this.carouselState.currentIndex - 1);
+        }
+    },
+
+    nextPhoto() {
+        if (this.carouselState.currentIndex < this.carouselState.total - 1) {
+            this.goToPhoto(this.carouselState.currentIndex + 1);
+        }
+    },
+
+    goToPhoto(index) {
+        const track = document.getElementById('carousel-track');
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+
+        if (!track || index < 0 || index >= this.carouselState.total) return;
+
+        // Обновляем позицию
+        const slideWidth = document.querySelector('.carousel-slide').offsetWidth + 10; // + gap
+        track.style.transform = `translateX(-${index * slideWidth}px)`;
+
+        // Обновляем состояние кнопок
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === this.carouselState.total - 1;
+
+        // Обновляем индикаторы
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === index);
         });
+
+        this.carouselState.currentIndex = index;
     },
 
     updatePhotosCount(photos) {
