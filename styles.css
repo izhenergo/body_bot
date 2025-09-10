@@ -2470,3 +2470,33 @@ input[type="tel"] {
     -webkit-user-select: text;
     user-select: text;
 }
+
+/* Кнопка "Назад" в стиле Telegram */
+.tg-back-button {
+    padding: 0 16px;
+    margin-bottom: 16px;
+}
+
+.tg-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--card-shadow);
+}
+
+.tg-back-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.tg-back-btn:active {
+    transform: translateY(0);
+}

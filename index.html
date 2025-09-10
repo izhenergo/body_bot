@@ -158,6 +158,14 @@
 
         <!-- History View (hidden by default) -->
         <div id="history-view" style="display: none;">
+            <!-- Кнопка назад в стиле Telegram -->
+            <div class="tg-back-button" id="history-back-button" style="display: none; margin-bottom: 15px;">
+                <button class="tg-back-btn" onclick="App.showCarSelectionHistory()">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад
+                </button>
+            </div>
+
             <div class="history-list">
                 <!-- Контент будет заполняться динамически -->
             </div>

@@ -436,19 +436,60 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         if (!car) return;
 
-        // Обновляем заголовок
-        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
-
-        // Показываем кнопку возврата к выбору автомобиля
+        // Показываем кнопку "Назад"
         const backButton = document.getElementById('history-back-button');
         if (backButton) {
             backButton.style.display = 'block';
         }
 
+        // Обновляем заголовок
+        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
+
         // Используем существующую структуру истории
         this.renderExistingHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
+    },
+
+    showCarSelectionHistory: function() {
+        // Сбрасываем ID автомобиля
+        this.historyCarId = null;
+
+        // Скрываем кнопку "Назад"
+        const backButton = document.getElementById('history-back-button');
+        if (backButton) {
+            backButton.style.display = 'none';
+        }
+
+        // Обновляем заголовок
+        document.getElementById('current-screen-title').textContent = 'История обслуживания';
+
+        // Возвращаем стандартное содержимое истории
+        this.renderStandardHistory();
+
+        setTimeout(() => this.checkScrollNeeded(), 100);
+    },
+
+    navigateToHistoryFromCar: function(carId) {
+        // Сохраняем ID автомобиля для истории
+        this.historyCarId = carId;
+
+        // Переходим на вкладку истории
+        this.navigateTo('history');
+
+        // Показываем историю конкретного автомобиля
+        this.showCarHistory(carId);
+    },
+
+    showServiceHistory: function() {
+        // Если мы в карточке автомобиля, переходим на историю этого автомобиля
+        if (this.currentCar) {
+            this.navigateToHistoryFromCar(this.currentCar);
+        } else {
+            // Иначе переходим на обычную историю с выбором автомобиля
+            this.historyCarId = null;
+            this.navigateTo('history');
+        }
     },
 
     showCarSelectionHistory: function() {
