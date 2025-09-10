@@ -495,21 +495,7 @@ var App = {
         this.updateElementText('car-year', car.year || 'Не указан');
         this.updateElementText('car-mileage', car.odometer ? `${car.odometer} км` : 'Не указан');
 
-        const statusBadge = document.getElementById('car-status-badge');
-        if (statusBadge) {
-            const statusText = getStatusText(car.status);
-            const statusIcons = {
-                'diagnostic': 'fas fa-search',
-                'repair': 'fas fa-tools',
-                'painting': 'fas fa-paint-roller',
-                'ready': 'fas fa-check-circle',
-                'completed': 'fas fa-car'
-            };
-            const statusIcon = statusIcons[car.status] || 'fas fa-clock';
-
-            statusBadge.innerHTML = `<i class="${statusIcon}"></i> ${statusText}`;
-            statusBadge.className = 'car-status-badge ' + car.status;
-        }
+        // Убрали обновление статусного бейджа
 
         this.updateRepairStatus(car.repairStatus || []);
         this.updatePhotoGallery(car.photos || []);
