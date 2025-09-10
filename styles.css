@@ -2568,3 +2568,49 @@ input[type="tel"] {
         font-size: 1rem;
     }
 }
+
+/* Исправление для карточек автомобилей - предотвращение перекрытия статусом */
+.car-card {
+    padding-top: 30px; /* Добавляем отступ сверху для статуса */
+    position: relative;
+}
+
+.car-card .car-status {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--primary);
+    color: var(--white);
+    padding: 4px 10px;
+    border-bottom-left-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    max-width: 70%; /* Ограничиваем ширину статуса */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 2;
+}
+
+.car-card .car-status.completed {
+    background: var(--success);
+}
+
+.car-card .car-status.warning {
+    background: var(--warning);
+}
+
+/* Увеличиваем отступ для контента карточки */
+.car-card h2 {
+    margin-top: 5px;
+    margin-bottom: 12px;
+}
+
+/* Альтернативное решение - перенос текста статуса */
+.car-card .car-status.multiline {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 50%;
+    text-align: right;
+    line-height: 1.2;
+}

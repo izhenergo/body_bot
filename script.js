@@ -451,22 +451,26 @@ var App = {
 
         carsList.innerHTML = '';
         carsDatabase.forEach(car => {
-            const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
             const statusText = getStatusText(car.status);
+            const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
+
+            // Проверяем, нужен ли перенос текста (более 2 слов)
+            const wordCount = statusText.split(' ').length;
+            const multilineClass = wordCount > 2 ? 'multiline' : '';
 
             const carCard = document.createElement('div');
             carCard.className = 'car-card';
             carCard.setAttribute('data-car-id', car.id);
             carCard.onclick = () => this.showCarDetails(car.id);
             carCard.innerHTML = `
-                <div class="car-status ${statusClass}">${statusText}</div>
-                <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
-                <p>Госномер: ${car.number}</p>
-                <p>Статус: ${statusText}</p>
-                <div class="car-meta">
-                    <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
-                </div>
-            `;
+            <div class="car-status ${statusClass} ${multilineClass}">${statusText}</div>
+            <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
+            <p>Госномер: ${car.number}</p>
+            <p>Статус: ${statusText}</p>
+            <div class="car-meta">
+                <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
+            </div>
+        `;
             carsList.appendChild(carCard);
         });
 
