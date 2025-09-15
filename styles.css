@@ -1068,7 +1068,10 @@ tr:nth-child(even) {
     }
 
     .admin-container {
-        padding: 15px;
+        padding-top: 100px;
+        padding-right: 15px;
+        padding-bottom: 15px;
+        padding-left: 15px;
     }
 
     .tab-content {
