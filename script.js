@@ -1023,7 +1023,7 @@ var App = {
         const telegramUrl = 'https://t.me/MobileApps18';
         window.open(telegramUrl, '_blank');
     },
-    callService() { if (confirm('Позвонить в автосервис по номеру +7 (999) 888-77-66?')) window.location.href = 'tel:+79998887766'; },
+    callService() { if (confirm('Позвонить в автосервис?')) window.location.href = 'tel:+79998887766'; },
     logout() {
         if (confirm('Вы уверены, что хотите выйти?')) {
             document.getElementById('app').classList.remove('show', 'user-mode');
