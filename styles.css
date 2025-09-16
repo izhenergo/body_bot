@@ -879,6 +879,9 @@ body {
     .main-content {
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
+    .modal-content {
+        padding-top: max(100px, env(safe-area-inset-top)) !important;
+    }
 }
 
 /* Responsive Adjustments */
@@ -2659,8 +2662,4 @@ input[type="tel"] {
     .status-photos-container {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     }
-}
-
-.modal-content {
-    margin-top: 100px;
 }
