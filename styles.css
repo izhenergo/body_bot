@@ -2616,3 +2616,47 @@ input[type="tel"] {
     text-align: right;
     line-height: 1.2;
 }
+
+/* Стили для кнопки "Назад" в модальном окне */
+.modal-back-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--gray);
+    cursor: pointer;
+    padding: 5px 10px 5px 0;
+    margin-right: 10px;
+}
+
+.modal-back-btn:hover {
+    color: var(--primary);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+}
+
+/* Адаптивные стили для модального окна */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 10px;
+        max-height: 90vh;
+    }
+
+    .status-photos-container {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 15px;
+    }
+
+    .status-photos-container {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}

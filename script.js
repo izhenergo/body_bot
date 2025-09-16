@@ -1042,44 +1042,418 @@ var App = {
 
 // Администраторская панель
 var Admin = {
-    uploadedPhotos: [], uploadedDocuments: [], currentCar: null, currentPhotoStatus: null, tempNewCar: null, currentEditingClientId: null,
+    uploadedPhotos: [],
+    uploadedDocuments: [],
+    currentCar: null,
+    currentPhotoStatus: null,
+    tempNewCar: null,
+    currentEditingClientId: null,
+    currentModalView: 'edit-car', // Текущее представление в модальном окне
 
     showAddCarPage() {
-        this.tempNewCar = { id: 'new-' + Date.now(), photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] }, documents: { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] } };
+        this.tempNewCar = {
+            id: 'new-' + Date.now(),
+            photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] },
+            documents: { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] }
+        };
         this.currentCar = this.tempNewCar;
         const modal = document.getElementById('add-car-modal');
-        if (modal) { modal.classList.add('show'); setTimeout(() => { modal.style.opacity = '1'; }, 10); }
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
     },
 
     hideAddCarModal() {
         const modal = document.getElementById('add-car-modal');
-        if (modal) { modal.style.opacity = '0'; setTimeout(() => { modal.classList.remove('show'); this.clearForm(); this.tempNewCar = null; this.currentCar = null; }, 300); }
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.clearForm();
+                this.tempNewCar = null;
+                this.currentCar = null;
+            }, 300);
+        }
     },
 
     clearForm() {
         ['new-car-owner-name', 'new-car-owner-phone', 'new-car-brand', 'new-car-model', 'new-car-number', 'new-car-odometer', 'new-car-year', 'new-car-vin'].forEach(id => this.setInputValue(id, ''));
         this.setInputValue('new-car-status', 'diagnostic');
-        this.uploadedPhotos = []; this.uploadedDocuments = [];
+        this.uploadedPhotos = [];
+        this.uploadedDocuments = [];
     },
 
-    setInputValue(id, value) { const input = document.getElementById(id); if (input) input.value = value; },
-
-    showPhotoEditPage() {
-        if (!this.currentCar) {
-            if (!this.tempNewCar) this.tempNewCar = { id: 'new-' + Date.now(), photos: { diagnostic: [], repair: [], painting: [], ready: [], completed: [] } };
-            this.currentCar = this.tempNewCar;
-        }
-        const page = document.getElementById('photo-edit-page');
-        if (page) { page.classList.add('active'); } this.loadStatusPhotos();
+    setInputValue(id, value) {
+        const input = document.getElementById(id);
+        if (input) input.value = value;
     },
 
-    showDocumentEditPage() {
-        if (!this.currentCar) {
-            if (!this.tempNewCar) this.tempNewCar = { id: 'new-' + Date.now(), documents: { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] } };
-            this.currentCar = this.tempNewCar;
+    showEditCarForm(carId) {
+        const car = carsDatabase.find(c => c.id === carId);
+        if (!car) return;
+        currentEditingCarId = carId;
+        this.currentCar = car;
+
+        // Заполняем поля формы
+        ['edit-car-brand', 'edit-car-model', 'edit-car-number', 'edit-car-odometer', 'edit-car-year', 'edit-car-vin'].forEach((id, i) =>
+            this.setInputValue(id, [car.brand, car.model, car.number, car.odometer, car.year, car.vin][i]));
+        this.setInputValue('current-status-select', car.status);
+        this.uploadedPhotos = [];
+        this.uploadedDocuments = [];
+
+        // Показываем основное представление редактирования
+        this.showModalView('edit-car');
+
+        const modal = document.getElementById('edit-car-modal');
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
         }
-        const page = document.getElementById('document-edit-page');
-        if (page) { page.classList.add('active'); } this.loadStatusDocuments();
+    },
+
+    // Показать определенное представление в модальном окне
+    showModalView(viewName) {
+        this.currentModalView = viewName;
+
+        // Скрываем все представления
+        document.getElementById('edit-car-content').style.display = 'none';
+        document.getElementById('edit-photo-content').style.display = 'none';
+        document.getElementById('edit-document-content').style.display = 'none';
+
+        // Показываем кнопку "Назад" только для фото и документов
+        const backBtn = document.getElementById('modal-back-btn');
+        if (backBtn) {
+            backBtn.style.display = (viewName !== 'edit-car') ? 'block' : 'none';
+        }
+
+        // Устанавливаем заголовок
+        const modalTitle = document.getElementById('modal-title');
+        if (modalTitle) {
+            switch(viewName) {
+                case 'edit-car':
+                    modalTitle.textContent = 'Редактирование автомобиля';
+                    break;
+                case 'edit-photo':
+                    modalTitle.textContent = 'Редактирование фотографий';
+                    break;
+                case 'edit-document':
+                    modalTitle.textContent = 'Закрывающая документация';
+                    break;
+            }
+        }
+
+        // Показываем нужное представление
+        switch(viewName) {
+            case 'edit-car':
+                document.getElementById('edit-car-content').style.display = 'block';
+                break;
+            case 'edit-photo':
+                document.getElementById('edit-photo-content').style.display = 'block';
+                this.loadStatusPhotos();
+                break;
+            case 'edit-document':
+                document.getElementById('edit-document-content').style.display = 'block';
+                this.loadStatusDocuments();
+                break;
+        }
+    },
+
+    // Переход назад к редактированию автомобиля
+    goBackToEditCar() {
+        this.showModalView('edit-car');
+    },
+
+    // Показать редактирование фотографий
+    showPhotoEdit() {
+        if (!this.currentCar) {
+            alert('Сначала выберите автомобиль');
+            return;
+        }
+        this.showModalView('edit-photo');
+    },
+
+    // Показать редактирование документов
+    showDocumentEdit() {
+        if (!this.currentCar) {
+            alert('Сначала выберите автомобиль');
+            return;
+        }
+        this.showModalView('edit-document');
+    },
+
+    updateRepairStatuses() {
+        if (!this.currentCar) return;
+
+        const statusSelect = document.getElementById('current-status-select');
+        const newStatus = statusSelect.value;
+
+        const statusOrder = ['diagnostic', 'repair', 'painting', 'ready', 'completed'];
+        const currentStatusIndex = statusOrder.indexOf(newStatus);
+
+        this.currentCar.repairStatus.forEach((status, index) => {
+            if (index <= currentStatusIndex) {
+                status.status = 'completed';
+            } else if (index === currentStatusIndex + 1) {
+                status.status = 'active';
+            } else {
+                status.status = 'pending';
+            }
+        });
+
+        this.currentCar.status = newStatus;
+        updateCarsTable();
+
+        if (App.currentCar === this.currentCar.id) {
+            App.updateRepairStatus(this.currentCar.repairStatus || []);
+        }
+    },
+
+    autoSaveCar() {
+        if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => { this.saveCarEdits(); }, 1000);
+    },
+
+    saveCarEdits() {
+        const car = carsDatabase.find(c => c.id === currentEditingCarId);
+        if (!car) return;
+        car.brand = document.getElementById('edit-car-brand')?.value || car.brand;
+        car.model = document.getElementById('edit-car-model')?.value || car.model;
+        car.number = document.getElementById('edit-car-number')?.value || car.number;
+        car.odometer = document.getElementById('edit-car-odometer')?.value || car.odometer;
+        car.year = document.getElementById('edit-car-year')?.value || car.year;
+        car.vin = document.getElementById('edit-car-vin')?.value || car.vin;
+        updateCarsTable();
+        alert('Данные автомобиля успешно обновлены!');
+    },
+
+    hideEditCarForm() {
+        const modal = document.getElementById('edit-car-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.uploadedPhotos = [];
+                this.uploadedDocuments = [];
+                currentEditingCarId = null;
+                this.currentCar = null;
+            }, 300);
+        }
+    },
+
+    // Загрузка фотографий статусов
+    loadStatusPhotos() {
+        const targetCar = this.currentCar;
+        if (!targetCar) return;
+
+        ['diagnostic', 'repair', 'painting', 'ready', 'completed'].forEach(status => {
+            const container = document.getElementById(`${status}-photos`);
+            if (container) {
+                container.innerHTML = '';
+                if (targetCar.photos && targetCar.photos[status] && targetCar.photos[status].length > 0) {
+                    targetCar.photos[status].forEach(photo => {
+                        const photoElement = document.createElement('div');
+                        photoElement.className = 'status-photo-item';
+                        photoElement.innerHTML = `
+                            <img src="${photo.dataUrl}" alt="Фото статуса" class="status-photo">
+                            <button class="status-photo-delete" onclick="Admin.deleteStatusPhoto('${status}', ${photo.id})"><i class="fas fa-times"></i></button>
+                        `;
+                        container.appendChild(photoElement);
+                    });
+                } else {
+                    container.innerHTML = '<p class="no-photos-message">Нет фотографий для этого статуса</p>';
+                }
+            }
+        });
+    },
+
+    // Загрузка документов
+    loadStatusDocuments() {
+        const targetCar = this.currentCar;
+        if (!targetCar) return;
+
+        ['work-certificate', 'payment-receipt', 'invoice', 'contract', 'warranty'].forEach(type => {
+            const container = document.getElementById(`${type}-docs`);
+            if (container) {
+                container.innerHTML = '';
+                if (targetCar.documents && targetCar.documents[type] && targetCar.documents[type].length > 0) {
+                    targetCar.documents[type].forEach(doc => {
+                        const docElement = document.createElement('div');
+                        docElement.className = 'status-photo-item';
+                        docElement.innerHTML = `
+                            <div class="document-preview"><i class="${App.getDocumentIcon(doc.type)}"></i><span>${doc.name}</span></div>
+                            <button class="status-photo-delete" onclick="Admin.deleteStatusDocument('${type}', ${doc.id})"><i class="fas fa-times"></i></button>
+                        `;
+                        container.appendChild(docElement);
+                    });
+                } else {
+                    container.innerHTML = '<p class="no-photos-message">Нет документов этого типа</p>';
+                }
+            }
+        });
+    },
+
+    uploadPhotoForStatus(status) {
+        if (!this.currentCar) return;
+        this.currentPhotoStatus = status;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+        input.onchange = (e) => this.handleStatusPhotoUpload(e.target.files, status);
+        input.click();
+    },
+
+    handleStatusPhotoUpload(files, status) {
+        if (!files || files.length === 0) return;
+        const targetCar = this.currentCar;
+        if (!targetCar) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (!targetCar.photos) targetCar.photos = { diagnostic: [], repair: [], painting: [], ready: [], completed: [] };
+                    if (!targetCar.photos[status]) targetCar.photos[status] = [];
+                    targetCar.photos[status].push({
+                        id: Date.now() + i,
+                        dataUrl: e.target.result,
+                        name: file.name,
+                        uploadedAt: new Date().toISOString()
+                    });
+                    this.loadStatusPhotos();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    },
+
+    deleteStatusPhoto(status, photoId) {
+        const targetCar = this.currentCar;
+        if (!targetCar || !targetCar.photos || !targetCar.photos[status]) return;
+        targetCar.photos[status] = targetCar.photos[status].filter(photo => photo.id !== photoId);
+        this.loadStatusPhotos();
+    },
+
+    uploadDocumentForType(type) {
+        if (!this.currentCar) return;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.onchange = (e) => this.handleStatusDocumentUpload(e.target.files, type);
+        input.click();
+    },
+
+    handleStatusDocumentUpload(files, type) {
+        if (!files || files.length === 0) return;
+        const targetCar = this.currentCar;
+        if (!targetCar) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (!targetCar.documents) targetCar.documents = { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] };
+                if (!targetCar.documents[type]) targetCar.documents[type] = [];
+                const fileType = this.getFileType(file.name);
+                targetCar.documents[type].push({
+                    id: Date.now() + i,
+                    dataUrl: e.target.result,
+                    name: file.name,
+                    type: fileType,
+                    size: this.formatFileSize(file.size),
+                    uploadedAt: new Date().toISOString()
+                });
+                this.loadStatusDocuments();
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    deleteStatusDocument(type, docId) {
+        const targetCar = this.currentCar;
+        if (!targetCar || !targetCar.documents || !targetCar.documents[type]) return;
+        targetCar.documents[type] = targetCar.documents[type].filter(doc => doc.id !== docId);
+        this.loadStatusDocuments();
+    },
+
+    getFileType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['pdf'].includes(ext)) return 'pdf';
+        if (['doc', 'docx'].includes(ext)) return 'doc';
+        if (['xls', 'xlsx'].includes(ext)) return 'xls';
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
+        return 'file';
+    },
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
+    showEditClientForm(clientId) {
+        const client = clientsDatabase.find(c => c.id === clientId);
+        if (!client) return;
+        this.currentEditingClientId = clientId;
+        this.setInputValue('edit-client-name', client.name);
+        this.setInputValue('edit-client-phone', client.phone);
+        this.loadClientCars(clientId);
+        const modal = document.getElementById('edit-client-modal');
+        if (modal) {
+            modal.classList.add('show');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+    },
+
+    loadClientCars(clientId) {
+        const clientCarsList = document.getElementById('client-cars-list');
+        if (!clientCarsList) return;
+        const clientCars = carsDatabase.filter(car => car.clientId === clientId);
+        clientCarsList.innerHTML = '';
+        if (clientCars.length === 0) {
+            clientCarsList.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 20px;">У клиента нет автомобилей</p>';
+            return;
+        }
+        clientCars.forEach(car => {
+            const carItem = document.createElement('div');
+            carItem.className = 'client-car-item';
+            carItem.innerHTML = `
+                <div class="client-car-info"><strong>${car.brand} ${car.model}</strong><div>${car.number}</div></div>
+                <div class="client-car-actions"><button class="btn btn-secondary btn-sm" onclick="Admin.showEditCarForm(${car.id}); Admin.hideEditClientModal();"><i class="fas fa-edit"></i></button></div>
+            `;
+            clientCarsList.appendChild(carItem);
+        });
+    },
+
+    saveClientChanges() {
+        const client = clientsDatabase.find(c => c.id === this.currentEditingClientId);
+        if (!client) return;
+        client.name = document.getElementById('edit-client-name')?.value || client.name;
+        client.phone = document.getElementById('edit-client-phone')?.value || client.phone;
+        updateClientsTable();
+        this.hideEditClientModal();
+        alert('Данные клиента успешно обновлены!');
+    },
+
+    hideEditClientModal() {
+        const modal = document.getElementById('edit-client-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                this.currentEditingClientId = null;
+            }, 300);
+        }
     },
 
     addNewCar() {
@@ -1093,14 +1467,26 @@ var Admin = {
         const ownerName = document.getElementById('new-car-owner-name')?.value || '';
         const ownerPhone = document.getElementById('new-car-owner-phone')?.value || '';
 
-        if (!brand || !model || !number) { alert('Пожалуйста, заполните обязательные поля автомобиля: марка, модель и гос. номер'); return; }
-        if (!ownerName || !ownerPhone) { alert('Пожалуйста, заполните обязательные поля собственника: ФИО и телефон'); return; }
+        if (!brand || !model || !number) {
+            alert('Пожалуйста, заполните обязательные поля автомобиля: марка, модель и гос. номер');
+            return;
+        }
+        if (!ownerName || !ownerPhone) {
+            alert('Пожалуйста, заполните обязательные поля собственника: ФИО и телефон');
+            return;
+        }
 
         const phoneRegex = /^(\+7|8)[\d\-\(\)\s]{10,15}$/;
-        if (!phoneRegex.test(ownerPhone.replace(/\s/g, ''))) { alert('Пожалуйста, введите корректный номер телефона в формате +7 XXX XXX-XX-XX'); return; }
+        if (!phoneRegex.test(ownerPhone.replace(/\s/g, ''))) {
+            alert('Пожалуйста, введите корректный номер телефона в формате +7 XXX XXX-XX-XX');
+            return;
+        }
 
         const existingCar = carsDatabase.find(car => car.number === number);
-        if (existingCar) { alert(`Автомобиль с гос. номером ${number} уже существует в базе!`); return; }
+        if (existingCar) {
+            alert(`Автомобиль с гос. номером ${number} уже существует в базе!`);
+            return;
+        }
 
         const clientId = this.findOrCreateClient(ownerName, ownerPhone);
         const photos = this.tempNewCar ? this.tempNewCar.photos : { diagnostic: [], repair: [], painting: [], ready: [], completed: [] };
@@ -1165,258 +1551,23 @@ var Admin = {
 
         carsDatabase.push(newCar);
         this.hideAddCarModal();
-        updateCarsTable(); updateClientsTable();
+        updateCarsTable();
+        updateClientsTable();
         alert(`Автомобиль ${brand} ${model} (${number}) успешно добавлен для клиента ${ownerName}!`);
     },
 
     findOrCreateClient(name, phone) {
         const normalizedPhone = phone.replace(/\D/g, '');
         let client = clientsDatabase.find(c => c.phone.replace(/\D/g, '') === normalizedPhone);
-        if (client) { if (name && client.name !== name) client.name = name; return client.id; }
+        if (client) {
+            if (name && client.name !== name) client.name = name;
+            return client.id;
+        }
 
         const newClientId = clientsDatabase.length > 0 ? Math.max(...clientsDatabase.map(c => c.id)) + 1 : 1;
         const newClient = { id: newClientId, name, phone, email: '', cars: [] };
         clientsDatabase.push(newClient);
         return newClientId;
-    },
-
-    showEditCarForm(carId) {
-        const car = carsDatabase.find(c => c.id === carId);
-        if (!car) return;
-        currentEditingCarId = carId; this.currentCar = car;
-        ['edit-car-brand', 'edit-car-model', 'edit-car-number', 'edit-car-odometer', 'edit-car-year', 'edit-car-vin'].forEach((id, i) =>
-            this.setInputValue(id, [car.brand, car.model, car.number, car.odometer, car.year, car.vin][i]));
-        this.setInputValue('current-status-select', car.status);
-        this.uploadedPhotos = []; this.uploadedDocuments = [];
-        const modal = document.getElementById('edit-car-modal');
-        if (modal) { modal.classList.add('show'); setTimeout(() => { modal.style.opacity = '1'; }, 10); }
-    },
-
-    updateRepairStatuses() {
-        if (!this.currentCar) return;
-
-        const statusSelect = document.getElementById('current-status-select');
-        const newStatus = statusSelect.value;
-
-        const statusOrder = ['diagnostic', 'repair', 'painting', 'ready', 'completed'];
-        const currentStatusIndex = statusOrder.indexOf(newStatus);
-
-        this.currentCar.repairStatus.forEach((status, index) => {
-            if (index <= currentStatusIndex) {
-                status.status = 'completed';
-            } else if (index === currentStatusIndex + 1) {
-                status.status = 'active';
-            } else {
-                status.status = 'pending';
-            }
-        });
-
-        this.currentCar.status = newStatus;
-        updateCarsTable();
-
-        if (App.currentCar === this.currentCar.id) {
-            App.updateRepairStatus(this.currentCar.repairStatus || []);
-        }
-    },
-
-    autoSaveCar() { if (autoSaveTimeout) clearTimeout(autoSaveTimeout); autoSaveTimeout = setTimeout(() => { this.saveCarEdits(); }, 1000); },
-
-    saveCarEdits() {
-        const car = carsDatabase.find(c => c.id === currentEditingCarId);
-        if (!car) return;
-        car.brand = document.getElementById('edit-car-brand')?.value || car.brand;
-        car.model = document.getElementById('edit-car-model')?.value || car.model;
-        car.number = document.getElementById('edit-car-number')?.value || car.number;
-        car.odometer = document.getElementById('edit-car-odometer')?.value || car.odometer;
-        car.year = document.getElementById('edit-car-year')?.value || car.year;
-        car.vin = document.getElementById('edit-car-vin')?.value || car.vin;
-        updateCarsTable(); alert('Данные автомобиля успешно обновлены!');
-    },
-
-    hideEditCarForm() {
-        const modal = document.getElementById('edit-car-modal');
-        if (modal) { modal.style.opacity = '0'; setTimeout(() => { modal.classList.remove('show'); this.uploadedPhotos = []; this.uploadedDocuments = []; currentEditingCarId = null; this.currentCar = null; }, 300); }
-    },
-
-    hidePhotoEditPage() { const page = document.getElementById('photo-edit-page'); if (page) page.classList.remove('active'); },
-    hideDocumentEditPage() { const page = document.getElementById('document-edit-page'); if (page) page.classList.remove('active'); },
-
-    loadStatusPhotos() {
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar) return;
-        ['diagnostic', 'repair', 'painting', 'ready', 'completed'].forEach(status => {
-            const container = document.getElementById(`${status}-photos`);
-            if (container) {
-                container.innerHTML = '';
-                if (targetCar.photos && targetCar.photos[status] && targetCar.photos[status].length > 0) {
-                    targetCar.photos[status].forEach(photo => {
-                        const photoElement = document.createElement('div');
-                        photoElement.className = 'status-photo-item';
-                        photoElement.innerHTML = `
-                            <img src="${photo.dataUrl}" alt="Фото статуса" class="status-photo">
-                            <button class="status-photo-delete" onclick="Admin.deleteStatusPhoto('${status}', ${photo.id})"><i class="fas fa-times"></i></button>
-                        `;
-                        container.appendChild(photoElement);
-                    });
-                } else {
-                    container.innerHTML = '<p class="no-photos-message">Нет фотографий для этого статуса</p>';
-                }
-            }
-        });
-    },
-
-    uploadPhotoForStatus(status) {
-        if (!this.currentCar && !this.tempNewCar) return;
-        this.currentPhotoStatus = status;
-        const input = document.createElement('input');
-        input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
-        input.onchange = (e) => this.handleStatusPhotoUpload(e.target.files, status);
-        input.click();
-    },
-
-    handleStatusPhotoUpload(files, status) {
-        if (!files || files.length === 0) return;
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar) return;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if (!targetCar.photos) targetCar.photos = { diagnostic: [], repair: [], painting: [], ready: [], completed: [] };
-                    if (!targetCar.photos[status]) targetCar.photos[status] = [];
-                    targetCar.photos[status].push({ id: Date.now() + i, dataUrl: e.target.result, name: file.name, uploadedAt: new Date().toISOString() });
-                    this.loadStatusPhotos();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    },
-
-    deleteStatusPhoto(status, photoId) {
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar || !targetCar.photos || !targetCar.photos[status]) return;
-        targetCar.photos[status] = targetCar.photos[status].filter(photo => photo.id !== photoId);
-        this.loadStatusPhotos();
-    },
-
-    loadStatusDocuments() {
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar) return;
-        ['work-certificate', 'payment-receipt', 'invoice', 'contract', 'warranty'].forEach(type => {
-            const container = document.getElementById(`${type}-docs`);
-            if (container) {
-                container.innerHTML = '';
-                if (targetCar.documents && targetCar.documents[type] && targetCar.documents[type].length > 0) {
-                    targetCar.documents[type].forEach(doc => {
-                        const docElement = document.createElement('div');
-                        docElement.className = 'status-photo-item';
-                        docElement.innerHTML = `
-                            <div class="document-preview"><i class="${App.getDocumentIcon(doc.type)}"></i><span>${doc.name}</span></div>
-                            <button class="status-photo-delete" onclick="Admin.deleteStatusDocument('${type}', ${doc.id})"><i class="fas fa-times"></i></button>
-                        `;
-                        container.appendChild(docElement);
-                    });
-                } else {
-                    container.innerHTML = '<p class="no-photos-message">Нет документов этого типа</p>';
-                }
-            }
-        });
-    },
-
-    uploadDocumentForType(type) {
-        if (!this.currentCar && !this.tempNewCar) return;
-        const input = document.createElement('input');
-        input.type = 'file'; input.multiple = true;
-        input.onchange = (e) => this.handleStatusDocumentUpload(e.target.files, type);
-        input.click();
-    },
-
-    handleStatusDocumentUpload(files, type) {
-        if (!files || files.length === 0) return;
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar) return;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (!targetCar.documents) targetCar.documents = { 'work-certificate': [], 'payment-receipt': [], 'invoice': [], 'contract': [], 'warranty': [] };
-                if (!targetCar.documents[type]) targetCar.documents[type] = [];
-                const fileType = this.getFileType(file.name);
-                targetCar.documents[type].push({ id: Date.now() + i, dataUrl: e.target.result, name: file.name, type: fileType, size: this.formatFileSize(file.size), uploadedAt: new Date().toISOString() });
-                this.loadStatusDocuments();
-            };
-            reader.readAsDataURL(file);
-        }
-    },
-
-    deleteStatusDocument(type, docId) {
-        const targetCar = this.currentCar || this.tempNewCar;
-        if (!targetCar || !targetCar.documents || !targetCar.documents[type]) return;
-        targetCar.documents[type] = targetCar.documents[type].filter(doc => doc.id !== docId);
-        this.loadStatusDocuments();
-    },
-
-    getFileType(filename) {
-        const ext = filename.split('.').pop().toLowerCase();
-        if (['pdf'].includes(ext)) return 'pdf';
-        if (['doc', 'docx'].includes(ext)) return 'doc';
-        if (['xls', 'xlsx'].includes(ext)) return 'xls';
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
-        return 'file';
-    },
-
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-
-    showEditClientForm(clientId) {
-        const client = clientsDatabase.find(c => c.id === clientId);
-        if (!client) return;
-        this.currentEditingClientId = clientId;
-        this.setInputValue('edit-client-name', client.name);
-        this.setInputValue('edit-client-phone', client.phone);
-        this.loadClientCars(clientId);
-        const modal = document.getElementById('edit-client-modal');
-        if (modal) { modal.classList.add('show'); setTimeout(() => { modal.style.opacity = '1'; }, 10); }
-    },
-
-    loadClientCars(clientId) {
-        const clientCarsList = document.getElementById('client-cars-list');
-        if (!clientCarsList) return;
-        const clientCars = carsDatabase.filter(car => car.clientId === clientId);
-        clientCarsList.innerHTML = '';
-        if (clientCars.length === 0) {
-            clientCarsList.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 20px;">У клиента нет автомобилей</p>';
-            return;
-        }
-        clientCars.forEach(car => {
-            const carItem = document.createElement('div');
-            carItem.className = 'client-car-item';
-            carItem.innerHTML = `
-                <div class="client-car-info"><strong>${car.brand} ${car.model}</strong><div>${car.number}</div></div>
-                <div class="client-car-actions"><button class="btn btn-secondary btn-sm" onclick="Admin.showEditCarForm(${car.id}); Admin.hideEditClientModal();"><i class="fas fa-edit"></i></button></div>
-            `;
-            clientCarsList.appendChild(carItem);
-        });
-    },
-
-    saveClientChanges() {
-        const client = clientsDatabase.find(c => c.id === this.currentEditingClientId);
-        if (!client) return;
-        client.name = document.getElementById('edit-client-name')?.value || client.name;
-        client.phone = document.getElementById('edit-client-phone')?.value || client.phone;
-        updateClientsTable(); this.hideEditClientModal(); alert('Данные клиента успешно обновлены!');
-    },
-
-    hideEditClientModal() {
-        const modal = document.getElementById('edit-client-modal');
-        if (modal) { modal.style.opacity = '0'; setTimeout(() => { modal.classList.remove('show'); this.currentEditingClientId = null; }, 300); }
     }
 };
 
