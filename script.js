@@ -11,6 +11,7 @@ var App = {
     currentView: 'main',
     currentCar: null,
     historyCarId: null,
+    carouselState: null,
 
     init() {
         this.historyCarId = null;
@@ -499,8 +500,6 @@ var App = {
         this.updateElementText('car-year', car.year || 'Не указан');
         this.updateElementText('car-mileage', car.odometer ? `${car.odometer} км` : 'Не указан');
 
-        // Убрали обновление статусного бейджа
-
         this.updateRepairStatus(car.repairStatus || []);
         this.updatePhotoGallery(car.photos || [], 'modern-gallery');
         this.updateDocuments(car.documents || []);
@@ -554,11 +553,9 @@ var App = {
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
-                // Если есть ID автомобиля, показываем его историю
                 if (this.historyCarId) {
                     this.showCarHistory(this.historyCarId);
                 } else {
-                    // Иначе показываем стандартную историю с выбором
                     this.showCarSelectionHistory();
                 }
                 break;
@@ -567,20 +564,13 @@ var App = {
                 break;
         }
 
-        // Проверяем нужен ли скролл после смены вьюшки
         setTimeout(() => this.checkScrollNeeded(), 100);
-
         setTimeout(() => this.applyIOSFixes(), 100);
     },
 
     navigateToHistoryFromCar: function(carId) {
-        // Сохраняем ID автомобиля для истории
         this.historyCarId = carId;
-
-        // Переходим на вкладку истории
         this.navigateTo('history');
-
-        // Показываем историю конкретного автомобиля
         this.showCarHistory(carId);
     },
 
@@ -588,31 +578,22 @@ var App = {
         const car = carsDatabase.find(c => c.id === carId);
         if (!car) return;
 
-        // Обновляем заголовок
         document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
 
-        // Показываем кнопку возврата к выбору автомобиля
         const backButton = document.getElementById('history-back-button');
         if (backButton) {
             backButton.style.display = 'block';
         }
 
-        // Используем существующую структуру истории
         this.renderExistingHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
     showCarSelectionHistory: function() {
-        // Сбрасываем ID автомобиля
         this.historyCarId = null;
-
-        // Обновляем заголовок
         document.getElementById('current-screen-title').textContent = 'История обслуживания';
-
-        // Возвращаем стандартное содержимое истории
         this.renderStandardHistory();
-
         setTimeout(() => this.checkScrollNeeded(), 100);
     },
 
@@ -702,20 +683,17 @@ var App = {
     },
 
     showServiceHistory: function() {
-        // Если мы в карточке автомобиля, переходим на историю этого автомобиля
         if (this.currentCar) {
             this.navigateToHistoryFromCar(this.currentCar);
         } else {
-            // Иначе переходим на обычную историю с выбором автомобиля
             this.historyCarId = null;
             this.navigateTo('history');
         }
     },
 
     getServiceHistoryForCar: function(carId) {
-        // Тестовая база данных истории обслуживания
         const serviceHistoryDB = {
-            1: [ // Volkswagen Tiguan
+            1: [
                 {
                     date: '15.04.2023',
                     mileage: '45,230',
@@ -732,28 +710,9 @@ var App = {
                     ],
                     totalCost: 87500,
                     warranty: '12 месяцев'
-                },
-                {
-                    date: '10.01.2023',
-                    mileage: '42,000',
-                    title: 'Плановое ТО',
-                    description: 'Регламентное техническое обслуживание',
-                    workItems: [
-                        { name: 'Замена масла двигателя', cost: 3000 },
-                        { name: 'Замена масляного фильтра', cost: 1500 },
-                        { name: 'Замена воздушного фильтра', cost: 2000 },
-                        { name: 'Диагностика ходовой', cost: 2000 }
-                    ],
-                    parts: [
-                        { name: 'Масло моторное 5W-40', quantity: 5, price: 600 },
-                        { name: 'Фильтр масляный', quantity: 1, price: 1200 },
-                        { name: 'Фильтр воздушный', quantity: 1, price: 1500 }
-                    ],
-                    totalCost: 12500,
-                    warranty: '6 месяцев'
                 }
             ],
-            2: [ // Kia Sportage
+            2: [
                 {
                     date: '20.03.2023',
                     mileage: '18,750',
@@ -826,7 +785,6 @@ var App = {
         });
     },
 
-// В объект App добавим/обновим методы:
     updatePhotoGallery(photos, containerId = 'modern-gallery') {
         const gallery = document.getElementById(containerId);
         if (!gallery) return;
@@ -849,7 +807,6 @@ var App = {
             return;
         }
 
-        // Показываем максимум 9 фотографий в сетке
         const photosToShow = allPhotos.slice(0, 9);
 
         photosToShow.forEach((photo, index) => {
@@ -857,24 +814,30 @@ var App = {
             photoElement.className = 'gallery-item';
             photoElement.onclick = () => this.openCarousel(allPhotos, index);
 
-            photoElement.innerHTML = `
-            <img src="${photo.dataUrl || photo.url}" 
-                 alt="Фото ремонта" 
-                 onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Crect width=\"100\" height=\"100\" fill=\"%23E9ECEF\"/%3E%3C/svg%3E'">
-        `;
+            const img = document.createElement('img');
+            img.src = photo.dataUrl || photo.url;
+            img.alt = photo.caption || 'Фото ремонта';
+            img.loading = 'lazy';
 
+            photoElement.appendChild(img);
             gallery.appendChild(photoElement);
         });
 
-        // Если фотографий больше 9, показываем индикатор
         if (allPhotos.length > 9) {
             const lastItem = document.createElement('div');
             lastItem.className = 'gallery-item';
             lastItem.onclick = () => this.openCarousel(allPhotos, 8);
-            lastItem.innerHTML = `
-            <img src="${allPhotos[8].dataUrl}" alt="Еще фото">
-            <div class="gallery-more-items">+${allPhotos.length - 8}</div>
-        `;
+
+            const img = document.createElement('img');
+            img.src = allPhotos[8].dataUrl || allPhotos[8].url;
+            img.alt = 'Еще фото';
+
+            const moreIndicator = document.createElement('div');
+            moreIndicator.className = 'gallery-more-items';
+            moreIndicator.textContent = `+${allPhotos.length - 8}`;
+
+            lastItem.appendChild(img);
+            lastItem.appendChild(moreIndicator);
             gallery.appendChild(lastItem);
         }
     },
@@ -892,145 +855,6 @@ var App = {
 
         if (!carousel || !track || !counter) return;
 
-        // Заполняем карусель
-        track.innerHTML = '';
-        photos.forEach((photo, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-slide';
-            slide.innerHTML = `
-            <img src="${photo.dataUrl}" alt="Фото ремонта">
-        `;
-            track.appendChild(slide);
-        });
-
-        // Устанавливаем начальную позицию
-        track.style.transform = `translateX(-${startIndex * 100}%)`;
-        counter.textContent = `${startIndex + 1}/${photos.length}`;
-
-        // Показываем карусель
-        carousel.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-
-        // Добавляем обработчики жестов
-        this.addCarouselGestures();
-    },
-
-    addCarouselGestures() {
-        const track = document.getElementById('carousel-track');
-        if (!track) return;
-
-        let startX = 0;
-        let currentX = 0;
-        let isDragging = false;
-
-        const onTouchStart = (e) => {
-            startX = e.touches ? e.touches[0].clientX : e.clientX;
-            currentX = startX;
-            isDragging = true;
-            track.style.transition = 'none';
-        };
-
-        const onTouchMove = (e) => {
-            if (!isDragging) return;
-            const x = e.touches ? e.touches[0].clientX : e.clientX;
-            const diff = x - currentX;
-            currentX = x;
-
-            // Получаем текущую трансформацию
-            const transform = track.style.transform;
-            const currentTranslate = transform ? parseInt(transform.match(/-?\d+/)[0]) : 0;
-
-            // Применяем движение
-            track.style.transform = `translateX(${currentTranslate + diff}px)`;
-        };
-
-        const onTouchEnd = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            track.style.transition = 'transform 0.3s ease';
-
-            // Определяем направление свайпа
-            const diff = currentX - startX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    this.prevPhoto();
-                } else {
-                    this.nextPhoto();
-                }
-            } else {
-                // Возвращаем на место если свайп короткий
-                this.goToPhoto(this.carouselState.currentIndex);
-            }
-        };
-
-        // Удаляем старые обработчики
-        track.removeEventListener('touchstart', onTouchStart);
-        track.removeEventListener('touchmove', onTouchMove);
-        track.removeEventListener('touchend', onTouchEnd);
-        track.removeEventListener('mousedown', onTouchStart);
-        track.removeEventListener('mousemove', onTouchStart);
-        track.removeEventListener('mouseup', onTouchStart);
-        track.removeEventListener('mouseleave', onTouchStart);
-
-        // Добавляем новые обработчики
-        track.addEventListener('touchstart', onTouchStart);
-        track.addEventListener('touchmove', onTouchMove);
-        track.addEventListener('touchend', onTouchEnd);
-        track.addEventListener('mousedown', onTouchStart);
-        track.addEventListener('mousemove', onTouchMove);
-        track.addEventListener('mouseup', onTouchEnd);
-        track.addEventListener('mouseleave', onTouchEnd);
-    },
-
-    closeCarousel() {
-        const carousel = document.getElementById('gallery-carousel');
-        if (carousel) {
-            carousel.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    },
-
-    prevPhoto() {
-        if (this.carouselState.currentIndex > 0) {
-            this.goToPhoto(this.carouselState.currentIndex - 1);
-        }
-    },
-
-    nextPhoto() {
-        if (this.carouselState.currentIndex < this.carouselState.total - 1) {
-            this.goToPhoto(this.carouselState.currentIndex + 1);
-        }
-    },
-
-    goToPhoto(index) {
-        const track = document.getElementById('carousel-track');
-        const counter = document.getElementById('carousel-counter');
-
-        if (!track || index < 0 || index >= this.carouselState.total) return;
-
-        track.style.transform = `translateX(-${index * 100}%)`;
-        counter.textContent = `${index + 1}/${this.carouselState.total}`;
-        this.carouselState.currentIndex = index;
-    },
-
-    truncateText(text, maxLength) {
-        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-    },
-
-    openCarousel(photos, startIndex) {
-        this.carouselState = {
-            photos: photos,
-            currentIndex: startIndex,
-            total: photos.length
-        };
-
-        const carousel = document.getElementById('gallery-carousel');
-        const track = document.getElementById('carousel-track');
-        const counter = document.getElementById('carousel-counter');
-
-        if (!carousel || !track || !counter) return;
-
-        // Заполняем карусель
         track.innerHTML = '';
         photos.forEach((photo, index) => {
             const slide = document.createElement('div');
@@ -1041,19 +865,15 @@ var App = {
             track.appendChild(slide);
         });
 
-        // Устанавливаем начальную позицию
         track.style.transform = `translateX(-${startIndex * 100}%)`;
         counter.textContent = `${startIndex + 1}/${photos.length}`;
 
-        // Показываем карусель
         carousel.style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
-        // Добавляем обработчики жестов
         this.addCarouselGestures();
     },
 
-// Добавим функцию для обработки жестов:
     addCarouselGestures() {
         const track = document.getElementById('carousel-track');
         if (!track) return;
@@ -1075,11 +895,9 @@ var App = {
             const diff = x - currentX;
             currentX = x;
 
-            // Получаем текущую трансформацию
             const transform = track.style.transform;
             const currentTranslate = transform ? parseInt(transform.match(/-?\d+/)[0]) : 0;
 
-            // Применяем движение
             track.style.transform = `translateX(${currentTranslate + diff}px)`;
         };
 
@@ -1088,7 +906,6 @@ var App = {
             isDragging = false;
             track.style.transition = 'transform 0.3s ease';
 
-            // Определяем направление свайпа
             const diff = currentX - startX;
             if (Math.abs(diff) > 50) {
                 if (diff > 0) {
@@ -1097,7 +914,6 @@ var App = {
                     this.nextPhoto();
                 }
             } else {
-                // Возвращаем на место если свайп короткий
                 this.goToPhoto(this.carouselState.currentIndex);
             }
         };
@@ -1235,7 +1051,11 @@ var App = {
         const telegramUrl = 'https://t.me/MobileApps18';
         window.open(telegramUrl, '_blank');
     },
-    callService() { if (confirm('Позвонить в автосервис?')) window.location.href = 'tel:+79998887766'; },
+
+    callService() {
+        if (confirm('Позвонить в автосервис?')) window.location.href = 'tel:+79998887766';
+    },
+
     logout() {
         if (confirm('Вы уверены, что хотите выйти?')) {
             document.getElementById('app').classList.remove('show', 'user-mode');
