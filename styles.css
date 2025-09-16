@@ -2460,14 +2460,25 @@ input[type="tel"] {
 
 .carousel-track {
     display: flex;
-    transition: transform 0.3s ease;
-    padding: 0 20px;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px; /* Отступы слева и справа для всего трека */
 }
 
 .carousel-slide {
-    flex: 0 0 85%;
-    scroll-snap-align: start;
-    padding: 0 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 10px; /* Равные отступы слева и справа для каждого слайда */
+}
+
+.carousel-slide img {
+    width: 180px;
+    height: 80px;
+    max-height: 160px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto; /* Центрирование изображения внутри слайда */
 }
 
 .carousel-image {
@@ -2488,18 +2499,6 @@ input[type="tel"] {
     padding: 15px 20px 10px;
     border-bottom-left-radius: var(--radius-md);
     border-bottom-right-radius: var(--radius-md);
-}
-
-.carousel-counter {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.7);
-    color: var(--white);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
 }
 
 .carousel-nav {
@@ -2560,7 +2559,7 @@ input[type="tel"] {
 /* Адаптивность карусели */
 @media (max-width: 480px) {
     .carousel-slide {
-        flex: 0 0 92%;
+        flex: 0 0 auto;
     }
 
     .carousel-image {
@@ -2738,14 +2737,6 @@ input[type="tel"] {
     justify-content: center;
 }
 
-.carousel-counter {
-    color: white;
-    font-weight: 600;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 6px 12px;
-    border-radius: 16px;
-}
-
 .carousel-track {
     flex: 1;
     display: flex;
@@ -2852,6 +2843,7 @@ input[type="tel"] {
     left: 0;
     right: 0;
     padding: 20px;
+    padding-top: 100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2871,14 +2863,6 @@ input[type="tel"] {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.carousel-counter {
-    color: white;
-    font-weight: 600;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 6px 12px;
-    border-radius: 16px;
 }
 
 .carousel-track {
@@ -2921,5 +2905,185 @@ input[type="tel"] {
 }
 
 .gallery-carousel {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Исправленная карусель для полноэкранного просмотра */
+.gallery-carousel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-header {
+    position: absolute;
+    top: 123px;
+    left: 300px;
+    right: 0;
+    padding: 20px;
+    padding-top: calc(100px + env(safe-area-inset-top));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1001;
+}
+
+.carousel-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-track-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.3s ease;
+    will-change: transform;
+}
+
+.carousel-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.carousel-slide img {
+    max-width: 100%;
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+/* Навигация карусели */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1002;
+    backdrop-filter: blur(10px);
+}
+
+.carousel-prev {
+    left: 20px;
+}
+
+.carousel-next {
+    right: 20px;
+}
+
+.carousel-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Индикаторы карусели */
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 1001;
+}
+
+.carousel-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.gallery-carousel {
     animation: fadeIn 0.3s ease;
+}
+
+/* Адаптивность карусели */
+@media (max-width: 768px) {
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .carousel-prev {
+        left: 10px;
+    }
+
+    .carousel-next {
+        right: 10px;
+    }
+}
+
+/* Предотвращение скачков контента */
+.carousel-track {
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+.carousel-slide img {
+    transform: translateZ(0);
+}
+
+/* Улучшение производительности */
+.gallery-carousel * {
+    will-change: transform, opacity;
+}
+
+/* Плавная анимация для индикаторов */
+.carousel-indicator {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }

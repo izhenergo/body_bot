@@ -140,9 +140,22 @@
                         <button class="carousel-close" onclick="App.closeCarousel()">
                             <i class="fas fa-times"></i>
                         </button>
-                        <span class="carousel-counter" id="carousel-counter">1/3</span>
                     </div>
-                    <div class="carousel-track" id="carousel-track">
+
+                    <div class="carousel-track-container">
+                        <div class="carousel-track" id="carousel-track">
+                            <!-- Будет заполнено динамически -->
+                        </div>
+                    </div>
+
+                    <button class="carousel-nav carousel-prev" onclick="App.prevPhoto()" id="carousel-prev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-nav carousel-next" onclick="App.nextPhoto()" id="carousel-next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <div class="carousel-indicators" id="carousel-indicators">
                         <!-- Будет заполнено динамически -->
                     </div>
                 </div>

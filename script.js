@@ -106,7 +106,7 @@ var App = {
                     diagnostic: [
                         {
                             id: 1,
-                            dataUrl: 'images/diagnostic-1.jpg',
+                            dataUrl: 'images/Photo_1.jpg',
                             caption: 'Первичный осмотр повреждений',
                             uploadedAt: '2023-05-10',
                             status: 'diagnostic'
@@ -115,14 +115,14 @@ var App = {
                     repair: [
                         {
                             id: 2,
-                            dataUrl: 'images/repair-1.jpg',
+                            dataUrl: 'images/Photo_2.jpg',
                             caption: 'Рихтовка правого крыла',
                             uploadedAt: '2023-05-12',
                             status: 'repair'
                         },
                         {
                             id: 3,
-                            dataUrl: 'images/repair-2.jpg',
+                            dataUrl: 'images/Photo_2.jpg',
                             caption: 'Замена элементов кузова',
                             uploadedAt: '2023-05-13',
                             status: 'repair'
@@ -785,6 +785,15 @@ var App = {
         });
     },
 
+    preloadImages(photos) {
+        photos.forEach(photo => {
+            if (photo.dataUrl || photo.url) {
+                const img = new Image();
+                img.src = photo.dataUrl || photo.url;
+            }
+        });
+    },
+
     updatePhotoGallery(photos, containerId = 'modern-gallery') {
         const gallery = document.getElementById(containerId);
         if (!gallery) return;
@@ -843,72 +852,111 @@ var App = {
     },
 
     openCarousel(photos, startIndex) {
+        // Фильтруем фотографии с корректными URL
+        const validPhotos = photos.filter(photo =>
+            photo.dataUrl || photo.url
+        );
+
+        if (validPhotos.length === 0) {
+            alert('Нет доступных фотографий для просмотра');
+            return;
+        }
+
         this.carouselState = {
-            photos: photos,
-            currentIndex: startIndex,
-            total: photos.length
+            photos: validPhotos,
+            currentIndex: Math.min(startIndex, validPhotos.length - 1),
+            total: validPhotos.length
         };
 
         const carousel = document.getElementById('gallery-carousel');
         const track = document.getElementById('carousel-track');
-        const counter = document.getElementById('carousel-counter');
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+        const indicators = document.getElementById('carousel-indicators');
 
-        if (!carousel || !track || !counter) return;
+        if (!carousel || !track) return;
 
+        // Очищаем и заполняем трек
         track.innerHTML = '';
-        photos.forEach((photo, index) => {
+        validPhotos.forEach((photo, index) => {
             const slide = document.createElement('div');
             slide.className = 'carousel-slide';
-            slide.innerHTML = `
-            <img src="${photo.dataUrl || photo.url}" alt="Фото ремонта">
-        `;
+
+            const img = document.createElement('img');
+            img.src = photo.dataUrl || photo.url;
+            img.alt = photo.caption || 'Фото ремонта';
+            img.loading = 'eager';
+            img.onerror = function() {
+                // Запасное изображение при ошибке загрузки
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+                this.alt = 'Изображение не найдено';
+            };
+
+            slide.appendChild(img);
             track.appendChild(slide);
         });
 
-        track.style.transform = `translateX(-${startIndex * 100}%)`;
-        counter.textContent = `${startIndex + 1}/${photos.length}`;
+        // Обновляем индикаторы
+        indicators.innerHTML = '';
+        validPhotos.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.className = `carousel-indicator ${index === this.carouselState.currentIndex ? 'active' : ''}`;
+            indicator.onclick = () => this.goToPhoto(index);
+            indicators.appendChild(indicator);
+        });
 
+        // Обновляем состояние кнопок навигации
+        this.updateNavButtons();
+
+        // Показываем карусель
         carousel.style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
+        // Устанавливаем начальную позицию
+        this.goToPhoto(this.carouselState.currentIndex);
+
+        // Добавляем обработчики жестов
         this.addCarouselGestures();
     },
 
+    updateNavButtons() {
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+
+        if (prevBtn) prevBtn.disabled = this.carouselState.currentIndex === 0;
+        if (nextBtn) nextBtn.disabled = this.carouselState.currentIndex === this.carouselState.total - 1;
+    },
+
     addCarouselGestures() {
-        const track = document.getElementById('carousel-track');
-        if (!track) return;
+        const trackContainer = document.querySelector('.carousel-track-container');
+        if (!trackContainer) return;
 
         let startX = 0;
-        let currentX = 0;
         let isDragging = false;
+        const swipeThreshold = 50;
 
-        const onTouchStart = (e) => {
+        const onStart = (e) => {
             startX = e.touches ? e.touches[0].clientX : e.clientX;
-            currentX = startX;
             isDragging = true;
-            track.style.transition = 'none';
+            document.querySelector('.carousel-track').style.transition = 'none';
         };
 
-        const onTouchMove = (e) => {
+        const onMove = (e) => {
             if (!isDragging) return;
-            const x = e.touches ? e.touches[0].clientX : e.clientX;
-            const diff = x - currentX;
-            currentX = x;
-
-            const transform = track.style.transform;
-            const currentTranslate = transform ? parseInt(transform.match(/-?\d+/)[0]) : 0;
-
-            track.style.transform = `translateX(${currentTranslate + diff}px)`;
+            e.preventDefault();
         };
 
-        const onTouchEnd = () => {
+        const onEnd = (e) => {
             if (!isDragging) return;
             isDragging = false;
-            track.style.transition = 'transform 0.3s ease';
 
-            const diff = currentX - startX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
+            const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const diffX = endX - startX;
+
+            document.querySelector('.carousel-track').style.transition = 'transform 0.3s ease';
+
+            if (Math.abs(diffX) > swipeThreshold) {
+                if (diffX > 0) {
                     this.prevPhoto();
                 } else {
                     this.nextPhoto();
@@ -919,22 +967,22 @@ var App = {
         };
 
         // Удаляем старые обработчики
-        track.removeEventListener('touchstart', onTouchStart);
-        track.removeEventListener('touchmove', onTouchMove);
-        track.removeEventListener('touchend', onTouchEnd);
-        track.removeEventListener('mousedown', onTouchStart);
-        track.removeEventListener('mousemove', onTouchStart);
-        track.removeEventListener('mouseup', onTouchStart);
-        track.removeEventListener('mouseleave', onTouchStart);
+        trackContainer.removeEventListener('touchstart', onStart);
+        trackContainer.removeEventListener('touchmove', onMove);
+        trackContainer.removeEventListener('touchend', onEnd);
+        trackContainer.removeEventListener('mousedown', onStart);
+        trackContainer.removeEventListener('mousemove', onMove);
+        trackContainer.removeEventListener('mouseup', onEnd);
+        trackContainer.removeEventListener('mouseleave', onEnd);
 
         // Добавляем новые обработчики
-        track.addEventListener('touchstart', onTouchStart);
-        track.addEventListener('touchmove', onTouchMove);
-        track.addEventListener('touchend', onTouchEnd);
-        track.addEventListener('mousedown', onTouchStart);
-        track.addEventListener('mousemove', onTouchMove);
-        track.addEventListener('mouseup', onTouchEnd);
-        track.addEventListener('mouseleave', onTouchEnd);
+        trackContainer.addEventListener('touchstart', onStart);
+        trackContainer.addEventListener('touchmove', onMove, { passive: false });
+        trackContainer.addEventListener('touchend', onEnd);
+        trackContainer.addEventListener('mousedown', onStart);
+        trackContainer.addEventListener('mousemove', onMove);
+        trackContainer.addEventListener('mouseup', onEnd);
+        trackContainer.addEventListener('mouseleave', onEnd);
     },
 
     closeCarousel() {
@@ -942,30 +990,41 @@ var App = {
         if (carousel) {
             carousel.style.display = 'none';
             document.body.style.overflow = 'auto';
+            this.carouselState = null;
         }
     },
 
     prevPhoto() {
-        if (this.carouselState.currentIndex > 0) {
+        if (this.carouselState && this.carouselState.currentIndex > 0) {
             this.goToPhoto(this.carouselState.currentIndex - 1);
         }
     },
 
     nextPhoto() {
-        if (this.carouselState.currentIndex < this.carouselState.total - 1) {
+        if (this.carouselState && this.carouselState.currentIndex < this.carouselState.total - 1) {
             this.goToPhoto(this.carouselState.currentIndex + 1);
         }
     },
 
     goToPhoto(index) {
         const track = document.getElementById('carousel-track');
-        const counter = document.getElementById('carousel-counter');
+        const indicators = document.querySelectorAll('.carousel-indicator');
 
         if (!track || index < 0 || index >= this.carouselState.total) return;
 
+        // Обновляем позицию трека
         track.style.transform = `translateX(-${index * 100}%)`;
-        counter.textContent = `${index + 1}/${this.carouselState.total}`;
+
+        // Обновляем индикаторы
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === index);
+        });
+
+        // Обновляем текущий индекс
         this.carouselState.currentIndex = index;
+
+        // Обновляем кнопки навигации
+        this.updateNavButtons();
     },
 
     updateDocuments(documents) {
