@@ -532,6 +532,14 @@ var App = {
 
     navigateTo(view) {
         this.currentView = view;
+
+        // Принудительно применяем отступы для пользовательского режима
+        if (document.getElementById('app').classList.contains('user-mode')) {
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) {
+                mainContent.style.paddingTop = '100px';
+            }
+        }
         document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => item.classList.remove('active'));
         const viewTab = document.getElementById(`${view}-tab`);
         if (viewTab) viewTab.classList.add('active');

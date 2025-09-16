@@ -857,18 +857,27 @@ body {
     100% { transform: scale(1); }
 }
 
-/* iOS Safe Areas - ТОЛЬКО ЭТО ДОБАВИМ */
-@supports (padding: max(0px)) {
+    /* Единый отступ для всех страниц в пользовательском режиме */
     .user-mode .main-content {
-        padding-top: max(20px, env(safe-area-inset-top)) !important;
+        padding-top: 100px !important;
+    }
+
+    /* Убедитесь, что все контейнеры страниц имеют одинаковую структуру */
+    .user-mode #cars-list-view,
+    .user-mode #car-details-view,
+    .user-mode #history-view,
+    .user-mode #profile-view {
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    /* Убедитесь, что заголовок скрыт в пользовательском режиме */
+    .user-mode .app-header {
+        display: none !important;
     }
 
     .app-header {
         padding-top: max(16px, env(safe-area-inset-top)) !important;
-    }
-
-    #profile-view {
-        padding-top: max(15px, env(safe-area-inset-top)) !important;
     }
 
     .tabbar {
@@ -2927,8 +2936,8 @@ input[type="tel"] {
 
 .carousel-header {
     position: absolute;
-    top: 123px;
-    left: 300px;
+    top: 0;
+    left: 0;
     right: 0;
     padding: 20px;
     padding-top: calc(100px + env(safe-area-inset-top));
