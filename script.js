@@ -207,28 +207,28 @@ var App = {
                     },
                     {
                         id: 4,
-                        date: '15.05.2023',
+                        date: '~ 15.05.2023',
                         title: 'Покраска',
                         description: 'Начата покраска поврежденных элементов',
                         status: 'active'
                     },
                     {
                         id: 5,
-                        date: '18.05.2023',
+                        date: '~ 18.05.2023',
                         title: 'Сборка',
                         description: 'Предстоит сборка после покраски',
                         status: 'pending'
                     },
                     {
                         id: 6,
-                        date: '20.05.2023',
+                        date: '~ 20.05.2023',
                         title: 'Готов к выдаче',
                         description: 'Автомобиль будет готов к выдаче',
                         status: 'pending'
                     },
                     {
                         id: 7,
-                        date: '22.05.2023',
+                        date: '~ 22.05.2023',
                         title: 'Выдан клиенту',
                         description: 'Автомобиль выдан клиенту',
                         status: 'pending'
