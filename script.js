@@ -502,8 +502,7 @@ var App = {
         // Убрали обновление статусного бейджа
 
         this.updateRepairStatus(car.repairStatus || []);
-        this.updatePhotoGallery(car.photos || []);
-        this.updatePhotosCount(car.photos || []);
+        this.updatePhotoGallery(car.photos || [], 'modern-gallery');
         this.updateDocuments(car.documents || []);
         this.updateDocumentsCount(car.documents || []);
 
@@ -827,11 +826,11 @@ var App = {
         });
     },
 
-    updatePhotoGallery(photos, containerId = 'gallery-container') {
+// В объект App добавим/обновим методы:
+    updatePhotoGallery(photos, containerId = 'modern-gallery') {
         const gallery = document.getElementById(containerId);
         if (!gallery) return;
 
-        // Очищаем предыдущую карусель
         gallery.innerHTML = '';
 
         const allPhotos = [];
@@ -842,56 +841,153 @@ var App = {
         }
 
         if (allPhotos.length === 0) {
-            gallery.innerHTML = '<div class="empty-state"><i class="fas fa-camera" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 16px;"></i><p style="color: var(--gray); text-align: center;">Фотографии по ремонту пока отсутствуют</p></div>';
+            gallery.innerHTML = `
+            <div class="empty-gallery" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--gray);">
+                <i class="fas fa-camera" style="font-size: 3rem; margin-bottom: 16px; display: block; color: var(--gray-light);"></i>
+            </div>
+        `;
             return;
         }
 
-        // Создаем карусель
-        const carouselHTML = `
-        <div class="carousel-container" id="photo-carousel">
-            <div class="carousel-track" id="carousel-track">
-                ${allPhotos.map((photo, index) => `
-                    <div class="carousel-slide" data-index="${index}">
-                        <img src="${photo.dataUrl || photo.url}" 
-                             alt="Фото ремонта - ${getStatusText(photo.status)}" 
-                             class="carousel-image"
-                             onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 200\"%3E%3Crect width=\"300\" height=\"200\" fill=\"%23E9ECEF\"/%3E%3Ctext x=\"150\" y=\"100\" font-family=\"Arial\" font-size=\"16\" text-anchor=\"middle\" fill=\"%236C757D\"%3EФото недоступно%3C/text%3E%3C/svg%3E'">
-                        <div class="carousel-caption">
-                            <div class="photo-status">${getStatusText(photo.status)}</div>
-                            ${photo.caption || 'Фото процесса ремонта'}
-                        </div>
-                        <div class="carousel-counter">${index + 1}/${allPhotos.length}</div>
-                    </div>
-                `).join('')}
-            </div>
-            
-            <button class="carousel-nav carousel-prev" onclick="App.prevPhoto()" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="carousel-nav carousel-next" onclick="App.nextPhoto()" ${allPhotos.length <= 1 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
-            </button>
-            
-            <div class="carousel-indicators" id="carousel-indicators">
-                ${allPhotos.map((_, index) => `
-                    <div class="carousel-indicator ${index === 0 ? 'active' : ''}" 
-                         onclick="App.goToPhoto(${index})"></div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+        // Показываем максимум 9 фотографий в сетке
+        const photosToShow = allPhotos.slice(0, 9);
 
-        gallery.innerHTML = carouselHTML;
+        photosToShow.forEach((photo, index) => {
+            const photoElement = document.createElement('div');
+            photoElement.className = 'gallery-item';
+            photoElement.onclick = () => this.openCarousel(allPhotos, index);
 
-        // Инициализируем карусель
-        this.initCarousel(allPhotos.length);
+            photoElement.innerHTML = `
+            <img src="${photo.dataUrl || photo.url}" 
+                 alt="Фото ремонта" 
+                 onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Crect width=\"100\" height=\"100\" fill=\"%23E9ECEF\"/%3E%3C/svg%3E'">
+        `;
+
+            gallery.appendChild(photoElement);
+        });
+
+        // Если фотографий больше 9, показываем индикатор
+        if (allPhotos.length > 9) {
+            const lastItem = document.createElement('div');
+            lastItem.className = 'gallery-item';
+            lastItem.onclick = () => this.openCarousel(allPhotos, 8);
+            lastItem.innerHTML = `
+            <img src="${allPhotos[8].dataUrl}" alt="Еще фото">
+            <div class="gallery-more-items">+${allPhotos.length - 8}</div>
+        `;
+            gallery.appendChild(lastItem);
+        }
     },
 
-    initCarousel(totalPhotos) {
+    openCarousel(photos, startIndex) {
         this.carouselState = {
-            currentIndex: 0,
-            total: totalPhotos
+            photos: photos,
+            currentIndex: startIndex,
+            total: photos.length
         };
+
+        const carousel = document.getElementById('gallery-carousel');
+        const track = document.getElementById('carousel-track');
+        const counter = document.getElementById('carousel-counter');
+
+        if (!carousel || !track || !counter) return;
+
+        // Заполняем карусель
+        track.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+            slide.innerHTML = `
+            <img src="${photo.dataUrl}" alt="Фото ремонта">
+        `;
+            track.appendChild(slide);
+        });
+
+        // Устанавливаем начальную позицию
+        track.style.transform = `translateX(-${startIndex * 100}%)`;
+        counter.textContent = `${startIndex + 1}/${photos.length}`;
+
+        // Показываем карусель
+        carousel.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Добавляем обработчики жестов
+        this.addCarouselGestures();
+    },
+
+    addCarouselGestures() {
+        const track = document.getElementById('carousel-track');
+        if (!track) return;
+
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        const onTouchStart = (e) => {
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            currentX = startX;
+            isDragging = true;
+            track.style.transition = 'none';
+        };
+
+        const onTouchMove = (e) => {
+            if (!isDragging) return;
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const diff = x - currentX;
+            currentX = x;
+
+            // Получаем текущую трансформацию
+            const transform = track.style.transform;
+            const currentTranslate = transform ? parseInt(transform.match(/-?\d+/)[0]) : 0;
+
+            // Применяем движение
+            track.style.transform = `translateX(${currentTranslate + diff}px)`;
+        };
+
+        const onTouchEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            track.style.transition = 'transform 0.3s ease';
+
+            // Определяем направление свайпа
+            const diff = currentX - startX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    this.prevPhoto();
+                } else {
+                    this.nextPhoto();
+                }
+            } else {
+                // Возвращаем на место если свайп короткий
+                this.goToPhoto(this.carouselState.currentIndex);
+            }
+        };
+
+        // Удаляем старые обработчики
+        track.removeEventListener('touchstart', onTouchStart);
+        track.removeEventListener('touchmove', onTouchMove);
+        track.removeEventListener('touchend', onTouchEnd);
+        track.removeEventListener('mousedown', onTouchStart);
+        track.removeEventListener('mousemove', onTouchStart);
+        track.removeEventListener('mouseup', onTouchStart);
+        track.removeEventListener('mouseleave', onTouchStart);
+
+        // Добавляем новые обработчики
+        track.addEventListener('touchstart', onTouchStart);
+        track.addEventListener('touchmove', onTouchMove);
+        track.addEventListener('touchend', onTouchEnd);
+        track.addEventListener('mousedown', onTouchStart);
+        track.addEventListener('mousemove', onTouchMove);
+        track.addEventListener('mouseup', onTouchEnd);
+        track.addEventListener('mouseleave', onTouchEnd);
+    },
+
+    closeCarousel() {
+        const carousel = document.getElementById('gallery-carousel');
+        if (carousel) {
+            carousel.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
     },
 
     prevPhoto() {
@@ -908,36 +1004,152 @@ var App = {
 
     goToPhoto(index) {
         const track = document.getElementById('carousel-track');
-        const prevBtn = document.querySelector('.carousel-prev');
-        const nextBtn = document.querySelector('.carousel-next');
-        const indicators = document.querySelectorAll('.carousel-indicator');
+        const counter = document.getElementById('carousel-counter');
 
         if (!track || index < 0 || index >= this.carouselState.total) return;
 
-        // Обновляем позицию
-        const slideWidth = document.querySelector('.carousel-slide').offsetWidth + 10; // + gap
-        track.style.transform = `translateX(-${index * slideWidth}px)`;
-
-        // Обновляем состояние кнопок
-        prevBtn.disabled = index === 0;
-        nextBtn.disabled = index === this.carouselState.total - 1;
-
-        // Обновляем индикаторы
-        indicators.forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === index);
-        });
-
+        track.style.transform = `translateX(-${index * 100}%)`;
+        counter.textContent = `${index + 1}/${this.carouselState.total}`;
         this.carouselState.currentIndex = index;
     },
 
-    updatePhotosCount(photos) {
-        const countElement = document.getElementById('photos-count');
-        if (!countElement) return;
-        let totalPhotos = 0;
-        for (const status in photos) {
-            if (photos[status] && Array.isArray(photos[status])) totalPhotos += photos[status].length;
+    truncateText(text, maxLength) {
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    },
+
+    openCarousel(photos, startIndex) {
+        this.carouselState = {
+            photos: photos,
+            currentIndex: startIndex,
+            total: photos.length
+        };
+
+        const carousel = document.getElementById('gallery-carousel');
+        const track = document.getElementById('carousel-track');
+        const counter = document.getElementById('carousel-counter');
+
+        if (!carousel || !track || !counter) return;
+
+        // Заполняем карусель
+        track.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+            slide.innerHTML = `
+            <img src="${photo.dataUrl || photo.url}" alt="Фото ремонта">
+        `;
+            track.appendChild(slide);
+        });
+
+        // Устанавливаем начальную позицию
+        track.style.transform = `translateX(-${startIndex * 100}%)`;
+        counter.textContent = `${startIndex + 1}/${photos.length}`;
+
+        // Показываем карусель
+        carousel.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Добавляем обработчики жестов
+        this.addCarouselGestures();
+    },
+
+// Добавим функцию для обработки жестов:
+    addCarouselGestures() {
+        const track = document.getElementById('carousel-track');
+        if (!track) return;
+
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        const onTouchStart = (e) => {
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            currentX = startX;
+            isDragging = true;
+            track.style.transition = 'none';
+        };
+
+        const onTouchMove = (e) => {
+            if (!isDragging) return;
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const diff = x - currentX;
+            currentX = x;
+
+            // Получаем текущую трансформацию
+            const transform = track.style.transform;
+            const currentTranslate = transform ? parseInt(transform.match(/-?\d+/)[0]) : 0;
+
+            // Применяем движение
+            track.style.transform = `translateX(${currentTranslate + diff}px)`;
+        };
+
+        const onTouchEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            track.style.transition = 'transform 0.3s ease';
+
+            // Определяем направление свайпа
+            const diff = currentX - startX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    this.prevPhoto();
+                } else {
+                    this.nextPhoto();
+                }
+            } else {
+                // Возвращаем на место если свайп короткий
+                this.goToPhoto(this.carouselState.currentIndex);
+            }
+        };
+
+        // Удаляем старые обработчики
+        track.removeEventListener('touchstart', onTouchStart);
+        track.removeEventListener('touchmove', onTouchMove);
+        track.removeEventListener('touchend', onTouchEnd);
+        track.removeEventListener('mousedown', onTouchStart);
+        track.removeEventListener('mousemove', onTouchStart);
+        track.removeEventListener('mouseup', onTouchStart);
+        track.removeEventListener('mouseleave', onTouchStart);
+
+        // Добавляем новые обработчики
+        track.addEventListener('touchstart', onTouchStart);
+        track.addEventListener('touchmove', onTouchMove);
+        track.addEventListener('touchend', onTouchEnd);
+        track.addEventListener('mousedown', onTouchStart);
+        track.addEventListener('mousemove', onTouchMove);
+        track.addEventListener('mouseup', onTouchEnd);
+        track.addEventListener('mouseleave', onTouchEnd);
+    },
+
+    closeCarousel() {
+        const carousel = document.getElementById('gallery-carousel');
+        if (carousel) {
+            carousel.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
-        countElement.textContent = `${totalPhotos} ${this.getWordForm(totalPhotos, ['фото', 'фотографии', 'фотографий'])}`;
+    },
+
+    prevPhoto() {
+        if (this.carouselState.currentIndex > 0) {
+            this.goToPhoto(this.carouselState.currentIndex - 1);
+        }
+    },
+
+    nextPhoto() {
+        if (this.carouselState.currentIndex < this.carouselState.total - 1) {
+            this.goToPhoto(this.carouselState.currentIndex + 1);
+        }
+    },
+
+    goToPhoto(index) {
+        const track = document.getElementById('carousel-track');
+        const counter = document.getElementById('carousel-counter');
+
+        if (!track || index < 0 || index >= this.carouselState.total) return;
+
+        track.style.transform = `translateX(-${index * 100}%)`;
+        counter.textContent = `${index + 1}/${this.carouselState.total}`;
+        this.carouselState.currentIndex = index;
     },
 
     updateDocuments(documents) {

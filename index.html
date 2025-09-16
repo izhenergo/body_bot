@@ -129,8 +129,22 @@
                     <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
                     <span class="photos-count" id="photos-count">0 фото</span>
                 </div>
-                <div class="gallery-container" id="gallery-container">
-                    <!-- Filled dynamically by JavaScript -->
+
+                <div class="modern-gallery" id="modern-gallery">
+                    <!-- Будет заполнено динамически -->
+                </div>
+
+                <!-- Карусель для полноэкранного просмотра -->
+                <div class="gallery-carousel" id="gallery-carousel" style="display: none;">
+                    <div class="carousel-header">
+                        <button class="carousel-close" onclick="App.closeCarousel()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <span class="carousel-counter" id="carousel-counter">1/3</span>
+                    </div>
+                    <div class="carousel-track" id="carousel-track">
+                        <!-- Будет заполнено динамически -->
+                    </div>
                 </div>
             </div>
 
