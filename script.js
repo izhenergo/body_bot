@@ -1,56 +1,25 @@
-// Основные константы и переменные (глобальные)
+// Основные константы и переменные
 var carsDatabase = [];
 var clientsDatabase = [];
-var currentDragItem = null;
 var currentEditingCarId = null;
-var autoSaveTimeout = null;
-var isScrollEnabled = false;
 var serviceHistoryDB = {};
-var tg = null; // Глобальная переменная для Telegram WebApp
-var currentView = 'auth'; // 'auth', 'main', 'car-details', 'history', 'profile', 'admin'
-var viewHistory = []; // История просмотров для кнопки "Назад"
-
-function preventDefaultScroll(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-}
-
-// Блокировка всех жестов прокрутки
-function disableScroll() {
-    document.addEventListener('touchmove', preventDefaultScroll, { passive: false });
-    document.addEventListener('wheel', preventDefaultScroll, { passive: false });
-    document.addEventListener('scroll', preventDefaultScroll, { passive: false });
-    document.body.style.overflow = 'hidden';
+var tg = window.Telegram.WebApp;
+var currentView = 'auth';
+var viewHistory = [];
+var currentGameFrame = null;
 
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализируем Telegram WebApp
-    tg = window.Telegram.WebApp;
+    // Инициализация Telegram WebApp как игры
     tg.ready();
     tg.expand();
-    tg.enableClosingConfirmation(); // Запрещаем закрытие свайпом вниз
-    tg.BackButton.hide(); // Скрываем кнопку "Назад" по умолчанию
+    tg.enableClosingConfirmation(); // Ключевая настройка для игр!
+    tg.BackButton.hide();
+
+    // Блокировка жестов как в игровом приложении
+    setupGestureBlocking();
 
     App.init();
-    document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('user-tabbar').style.display = 'none';
-    document.getElementById('admin-tabbar').style.display = 'none';
-
-    // Инициализация обработчиков событий
-    const phoneInput = document.getElementById('new-car-owner-phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            formatPhoneNumber(this);
-        });
-    }
-
-    // Добавляем обработчик ресайза
-    window.addEventListener('resize', function() {
-        if (document.getElementById('app').classList.contains('show')) {
-            App.checkScrollNeeded();
-        }
-    });
 
     // Обработчик нативной кнопки "Назад" Telegram
     tg.BackButton.onClick(function() {
@@ -58,21 +27,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Функция для навигации назад
+// БЛОКИРОВКА ЖЕСТОВ КАК В ИГРАХ
+function setupGestureBlocking() {
+    // Блокировка скролла
+    document.body.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    // Блокировка контекстного меню
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // Блокировка выделения текста
+    document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    console.log('Gesture blocking enabled - game mode activated');
+}
+
+// Навигация назад
 function navigateBack() {
     if (viewHistory.length <= 1) {
-        // Если некуда возвращаться, просто скрываем кнопку
         tg.BackButton.hide();
         return;
     }
 
-    // Удаляем текущий вид из истории
     viewHistory.pop();
-
-    // Получаем предыдущий вид
     const previousView = viewHistory[viewHistory.length - 1];
 
-    // Восстанавливаем предыдущий вид
     switch(previousView) {
         case 'main':
             App.navigateTo('main');
@@ -80,16 +66,10 @@ function navigateBack() {
         case 'car-details':
             if (App.currentCar) {
                 App.showCarDetails(App.currentCar);
-            } else {
-                App.navigateTo('main');
             }
             break;
         case 'history':
-            if (App.historyCarId) {
-                App.showCarHistory(App.historyCarId);
-            } else {
-                App.navigateTo('history');
-            }
+            App.navigateTo('history');
             break;
         case 'history-repair':
             App.goBackFromRepairDetails();
@@ -98,19 +78,17 @@ function navigateBack() {
             App.navigateTo('profile');
             break;
         case 'admin':
-            // Для админки просто возвращаемся к главной
             openTab('cars');
             break;
         default:
             App.navigateTo('main');
     }
 
-    // Обновляем состояние кнопки "Назад"
     updateBackButton();
 }
 
-// Функция для обновления состояния кнопки "Назад"
 function updateBackButton() {
+    tg.BackButton.visible = viewHistory.length > 1;
     if (viewHistory.length > 1) {
         tg.BackButton.show();
     } else {
@@ -118,27 +96,23 @@ function updateBackButton() {
     }
 }
 
-// Функция для добавления вида в историю
 function addToHistory(view) {
-    // Не добавляем повторяющиеся виды
     if (viewHistory[viewHistory.length - 1] !== view) {
         viewHistory.push(view);
     }
     updateBackButton();
 }
 
-// Клиентское приложение (глобальное)
+// Клиентское приложение
 var App = {
     currentView: 'main',
     currentCar: null,
     historyCarId: null,
-    carouselState: null,
 
     init() {
         this.historyCarId = null;
-        viewHistory = ['auth']; // Начинаем с экрана авторизации
+        viewHistory = ['auth'];
         this.initTestData();
-        this.updateSafeAreaPadding();
 
         setTimeout(() => {
             document.getElementById('splash').style.opacity = '0';
@@ -154,443 +128,6 @@ var App = {
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             this.handleLogin();
-        };
-
-        // Инициализация наблюдателя за изменениями DOM
-        this.initDOMObserver();
-
-        disableScroll(); // Блокируем скролл при загрузке
-    },
-
-    initDOMObserver() {
-        const observer = new MutationObserver(() => {
-            if (document.getElementById('app').classList.contains('show')) {
-                this.checkScrollNeeded();
-            }
-        });
-
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            observer.observe(mainContent, {
-                subtree: true,
-                childList: true,
-                characterData: true
-            });
-        }
-    },
-
-    checkScrollNeeded: function() {
-        const mainContent = document.getElementById('main-content');
-        if (!mainContent) return;
-
-        // Всегда блокируем глобальный скролл, но разрешаем скролл внутри контента
-        disableScroll();
-
-        // Разрешаем скролл только внутри основного контента
-        const needsScroll = mainContent.scrollHeight > mainContent.clientHeight;
-        mainContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
-        mainContent.style.touchAction = needsScroll ? 'pan-y' : 'none';
-
-        // Добавляем обработчики для контента
-        mainContent.addEventListener('touchmove', function(e) {
-            if (needsScroll) {
-                // Разрешаем скролл только внутри контента
-                e.stopPropagation();
-            } else {
-                e.preventDefault();
-            }
-        }, { passive: false });
-    },
-
-    updateSafeAreaPadding: function() {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-        if (isIOS) {
-            document.body.classList.add('ios-device');
-            console.log('iOS device detected - applying safe area padding');
-        }
-    },
-
-    applyIOSFixes: function() {
-        if (document.body.classList.contains('ios-device')) {
-            // Динамически обновляем отступы для безопасных зон
-            const elements = document.querySelectorAll('.main-content, .profile-view, .car-details-compact');
-            elements.forEach(el => {
-                const currentPadding = parseInt(getComputedStyle(el).paddingTop) || 20;
-                el.style.paddingTop = `calc(${currentPadding}px + env(safe-area-inset-top))`;
-            });
-        }
-    },
-
-    initTestData() {
-        carsDatabase = [
-            {
-                id: 1,
-                number: "А123БВ777",
-                brand: "Volkswagen",
-                model: "Tiguan",
-                year: 2019,
-                vin: "WVGZZZ5NZJW123456",
-                odometer: "45230",
-                status: "painting",
-                description: "Кузовной ремонт после ДТП",
-                clientId: 1,
-                photos: {
-                    diagnostic: [
-                        {
-                            id: 1,
-                            dataUrl: 'images/Photo_1.jpg',
-                            caption: 'Первичный осмотр повреждений',
-                            uploadedAt: '2023-05-10',
-                            status: 'diagnostic'
-                        }
-                    ],
-                    repair: [
-                        {
-                            id: 2,
-                            dataUrl: 'images/Photo_2.jpg',
-                            caption: 'Рихтовка правого крыла',
-                            uploadedAt: '2023-05-12',
-                            status: 'repair'
-                        },
-                        {
-                            id: 3,
-                            dataUrl: 'images/Photo_2.jpg',
-                            caption: 'Замена элементов кузова',
-                            uploadedAt: '2023-05-13',
-                            status: 'repair'
-                        }
-                    ],
-                    painting: [],
-                    ready: [],
-                    completed: []
-                },
-                documents: {
-                    'work-certificate': [
-                        {
-                            id: 1,
-                            name: 'Акт выполненных работ.pdf',
-                            type: 'pdf',
-                            size: '2.4 MB',
-                            date: '15.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'payment-receipt': [
-                        {
-                            id: 2,
-                            name: 'Чек об оплате.jpg',
-                            type: 'image',
-                            size: '1.2 MB',
-                            date: '15.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'invoice': [
-                        {
-                            id: 3,
-                            name: 'Счет-фактура №123.pdf',
-                            type: 'pdf',
-                            size: '1.8 MB',
-                            date: '14.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'contract': [
-                        {
-                            id: 4,
-                            name: 'Договор на ремонт.docx',
-                            type: 'doc',
-                            size: '3.1 MB',
-                            date: '10.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'warranty': [
-                        {
-                            id: 5,
-                            name: 'Гарантийный талон.pdf',
-                            type: 'pdf',
-                            size: '0.9 MB',
-                            date: '15.05.2023',
-                            url: '#'
-                        }
-                    ]
-                },
-                repairStatus: [
-                    {
-                        id: 1,
-                        date: '10.05.2023',
-                        title: 'Приемка автомобиля',
-                        description: 'Автомобиль принят на ремонт после ДТП',
-                        status: 'completed'
-                    },
-                    {
-                        id: 2,
-                        date: '11.05.2023',
-                        title: 'Дефектовка',
-                        description: 'Проведена полная диагностика повреждений',
-                        status: 'completed'
-                    },
-                    {
-                        id: 3,
-                        date: '12.05.2023',
-                        title: 'Рихтовка кузова',
-                        description: 'Устранение вмятин и деформаций кузова',
-                        status: 'completed'
-                    },
-                    {
-                        id: 4,
-                        date: '~ 15.05.2023',
-                        title: 'Покраска',
-                        description: 'Начата покраска поврежденных элементов',
-                        status: 'active'
-                    },
-                    {
-                        id: 5,
-                        date: '~ 18.05.2023',
-                        title: 'Сборка',
-                        description: 'Предстоит сборка после покраски',
-                        status: 'pending'
-                    },
-                    {
-                        id: 6,
-                        date: '~ 20.05.2023',
-                        title: 'Готов к выдаче',
-                        description: 'Автомобиль будет готов к выдаче',
-                        status: 'pending'
-                    },
-                    {
-                        id: 7,
-                        date: '~ 22.05.2023',
-                        title: 'Выдан клиенту',
-                        description: 'Автомобиль выдан клиенту',
-                        status: 'pending'
-                    }
-                ]
-            },
-            {
-                id: 2,
-                number: "Х987УК177",
-                brand: "Kia",
-                model: "Sportage",
-                year: 2021,
-                vin: "KNDPMCAC5M7123456",
-                odometer: "18750",
-                status: "completed",
-                description: "Покраска переднего бампера",
-                clientId: 2,
-                photos: {
-                    diagnostic: [
-                        {
-                            id: 4,
-                            dataUrl: 'images/diagnostic-1.jpg',
-                            caption: 'Осмотр бампера на повреждения',
-                            uploadedAt: '2023-05-01',
-                            status: 'diagnostic'
-                        }
-                    ],
-                    repair: [
-                        {
-                            id: 5,
-                            dataUrl: 'images/repair-1.jpg',
-                            caption: 'Подготовка поверхности бампера',
-                            uploadedAt: '2023-05-02',
-                            status: 'repair'
-                        },
-                        {
-                            id: 6,
-                            dataUrl: 'images/repair-2.jpg',
-                            caption: 'Шлифовка бампера',
-                            uploadedAt: '2023-05-03',
-                            status: 'repair'
-                        }
-                    ],
-                    painting: [],
-                    ready: [],
-                    completed: []
-                },
-                documents: {
-                    'work-certificate': [
-                        {
-                            id: 1,
-                            name: 'Акт выполненных работ.pdf',
-                            type: 'pdf',
-                            size: '1.5 MB',
-                            date: '07.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'payment-receipt': [
-                        {
-                            id: 2,
-                            name: 'Квитанция об оплате.png',
-                            type: 'image',
-                            size: '0.8 MB',
-                            date: '07.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'invoice': [
-                        {
-                            id: 3,
-                            name: 'Счет №456.pdf',
-                            type: 'pdf',
-                            size: '1.2 MB',
-                            date: '06.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'contract': [
-                        {
-                            id: 4,
-                            name: 'Договор на покраску.docx',
-                            type: 'doc',
-                            size: '2.3 MB',
-                            date: '01.05.2023',
-                            url: '#'
-                        }
-                    ],
-                    'warranty': [
-                        {
-                            id: 5,
-                            name: 'Гарантия 12 месяцев.pdf',
-                            type: 'pdf',
-                            size: '0.7 MB',
-                            date: '07.05.2023',
-                            url: '#'
-                        }
-                    ]
-                },
-                repairStatus: [
-                    {
-                        id: 1,
-                        date: '01.05.2023',
-                        title: 'Приемка автомобиля',
-                        description: 'Автомобиль принят на покраску бампера',
-                        status: 'completed'
-                    },
-                    {
-                        id: 2,
-                        date: '02.05.2023',
-                        title: 'Дефектовка',
-                        description: 'Оценка состояния бампера',
-                        status: 'completed'
-                    },
-                    {
-                        id: 3,
-                        date: '03.05.2023',
-                        title: 'Подготовка к покраске',
-                        description: 'Шлифовка и грунтовка бампера',
-                        status: 'completed'
-                    },
-                    {
-                        id: 4,
-                        date: '04.05.2023',
-                        title: 'Покраска',
-                        description: 'Нанесение лакокрасочного покрытия',
-                        status: 'completed'
-                    },
-                    {
-                        id: 5,
-                        date: '05.05.2023',
-                        title: 'Сборка',
-                        description: 'Установка бампера на автомобиль',
-                        status: 'completed'
-                    },
-                    {
-                        id: 6,
-                        date: '06.05.2023',
-                        title: 'Готов к выдаче',
-                        description: 'Автомобиль прошел контроль качества',
-                        status: 'completed'
-                    },
-                    {
-                        id: 7,
-                        date: '07.05.2023',
-                        title: 'Выдан клиенту',
-                        description: 'Клиент забрал автомобиль',
-                        status: 'completed'
-                    }
-                ]
-            }
-        ];
-
-        clientsDatabase = [
-            { id: 1, name: "Иван Петров", phone: "+79123456789", email: "ivan.petrov@example.com", cars: [1] },
-            { id: 2, name: "Мария Сидорова", phone: "+79129876543", email: "maria.sidorova@example.com", cars: [2] }
-        ];
-
-        updateCarsTable();
-        updateClientsTable();
-
-        serviceHistoryDB = {
-            1: [
-                {
-                    id: 1,
-                    date: '15.05.2023',
-                    startDate: '10.05.2023',
-                    endDate: '15.05.2023',
-                    type: 'Кузовной ремонт',
-                    title: 'Ремонт после ДТП',
-                    mileage: '45,230 км',
-                    photos: [
-                        {
-                            id: 1,
-                            dataUrl: 'images/Photo_1.jpg',
-                            caption: 'Повреждения до ремонта',
-                            uploadedAt: '2023-05-10'
-                        },
-                        {
-                            id: 2,
-                            dataUrl: 'images/Photo_2.jpg',
-                            caption: 'Процесс ремонта',
-                            uploadedAt: '2023-05-12'
-                        }
-                    ],
-                    documents: [
-                        {
-                            id: 1,
-                            name: 'Акт выполненных работ.pdf',
-                            type: 'pdf',
-                            size: '2.4 MB',
-                            date: '15.05.2023',
-                            url: '#'
-                        }
-                    ]
-                }
-            ],
-            2: [
-                {
-                    id: 1,
-                    date: '07.05.2023',
-                    startDate: '01.05.2023',
-                    endDate: '07.05.2023',
-                    type: 'Покраска',
-                    title: 'Покраска переднего бампера',
-                    description: 'Полная покраска переднего бампера с подготовкой поверхности',
-                    mileage: '18,750 км',
-                    totalCost: 25000,
-                    photos: [
-                        {
-                            id: 1,
-                            dataUrl: 'images/diagnostic-1.jpg',
-                            caption: 'Бампер до покраски',
-                            uploadedAt: '2023-05-01'
-                        }
-                    ],
-                    documents: [
-                        {
-                            id: 1,
-                            name: 'Акт выполненных работ.pdf',
-                            type: 'pdf',
-                            size: '1.5 MB',
-                            date: '07.05.2023',
-                            url: '#'
-                        }
-                    ]
-                }
-            ]
         };
     },
 
@@ -609,7 +146,7 @@ var App = {
             document.getElementById('auth-view').style.display = 'none';
 
             if (username === '1' && password === '1') {
-                // Regular user - hide header and add user mode class
+                // Regular user
                 document.getElementById('app').classList.add('show', 'user-mode');
                 document.getElementById('user-tabbar').style.display = 'flex';
                 document.getElementById('admin-tabbar').style.display = 'none';
@@ -617,8 +154,10 @@ var App = {
 
                 this.initUserInterface();
                 this.navigateTo('main');
+                currentView = 'main';
+                addToHistory('main');
             } else if (username === '2' && password === '2') {
-                // Admin user - remove user mode class and show admin interface
+                // Admin user
                 document.getElementById('app').classList.remove('user-mode');
                 document.getElementById('adminSection').style.display = 'block';
                 document.getElementById('user-tabbar').style.display = 'none';
@@ -628,57 +167,14 @@ var App = {
 
                 updateCarsTable();
                 updateClientsTable();
+                currentView = 'admin';
+                addToHistory('admin');
             } else {
                 alert('Неверный логин или пароль');
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('auth-view').style.opacity = '1';
             }
         }, 500);
-    },
-
-    initUserInterface() {
-        this.updateCarsList();
-        this.updateProfile();
-        document.getElementById('current-screen-title').textContent = 'Мои автомобили';
-        document.getElementById('cars-list-view').style.display = 'block';
-        document.getElementById('car-details-view').style.display = 'none';
-        document.getElementById('history-view').style.display = 'none';
-        document.getElementById('profile-view').style.display = 'none';
-
-        // Проверяем нужен ли скролл после инициализации
-        setTimeout(() => this.checkScrollNeeded(), 100);
-    },
-
-    updateCarsList() {
-        const carsList = document.getElementById('cars-list-view');
-        if (!carsList) return;
-
-        carsList.innerHTML = '';
-        carsDatabase.forEach(car => {
-            const statusText = getStatusText(car.status);
-            const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
-
-            // Проверяем, нужен ли перенос текста (более 2 слов)
-            const wordCount = statusText.split(' ').length;
-            const multilineClass = wordCount > 2 ? 'multiline' : '';
-
-            const carCard = document.createElement('div');
-            carCard.className = 'car-card';
-            carCard.setAttribute('data-car-id', car.id);
-            carCard.onclick = () => this.showCarDetails(car.id);
-            carCard.innerHTML = `
-            <div class="car-status ${statusClass} ${multilineClass}">${statusText}</div>
-            <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
-            <p>Госномер: ${car.number}</p>
-            <p>Статус: ${statusText}</p>
-            <div class="car-meta">
-                <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
-            </div>
-        `;
-            carsList.appendChild(carCard);
-        });
-
-        this.checkScrollNeeded();
     },
 
     showCarDetails(carId) {
@@ -711,39 +207,15 @@ var App = {
         this.hideElement('cars-list-view');
         this.showElement('car-details-view');
 
-        const titleElement = document.getElementById('current-screen-title');
-        if (titleElement) titleElement.textContent = `${car.brand} ${car.model}`;
-
-        // Проверяем нужен ли скролл после загрузки деталей
-        setTimeout(() => this.checkScrollNeeded(), 100);
-
-        // Обновляем навигацию
         currentView = 'car-details';
         addToHistory('car-details');
-    },
-
-    updateElementText(elementId, text) {
-        const element = document.getElementById(elementId);
-        if (element) element.textContent = text;
-    },
-
-    showElement(elementId) {
-        const element = document.getElementById(elementId);
-        if (element) element.style.display = 'block';
-    },
-
-    hideElement(elementId) {
-        const element = document.getElementById(elementId);
-        if (element) element.style.display = 'none';
     },
 
     navigateTo(view) {
         this.currentView = view;
 
-        // Сбрасываем состояние истории при переходе на эту вкладку
         if (view === 'history') {
             this.historyCarId = null;
-            // Всегда показываем выбор автомобиля при переходе на вкладку истории
             this.showCarSelectionHistory();
         }
 
@@ -756,7 +228,6 @@ var App = {
             viewTab.classList.add('active');
         }
 
-        // Скрываем все view
         ['cars-list-view', 'car-details-view', 'history-view', 'profile-view'].forEach(viewId => {
             const element = document.getElementById(viewId);
             if (element) {
@@ -764,7 +235,6 @@ var App = {
             }
         });
 
-        // Показываем нужную view
         switch(view) {
             case 'main':
                 document.getElementById('cars-list-view').style.display = 'block';
@@ -772,7 +242,6 @@ var App = {
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
-                // Теперь всегда показываем выбор автомобиля
                 this.showCarSelectionHistory();
                 break;
             case 'profile':
@@ -783,10 +252,6 @@ var App = {
 
         setTimeout(() => this.checkScrollNeeded(), 100);
         setTimeout(() => this.applyIOSFixes(), 100);
-
-        // Обновляем навигацию
-        currentView = view;
-        addToHistory(view);
     },
 
     goBackToHistory: function() {
@@ -819,71 +284,69 @@ var App = {
         this.renderServiceHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
-
-        // Обновляем навигацию
-        currentView = 'history';
-        addToHistory('history');
     },
 
-//     showRepairDetails: function(carId, repairId) {
-//         console.log('Showing repair details:', carId, repairId);
-//
-//         const repairs = serviceHistoryDB[carId];
-//         if (!repairs) {
-//             console.error('No repairs found for car:', carId);
-//             return;
-//         }
-//
-//         const repair = repairs.find(r => r.id === repairId);
-//         if (!repair) {
-//             console.error('Repair not found:', repairId);
-//             return;
-//         }
-//
-//         // Скрываем список и показываем детали
-//         document.getElementById('history-car-view').style.display = 'none';
-//         document.getElementById('repair-details-view').style.display = 'block';
-//
-//         // Заполняем информацию о ремонте
-//         const infoGrid = document.getElementById('repair-info-grid');
-//         infoGrid.innerHTML = `
-//     <div class="info-item">
-//         <span class="info-label">Дата ремонта:</span>
-//         <span class="info-value">${repair.startDate || repair.date}</span>
-//     </div>
-//     <div class="info-item">
-//         <span class="info-label">Пробег:</span>
-//         <span class="info-value">${repair.mileage}</span>
-//     </div>
-//     <div class="info-item">
-//         <span class="info-label">Тип ремонта:</span>
-//         <span class="info-value">${repair.type}</span>
-//     </div>
-//     <div class="info-item">
-//         <span class="info-label">Стоимость:</span>
-//         <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
-//     </div>
-//     <div class="info-item full-width">
-//         <span class="info-label">Описание:</span>
-//         <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
-//     </div>
-// `;
-//
-//         // Обновляем фотографии
-//         this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
-//         document.getElementById('repair-photos-count').textContent =
-//             `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
-//
-//         // Обновляем документы
-//         this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
-//         document.getElementById('repair-documents-count').textContent =
-//             `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
-//     },
+    showRepairDetails: function(carId, repairId) {
+        console.log('Showing repair details:', carId, repairId);
 
-// Добавляем функцию для возврата из деталей ремонта
+        const repairs = serviceHistoryDB[carId];
+        if (!repairs) {
+            console.error('No repairs found for car:', carId);
+            return;
+        }
+
+        const repair = repairs.find(r => r.id === repairId);
+        if (!repair) {
+            console.error('Repair not found:', repairId);
+            return;
+        }
+
+        // Скрываем список и показываем детали
+        document.getElementById('history-car-view').style.display = 'none';
+        document.getElementById('repair-details-view').style.display = 'block';
+
+        // Заполняем информацию о ремонте
+        const infoGrid = document.getElementById('repair-info-grid');
+        infoGrid.innerHTML = `
+    <div class="info-item">
+        <span class="info-label">Дата ремонта:</span>
+        <span class="info-value">${repair.startDate || repair.date}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Пробег:</span>
+        <span class="info-value">${repair.mileage}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Тип ремонта:</span>
+        <span class="info-value">${repair.type}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Стоимость:</span>
+        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
+    </div>
+    <div class="info-item full-width">
+        <span class="info-label">Описание:</span>
+        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
+    </div>
+`;
+
+        // Обновляем фотографии
+        this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
+        document.getElementById('repair-photos-count').textContent =
+            `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
+
+        // Обновляем документы
+        this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
+        document.getElementById('repair-documents-count').textContent =
+            `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
+    },
+
     goBackFromRepairDetails: function() {
         document.getElementById('repair-details-view').style.display = 'none';
         document.getElementById('history-car-view').style.display = 'block';
+
+        currentView = 'history';
+        addToHistory('history');
     },
 
     renderServiceHistory: function(carId) {
@@ -968,72 +431,19 @@ var App = {
     },
 
     showRepairDetails: function(carId, repairId) {
-        console.log('Showing repair details:', carId, repairId);
-
         const repairs = serviceHistoryDB[carId];
-        if (!repairs) {
-            console.error('No repairs found for car:', carId);
-            return;
-        }
+        if (!repairs) return;
 
         const repair = repairs.find(r => r.id === repairId);
-        if (!repair) {
-            console.error('Repair not found:', repairId);
-            return;
-        }
+        if (!repair) return;
 
-        // Скрываем список и показываем детали
         document.getElementById('history-car-view').style.display = 'none';
         document.getElementById('repair-details-view').style.display = 'block';
 
-        // Заполняем информацию о ремонте
-        const infoGrid = document.getElementById('repair-info-grid');
-        infoGrid.innerHTML = `
-    <div class="info-item">
-        <span class="info-label">Дата ремонта:</span>
-        <span class="info-value">${repair.startDate || repair.date}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Пробег:</span>
-        <span class="info-value">${repair.mileage}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Тип ремонта:</span>
-        <span class="info-value">${repair.type}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Стоимость:</span>
-        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
-    </div>
-    <div class="info-item full-width">
-        <span class="info-label">Описание:</span>
-        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
-    </div>
-`;
+        // Заполнение информации о ремонте...
 
-        // Обновляем фотографии
-        this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
-        document.getElementById('repair-photos-count').textContent =
-            `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
-
-        // Обновляем документы
-        this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
-        document.getElementById('repair-documents-count').textContent =
-            `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
-
-        // Обновляем навигацию
         currentView = 'history-repair';
         addToHistory('history-repair');
-    },
-
-    // Добавляем функцию для возврата из деталей ремонта
-    goBackFromRepairDetails: function() {
-        document.getElementById('repair-details-view').style.display = 'none';
-        document.getElementById('history-car-view').style.display = 'block';
-
-        // Обновляем навигацию
-        currentView = 'history';
-        addToHistory('history');
     },
 
     updateDocumentsList: function(documents, containerId) {
@@ -2123,22 +1533,14 @@ function searchClients() {
 }
 
 function logout() {
-    if (confirm('Вы уверены, что хотите выйти?')) {
-        document.getElementById('app').classList.remove('show', 'user-mode');
-        document.getElementById('adminSection').style.display = 'none';
-        document.getElementById('user-tabbar').style.display = 'none';
-        document.getElementById('admin-tabbar').style.display = 'none';
-
-        document.getElementById('auth-view').style.display = 'flex';
-        document.getElementById('auth-view').style.opacity = '1';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('username').focus();
-
-        // Сбрасываем историю навигации
-        viewHistory = ['auth'];
-        tg.BackButton.hide();
-    }
+    document.getElementById('auth-view').style.display = 'flex';
+    document.getElementById('auth-view').style.opacity = '1';
+    document.getElementById('app').classList.remove('show', 'user-mode');
+    document.getElementById('adminSection').style.display = 'none';
+    document.getElementById('user-tabbar').style.display = 'none';
+    document.getElementById('admin-tabbar').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
 }
 
 function updateRepairPhotoGallery(photos, containerId) {

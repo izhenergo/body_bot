@@ -10,10 +10,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <!-- Добавляем скрипт Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body oncontextmenu="return false;" ontouchmove="return false;" onscroll="return false;">
+<body oncontextmenu="return false;">
 <!-- Splash Screen -->
 <div id="splash">
     <div class="splash-logo">
@@ -290,419 +289,419 @@
         </div>
     </div>
 
-<!-- Администраторская панель -->
-<div class="admin-container" id="adminSection">
-    <div class="admin-header">
-        <h1>Панель администратора</h1>
-    </div>
-
-    <!-- Вкладка автомобилей -->
-    <div id="cars" class="tab-content active">
-        <div class="search-box">
-            <input type="text" id="car-search" placeholder="Поиск по гос. номеру, марке, модели..." onkeyup="searchCars()">
-            <button class="btn btn-primary" onclick="Admin.showAddCarPage()" style="margin-top: 10px;">
-                <i class="fas fa-plus"></i> Добавить ремонт
-            </button>
+    <!-- Администраторская панель -->
+    <div class="admin-container" id="adminSection">
+        <div class="admin-header">
+            <h1>Панель администратора</h1>
         </div>
 
-        <table id="cars-table">
-            <thead>
-            <tr>
-                <th>Гос. номер</th>
-                <th>Марка</th>
-                <th>Модель</th>
-            </tr>
-            </thead>
-            <tbody id="cars-table-body">
-            <!-- Данные будут загружаться динамически -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Вкладка клиентов -->
-    <div id="clients" class="tab-content">
-        <div class="search-box">
-            <input type="text" id="client-search" placeholder="Поиск по имени, телефону или автомобилю..." onkeyup="searchClients()">
-        </div>
-
-        <table id="clients-table">
-            <thead>
-            <tr>
-                <th>ФИО</th>
-                <th>Телефон</th>
-                <th>Автомобиль</th>
-            </tr>
-            </thead>
-            <tbody id="clients-table-body">
-            <!-- Данные будут загружаться динамически -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Вкладка профиля -->
-    <div id="profile" class="tab-content">
-        <div class="profile-view">
-            <h2><i class="fas fa-user-cog"></i> Профиль администратора</h2>
-
-            <div class="profile-info">
-                <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Иванов Алексей Геннадьевич</p>
-                <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (900) 123-45-67</p>
-                <p><strong><i class="fas fa-envelope"></i> Email:</strong> admin@autoservice.ru</p>
-            </div>
-
-            <button class="btn btn-primary btn-block" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Выйти
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Модальное окно добавления автомобиля -->
-<div id="add-car-modal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title">Информация о ремонте</h3>
-            <button class="modal-close" onclick="Admin.hideAddCarModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <!-- Секция информации о собственнике (ОБЯЗАТЕЛЬНАЯ) -->
-            <div class="form-section owner-section">
-                <h4><i class="fas fa-user"></i> Информация о собственнике <span class="required">*</span></h4>
-                <div class="form-group">
-                    <label for="new-car-owner-name">ФИО собственника: <span class="required">*</span></label>
-                    <input type="text" id="new-car-owner-name" class="form-input" placeholder="Иванов Иван Иванович" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-car-owner-phone">Телефон собственника: <span class="required">*</span></label>
-                    <input type="tel" id="new-car-owner-phone" class="form-input" placeholder="+7 (912) 345-67-89" required>
-                </div>
-            </div>
-
-            <!-- Секция информации об автомобиле -->
-            <div class="form-section">
-                <h4><i class="fas fa-car"></i> Информация об автомобиле</h4>
-
-                <div class="form-group">
-                    <label for="new-car-status">Статус ремонта:</label>
-                    <select id="new-car-status" class="form-input">
-                        <option value="diagnostic">Дефектовка</option>
-                        <option value="repair">Ремонт</option>
-                        <option value="painting">Покраска</option>
-                        <option value="ready">Готов к выдаче</option>
-                        <option value="completed">Выдан клиенту</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="new-car-brand">Марка: <span class="required">*</span></label>
-                    <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-car-model">Модель: <span class="required">*</span></label>
-                    <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-car-number">Гос. номер: <span class="required">*</span></label>
-                    <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-car-odometer">Пробег:</label>
-                    <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
-                </div>
-                <div class="form-group">
-                    <label for="new-car-year">Год выпуска:</label>
-                    <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
-                </div>
-                <div class="form-group">
-                    <label for="new-car-vin">VIN:</label>
-                    <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
-                </div>
-            </div>
-
-            <!-- Кнопки редактирования фотографий и документов -->
-            <div class="form-group">
-                <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()" style="margin-top: 15px;">
-                    <i class="fas fa-camera"></i> Редактирование фотографий
+        <!-- Вкладка автомобилей -->
+        <div id="cars" class="tab-content active">
+            <div class="search-box">
+                <input type="text" id="car-search" placeholder="Поиск по гос. номеру, марке, модели..." onkeyup="searchCars()">
+                <button class="btn btn-primary" onclick="Admin.showAddCarPage()" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Добавить ремонт
                 </button>
             </div>
 
-            <div class="form-group">
-                <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()" style="margin-top: 15px;">
-                    <i class="fas fa-file-alt"></i> Закрывающая документация
+            <table id="cars-table">
+                <thead>
+                <tr>
+                    <th>Гос. номер</th>
+                    <th>Марка</th>
+                    <th>Модель</th>
+                </tr>
+                </thead>
+                <tbody id="cars-table-body">
+                <!-- Данные будут загружаться динамически -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Вкладка клиентов -->
+        <div id="clients" class="tab-content">
+            <div class="search-box">
+                <input type="text" id="client-search" placeholder="Поиск по имени, телефону или автомобилю..." onkeyup="searchClients()">
+            </div>
+
+            <table id="clients-table">
+                <thead>
+                <tr>
+                    <th>ФИО</th>
+                    <th>Телефон</th>
+                    <th>Автомобиль</th>
+                </tr>
+                </thead>
+                <tbody id="clients-table-body">
+                <!-- Данные будут загружаться динамически -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Вкладка профиля -->
+        <div id="profile" class="tab-content">
+            <div class="profile-view">
+                <h2><i class="fas fa-user-cog"></i> Профиль администратора</h2>
+
+                <div class="profile-info">
+                    <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Иванов Алексей Геннадьевич</p>
+                    <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (900) 123-45-67</p>
+                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> admin@autoservice.ru</p>
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
                 </button>
             </div>
         </div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="Admin.hideAddCarModal()">Отмена</button>
-            <button class="btn btn-primary" onclick="Admin.addNewCar()">Сохранить</button>
-        </div>
     </div>
-</div>
 
-<!-- Tabbar для пользователя (по умолчанию) -->
-<div class="tabbar" id="user-tabbar">
-    <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
-        <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-        <span>Автомобили</span>
-    </a>
-    <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
-        <span class="tabbar-icon"><i class="fas fa-history"></i></span>
-        <span>История</span>
-    </a>
-    <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
-        <span class="tabbar-icon"><i class="fas fa-user"></i></span>
-        <span>Профиль</span>
-    </a>
-</div>
+    <!-- Модальное окно добавления автомобиля -->
+    <div id="add-car-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Информация о ремонте</h3>
+                <button class="modal-close" onclick="Admin.hideAddCarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Секция информации о собственнике (ОБЯЗАТЕЛЬНАЯ) -->
+                <div class="form-section owner-section">
+                    <h4><i class="fas fa-user"></i> Информация о собственнике <span class="required">*</span></h4>
+                    <div class="form-group">
+                        <label for="new-car-owner-name">ФИО собственника: <span class="required">*</span></label>
+                        <input type="text" id="new-car-owner-name" class="form-input" placeholder="Иванов Иван Иванович" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-owner-phone">Телефон собственника: <span class="required">*</span></label>
+                        <input type="tel" id="new-car-owner-phone" class="form-input" placeholder="+7 (912) 345-67-89" required>
+                    </div>
+                </div>
 
-<!-- Tabbar для администратора (скрыт по умолчанию) -->
-<div class="tabbar" id="admin-tabbar" style="display: none;">
-    <a href="#" class="tabbar-item active" onclick="openTab('cars')">
-        <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-        <span>Ремонты</span>
-    </a>
-    <a href="#" class="tabbar-item" onclick="openTab('clients')">
-        <span class="tabbar-icon"><i class="fas fa-users"></i></span>
-        <span>Клиенты</span>
-    </a>
-    <a href="#" class="tabbar-item" onclick="openTab('profile')">
-        <span class="tabbar-icon"><i class="fas fa-user-cog"></i></span>
-        <span>Профиль</span>
-    </a>
-</div>
+                <!-- Секция информации об автомобиле -->
+                <div class="form-section">
+                    <h4><i class="fas fa-car"></i> Информация об автомобиле</h4>
 
-<!-- Модальное окно редактирования автомобиля -->
-<div id="edit-car-modal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <!-- Заголовок с навигацией -->
-        <div class="modal-header">
-            <button class="modal-back-btn" id="modal-back-btn" style="display: none;" onclick="Admin.goBackToEditCar()">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h3 class="modal-title" id="modal-title">Редактирование автомобиля</h3>
-            <button class="modal-close" onclick="Admin.hideEditCarForm()">&times;</button>
-        </div>
+                    <div class="form-group">
+                        <label for="new-car-status">Статус ремонта:</label>
+                        <select id="new-car-status" class="form-input">
+                            <option value="diagnostic">Дефектовка</option>
+                            <option value="repair">Ремонт</option>
+                            <option value="painting">Покраска</option>
+                            <option value="ready">Готов к выдаче</option>
+                            <option value="completed">Выдан клиенту</option>
+                        </select>
+                    </div>
 
-        <!-- Тело модального окна -->
-        <div class="modal-body" id="modal-body">
-            <!-- Основное содержимое редактирования автомобиля -->
-            <div id="edit-car-content">
-                <!-- Изменение текущего статуса -->
-                <div class="form-group">
-                    <label for="current-status-select">Статус ремонта:</label>
-                    <select id="current-status-select" class="form-input" onchange="Admin.updateRepairStatuses()">
-                        <option value="diagnostic">Дефектовка</option>
-                        <option value="repair">Ремонт</option>
-                        <option value="painting">Покраска</option>
-                        <option value="ready">Готов к выдаче</option>
-                        <option value="completed">Выдан клиенту</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="new-car-brand">Марка: <span class="required">*</span></label>
+                        <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-model">Модель: <span class="required">*</span></label>
+                        <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-number">Гос. номер: <span class="required">*</span></label>
+                        <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-odometer">Пробег:</label>
+                        <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-year">Год выпуска:</label>
+                        <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-car-vin">VIN:</label>
+                        <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
+                    </div>
                 </div>
 
                 <!-- Кнопки редактирования фотографий и документов -->
                 <div class="form-group">
-                    <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()">
+                    <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()" style="margin-top: 15px;">
                         <i class="fas fa-camera"></i> Редактирование фотографий
                     </button>
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()">
+                    <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()" style="margin-top: 15px;">
                         <i class="fas fa-file-alt"></i> Закрывающая документация
                     </button>
                 </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="Admin.hideAddCarModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="Admin.addNewCar()">Сохранить</button>
+            </div>
+        </div>
+    </div>
 
-                <div class="form-group">
-                    <label for="edit-car-brand">Марка:</label>
-                    <input type="text" id="edit-car-brand" class="form-input" required oninput="Admin.autoSaveCar()">
-                </div>
-                <div class="form-group">
-                    <label for="edit-car-model">Модель:</label>
-                    <input type="text" id="edit-car-model" class="form-input" required oninput="Admin.autoSaveCar()">
-                </div>
-                <div class="form-group">
-                    <label for="edit-car-number">Гос. номер:</label>
-                    <input type="text" id="edit-car-number" class="form-input" required oninput="Admin.autoSaveCar()">
-                </div>
-                <div class="form-group">
-                    <label for="edit-car-odometer">Пробег:</label>
-                    <input type="number" id="edit-car-odometer" class="form-input" oninput="Admin.autoSaveCar()">
-                </div>
-                <div class="form-group">
-                    <label for="edit-car-year">Год выпуска:</label>
-                    <input type="number" id="edit-car-year" class="form-input" oninput="Admin.autoSaveCar()">
-                </div>
-                <div class="form-group">
-                    <label for="edit-car-vin">VIN:</label>
-                    <input type="text" id="edit-car-vin" class="form-input" oninput="Admin.autoSaveCar()">
-                </div>
+    <!-- Tabbar для пользователя (по умолчанию) -->
+    <div class="tabbar" id="user-tabbar">
+        <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
+            <span class="tabbar-icon"><i class="fas fa-car"></i></span>
+            <span>Автомобили</span>
+        </a>
+        <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
+            <span class="tabbar-icon"><i class="fas fa-history"></i></span>
+            <span>История</span>
+        </a>
+        <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
+            <span class="tabbar-icon"><i class="fas fa-user"></i></span>
+            <span>Профиль</span>
+        </a>
+    </div>
+
+    <!-- Tabbar для администратора (скрыт по умолчанию) -->
+    <div class="tabbar" id="admin-tabbar" style="display: none;">
+        <a href="#" class="tabbar-item active" onclick="openTab('cars')">
+            <span class="tabbar-icon"><i class="fas fa-car"></i></span>
+            <span>Ремонты</span>
+        </a>
+        <a href="#" class="tabbar-item" onclick="openTab('clients')">
+            <span class="tabbar-icon"><i class="fas fa-users"></i></span>
+            <span>Клиенты</span>
+        </a>
+        <a href="#" class="tabbar-item" onclick="openTab('profile')">
+            <span class="tabbar-icon"><i class="fas fa-user-cog"></i></span>
+            <span>Профиль</span>
+        </a>
+    </div>
+
+    <!-- Модальное окно редактирования автомобиля -->
+    <div id="edit-car-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <!-- Заголовок с навигацией -->
+            <div class="modal-header">
+                <button class="modal-back-btn" id="modal-back-btn" style="display: none;" onclick="Admin.goBackToEditCar()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3 class="modal-title" id="modal-title">Редактирование автомобиля</h3>
+                <button class="modal-close" onclick="Admin.hideEditCarForm()">&times;</button>
             </div>
 
-            <!-- Контент для редактирования фотографий -->
-            <div id="edit-photo-content" style="display: none;">
-                <div class="status-photos-section">
-                    <h3><i class="fas fa-tasks"></i> Фотографии по статусам ремонта</h3>
-
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-search"></i> Дефектовка</h4>
-                        <div class="status-photos-container" id="diagnostic-photos">
-                            <!-- Фотографии для статуса "Дефектовка" -->
-                        </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('diagnostic')">
-                            <i class="fas fa-plus"></i> Добавить фото
-                        </div>
+            <!-- Тело модального окна -->
+            <div class="modal-body" id="modal-body">
+                <!-- Основное содержимое редактирования автомобиля -->
+                <div id="edit-car-content">
+                    <!-- Изменение текущего статуса -->
+                    <div class="form-group">
+                        <label for="current-status-select">Статус ремонта:</label>
+                        <select id="current-status-select" class="form-input" onchange="Admin.updateRepairStatuses()">
+                            <option value="diagnostic">Дефектовка</option>
+                            <option value="repair">Ремонт</option>
+                            <option value="painting">Покраска</option>
+                            <option value="ready">Готов к выдаче</option>
+                            <option value="completed">Выдан клиенту</option>
+                        </select>
                     </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-tools"></i> Ремонт</h4>
-                        <div class="status-photos-container" id="repair-photos">
-                            <!-- Фотографии для статуса "Ремонт" -->
-                        </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('repair')">
-                            <i class="fas fa-plus"></i> Добавить фото
-                        </div>
+                    <!-- Кнопки редактирования фотографий и документов -->
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()">
+                            <i class="fas fa-camera"></i> Редактирование фотографий
+                        </button>
                     </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-paint-roller"></i> Покраска</h4>
-                        <div class="status-photos-container" id="painting-photos">
-                            <!-- Фотографии для статуса "Покраска" -->
-                        </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('painting')">
-                            <i class="fas fa-plus"></i> Добавить фото
-                        </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()">
+                            <i class="fas fa-file-alt"></i> Закрывающая документация
+                        </button>
                     </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-check-circle"></i> Готов к выдаче</h4>
-                        <div class="status-photos-container" id="ready-photos">
-                            <!-- Фотографии для статуса "Готов к выдаче" -->
-                        </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('ready')">
-                            <i class="fas fa-plus"></i> Добавить фото
-                        </div>
+                    <div class="form-group">
+                        <label for="edit-car-brand">Марка:</label>
+                        <input type="text" id="edit-car-brand" class="form-input" required oninput="Admin.autoSaveCar()">
                     </div>
+                    <div class="form-group">
+                        <label for="edit-car-model">Модель:</label>
+                        <input type="text" id="edit-car-model" class="form-input" required oninput="Admin.autoSaveCar()">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-car-number">Гос. номер:</label>
+                        <input type="text" id="edit-car-number" class="form-input" required oninput="Admin.autoSaveCar()">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-car-odometer">Пробег:</label>
+                        <input type="number" id="edit-car-odometer" class="form-input" oninput="Admin.autoSaveCar()">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-car-year">Год выпуска:</label>
+                        <input type="number" id="edit-car-year" class="form-input" oninput="Admin.autoSaveCar()">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-car-vin">VIN:</label>
+                        <input type="text" id="edit-car-vin" class="form-input" oninput="Admin.autoSaveCar()">
+                    </div>
+                </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-car"></i> Выдан клиенту</h4>
-                        <div class="status-photos-container" id="completed-photos">
-                            <!-- Фотографии для статуса "Выдан клиенту" -->
+                <!-- Контент для редактирования фотографий -->
+                <div id="edit-photo-content" style="display: none;">
+                    <div class="status-photos-section">
+                        <h3><i class="fas fa-tasks"></i> Фотографии по статусам ремонта</h3>
+
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-search"></i> Дефектовка</h4>
+                            <div class="status-photos-container" id="diagnostic-photos">
+                                <!-- Фотографии для статуса "Дефектовка" -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('diagnostic')">
+                                <i class="fas fa-plus"></i> Добавить фото
+                            </div>
                         </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('completed')">
-                            <i class="fas fa-plus"></i> Добавить фото
+
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-tools"></i> Ремонт</h4>
+                            <div class="status-photos-container" id="repair-photos">
+                                <!-- Фотографии для статуса "Ремонт" -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('repair')">
+                                <i class="fas fa-plus"></i> Добавить фото
+                            </div>
+                        </div>
+
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-paint-roller"></i> Покраска</h4>
+                            <div class="status-photos-container" id="painting-photos">
+                                <!-- Фотографии для статуса "Покраска" -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('painting')">
+                                <i class="fas fa-plus"></i> Добавить фото
+                            </div>
+                        </div>
+
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-check-circle"></i> Готов к выдаче</h4>
+                            <div class="status-photos-container" id="ready-photos">
+                                <!-- Фотографии для статуса "Готов к выдаче" -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('ready')">
+                                <i class="fas fa-plus"></i> Добавить фото
+                            </div>
+                        </div>
+
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-car"></i> Выдан клиенту</h4>
+                            <div class="status-photos-container" id="completed-photos">
+                                <!-- Фотографии для статуса "Выдан клиенту" -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('completed')">
+                                <i class="fas fa-plus"></i> Добавить фото
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Контент для редактирования документов -->
-            <div id="edit-document-content" style="display: none;">
-                <div class="status-photos-section">
-                    <h3><i class="fas fa-file-alt"></i> Документы по статусам ремонта</h3>
+                <!-- Контент для редактирования документов -->
+                <div id="edit-document-content" style="display: none;">
+                    <div class="status-photos-section">
+                        <h3><i class="fas fa-file-alt"></i> Документы по статусам ремонта</h3>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-file-contract"></i> Акт выполненных работ</h4>
-                        <div class="status-photos-container" id="work-certificate-docs">
-                            <!-- Документы для акта выполненных работ -->
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-file-contract"></i> Акт выполненных работ</h4>
+                            <div class="status-photos-container" id="work-certificate-docs">
+                                <!-- Документы для акта выполненных работ -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('work-certificate')">
+                                <i class="fas fa-plus"></i> Добавить документ
+                            </div>
                         </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('work-certificate')">
-                            <i class="fas fa-plus"></i> Добавить документ
-                        </div>
-                    </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-receipt"></i> Чек об оплате</h4>
-                        <div class="status-photos-container" id="payment-receipt-docs">
-                            <!-- Документы для чека об оплате -->
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-receipt"></i> Чек об оплате</h4>
+                            <div class="status-photos-container" id="payment-receipt-docs">
+                                <!-- Документы для чека об оплате -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('payment-receipt')">
+                                <i class="fas fa-plus"></i> Добавить документ
+                            </div>
                         </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('payment-receipt')">
-                            <i class="fas fa-plus"></i> Добавить документ
-                        </div>
-                    </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-file-invoice"></i> Счет-фактура</h4>
-                        <div class="status-photos-container" id="invoice-docs">
-                            <!-- Документы для счет-фактуры -->
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-file-invoice"></i> Счет-фактура</h4>
+                            <div class="status-photos-container" id="invoice-docs">
+                                <!-- Документы для счет-фактуры -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('invoice')">
+                                <i class="fas fa-plus"></i> Добавить документ
+                            </div>
                         </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('invoice')">
-                            <i class="fas fa-plus"></i> Добавить документ
-                        </div>
-                    </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-file-signature"></i> Договор</h4>
-                        <div class="status-photos-container" id="contract-docs">
-                            <!-- Документы для договора -->
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-file-signature"></i> Договор</h4>
+                            <div class="status-photos-container" id="contract-docs">
+                                <!-- Документы для договора -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('contract')">
+                                <i class="fas fa-plus"></i> Добавить документ
+                            </div>
                         </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('contract')">
-                            <i class="fas fa-plus"></i> Добавить документ
-                        </div>
-                    </div>
 
-                    <div class="status-photo-category">
-                        <h4><i class="fas fa-file-medical"></i> Гарантийный талон</h4>
-                        <div class="status-photos-container" id="warranty-docs">
-                            <!-- Документы для гарантийного талона -->
-                        </div>
-                        <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('warranty')">
-                            <i class="fas fa-plus"></i> Добавить документ
+                        <div class="status-photo-category">
+                            <h4><i class="fas fa-file-medical"></i> Гарантийный талон</h4>
+                            <div class="status-photos-container" id="warranty-docs">
+                                <!-- Документы для гарантийного талона -->
+                            </div>
+                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('warranty')">
+                                <i class="fas fa-plus"></i> Добавить документ
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Модальное окно редактирования клиента -->
-<div id="edit-client-modal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title">Редактирование клиента</h3>
-            <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="edit-client-name">ФИО:</label>
-                <input type="text" id="edit-client-name" class="form-input" required>
+    <!-- Модальное окно редактирования клиента -->
+    <div id="edit-client-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Редактирование клиента</h3>
+                <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
             </div>
-            <div class="form-group">
-                <label for="edit-client-phone">Телефон:</label>
-                <input type="tel" id="edit-client-phone" class="form-input" required>
-            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-client-name">ФИО:</label>
+                    <input type="text" id="edit-client-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-client-phone">Телефон:</label>
+                    <input type="tel" id="edit-client-phone" class="form-input" required>
+                </div>
 
-            <div class="form-group">
-                <label>Автомобили клиента:</label>
-                <div id="client-cars-list" class="client-cars-list">
-                    <!-- Список автомобилей будет заполнен динамически -->
+                <div class="form-group">
+                    <label>Автомобили клиента:</label>
+                    <div id="client-cars-list" class="client-cars-list">
+                        <!-- Список автомобилей будет заполнен динамически -->
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
-            <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Блок админ-контролей в карточке автомобиля -->
-<div id="admin-controls" style="display: none; margin-top: 20px; padding: 20px; background: var(--light); border-radius: var(--radius-md);">
-    <h3><i class="fas fa-cog"></i> Управление для администратора</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="Admin.showEditCarForm(App.currentCar)">
-            <i class="fas fa-edit"></i> Редактировать автомобиль
-        </button>
-        <button class="btn btn-secondary" onclick="document.getElementById('edit-photo-upload-input').click()">
-            <i class="fas fa-camera"></i> Добавить фото
-        </button>
-        <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
-            <i class="fas fa-file"></i> Добавить документы
-        </button>
+    <!-- Блок админ-контролей в карточке автомобиля -->
+    <div id="admin-controls" style="display: none; margin-top: 20px; padding: 20px; background: var(--light); border-radius: var(--radius-md);">
+        <h3><i class="fas fa-cog"></i> Управление для администратора</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="Admin.showEditCarForm(App.currentCar)">
+                <i class="fas fa-edit"></i> Редактировать автомобиль
+            </button>
+            <button class="btn btn-secondary" onclick="document.getElementById('edit-photo-upload-input').click()">
+                <i class="fas fa-camera"></i> Добавить фото
+            </button>
+            <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
+                <i class="fas fa-file"></i> Добавить документы
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- Подключение внешнего JavaScript файла -->
-<script src="script.js"></script>
+    <!-- Подключение внешнего JavaScript файла -->
+    <script src="script.js"></script>
     </body>
 </html>
