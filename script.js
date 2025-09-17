@@ -110,25 +110,50 @@ var App = {
     historyCarId: null,
 
     init() {
-        this.historyCarId = null;
-        viewHistory = ['auth'];
-        this.initTestData();
+        try {
+            console.log('Initializing app...');
 
-        setTimeout(() => {
-            document.getElementById('splash').style.opacity = '0';
-            document.getElementById('auth-view').classList.add('show');
+            this.historyCarId = null;
+            viewHistory = ['auth'];
+
+            // Инициализируем тестовые данные
+            if (typeof this.initTestData === 'function') {
+                this.initTestData();
+            } else {
+                console.error('initTestData method not found!');
+                // Создаем минимальные тестовые данные
+                this.createMinimalTestData();
+            }
 
             setTimeout(() => {
-                document.getElementById('splash').style.display = 'none';
-            }, 500);
+                document.getElementById('splash').style.opacity = '0';
+                document.getElementById('auth-view').classList.add('show');
 
-            document.getElementById('username').focus();
-        }, 1500);
+                setTimeout(() => {
+                    document.getElementById('splash').style.display = 'none';
+                }, 500);
 
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            this.handleLogin();
-        };
+                const usernameInput = document.getElementById('username');
+                if (usernameInput) {
+                    usernameInput.focus();
+                }
+            }, 1500);
+
+            // Назначаем обработчик формы
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                };
+            }
+
+            console.log('App initialized successfully');
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.showErrorScreen('Ошибка инициализации: ' + error.message);
+        }
     },
 
     handleLogin() {
