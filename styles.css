@@ -23,6 +23,41 @@
     --radius-xl: 24px;
 }
 
+html, body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: none;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+/* Для основного контента разрешаем скролл только когда нужно */
+.main-content {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Блокируем выделение текста и контекстное меню */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Разрешаем выделение только там, где нужно */
+.car-card, .history-item, .profile-info, .document-info,
+.form-input, .modal-content, .auth-form {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
 * {
     margin: 0;
     padding: 0;

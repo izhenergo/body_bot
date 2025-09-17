@@ -10,6 +10,19 @@ var tg = null; // Глобальная переменная для Telegram WebA
 var currentView = 'auth'; // 'auth', 'main', 'car-details', 'history', 'profile', 'admin'
 var viewHistory = []; // История просмотров для кнопки "Назад"
 
+function preventDefaultScroll(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+}
+
+// Блокировка всех жестов прокрутки
+function disableScroll() {
+    document.addEventListener('touchmove', preventDefaultScroll, { passive: false });
+    document.addEventListener('wheel', preventDefaultScroll, { passive: false });
+    document.addEventListener('scroll', preventDefaultScroll, { passive: false });
+    document.body.style.overflow = 'hidden';
+
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', function() {
     // Инициализируем Telegram WebApp
@@ -145,6 +158,8 @@ var App = {
 
         // Инициализация наблюдателя за изменениями DOM
         this.initDOMObserver();
+
+        disableScroll(); // Блокируем скролл при загрузке
     },
 
     initDOMObserver() {
@@ -168,14 +183,23 @@ var App = {
         const mainContent = document.getElementById('main-content');
         if (!mainContent) return;
 
-        // Проверяем, нужен ли скролл
-        const needsScroll = mainContent.scrollHeight > mainContent.clientHeight;
+        // Всегда блокируем глобальный скролл, но разрешаем скролл внутри контента
+        disableScroll();
 
-        if (needsScroll !== isScrollEnabled) {
-            isScrollEnabled = needsScroll;
-            document.body.classList.toggle('no-scroll', !needsScroll);
-            mainContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
-        }
+        // Разрешаем скролл только внутри основного контента
+        const needsScroll = mainContent.scrollHeight > mainContent.clientHeight;
+        mainContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+        mainContent.style.touchAction = needsScroll ? 'pan-y' : 'none';
+
+        // Добавляем обработчики для контента
+        mainContent.addEventListener('touchmove', function(e) {
+            if (needsScroll) {
+                // Разрешаем скролл только внутри контента
+                e.stopPropagation();
+            } else {
+                e.preventDefault();
+            }
+        }, { passive: false });
     },
 
     updateSafeAreaPadding: function() {
