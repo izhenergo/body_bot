@@ -6,9 +6,19 @@ var currentEditingCarId = null;
 var autoSaveTimeout = null;
 var isScrollEnabled = false;
 var serviceHistoryDB = {};
+var tg = null; // Глобальная переменная для Telegram WebApp
+var currentView = 'auth'; // 'auth', 'main', 'car-details', 'history', 'profile', 'admin'
+var viewHistory = []; // История просмотров для кнопки "Назад"
 
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', function() {
+    // Инициализируем Telegram WebApp
+    tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation(); // Запрещаем закрытие свайпом вниз
+    tg.BackButton.hide(); // Скрываем кнопку "Назад" по умолчанию
+
     App.init();
     document.getElementById('adminSection').style.display = 'none';
     document.getElementById('user-tabbar').style.display = 'none';
@@ -28,7 +38,81 @@ document.addEventListener('DOMContentLoaded', function() {
             App.checkScrollNeeded();
         }
     });
+
+    // Обработчик нативной кнопки "Назад" Telegram
+    tg.BackButton.onClick(function() {
+        navigateBack();
+    });
 });
+
+// Функция для навигации назад
+function navigateBack() {
+    if (viewHistory.length <= 1) {
+        // Если некуда возвращаться, просто скрываем кнопку
+        tg.BackButton.hide();
+        return;
+    }
+
+    // Удаляем текущий вид из истории
+    viewHistory.pop();
+
+    // Получаем предыдущий вид
+    const previousView = viewHistory[viewHistory.length - 1];
+
+    // Восстанавливаем предыдущий вид
+    switch(previousView) {
+        case 'main':
+            App.navigateTo('main');
+            break;
+        case 'car-details':
+            if (App.currentCar) {
+                App.showCarDetails(App.currentCar);
+            } else {
+                App.navigateTo('main');
+            }
+            break;
+        case 'history':
+            if (App.historyCarId) {
+                App.showCarHistory(App.historyCarId);
+            } else {
+                App.navigateTo('history');
+            }
+            break;
+        case 'history-repair':
+            App.goBackFromRepairDetails();
+            break;
+        case 'profile':
+            App.navigateTo('profile');
+            break;
+        case 'admin':
+            // Для админки просто возвращаемся к главной
+            openTab('cars');
+            break;
+        default:
+            App.navigateTo('main');
+    }
+
+    // Обновляем состояние кнопки "Назад"
+    updateBackButton();
+}
+
+// Функция для обновления состояния кнопки "Назад"
+function updateBackButton() {
+    if (viewHistory.length > 1) {
+        tg.BackButton.show();
+    } else {
+        tg.BackButton.hide();
+    }
+}
+
+// Функция для добавления вида в историю
+function addToHistory(view) {
+    // Не добавляем повторяющиеся виды
+    if (viewHistory[viewHistory.length - 1] !== view) {
+        viewHistory.push(view);
+    }
+    updateBackButton();
+}
 
 // Клиентское приложение (глобальное)
 var App = {
@@ -39,6 +123,7 @@ var App = {
 
     init() {
         this.historyCarId = null;
+        viewHistory = ['auth']; // Начинаем с экрана авторизации
         this.initTestData();
         this.updateSafeAreaPadding();
 
@@ -607,6 +692,10 @@ var App = {
 
         // Проверяем нужен ли скролл после загрузки деталей
         setTimeout(() => this.checkScrollNeeded(), 100);
+
+        // Обновляем навигацию
+        currentView = 'car-details';
+        addToHistory('car-details');
     },
 
     updateElementText(elementId, text) {
@@ -670,6 +759,10 @@ var App = {
 
         setTimeout(() => this.checkScrollNeeded(), 100);
         setTimeout(() => this.applyIOSFixes(), 100);
+
+        // Обновляем навигацию
+        currentView = view;
+        addToHistory(view);
     },
 
     goBackToHistory: function() {
@@ -702,62 +795,66 @@ var App = {
         this.renderServiceHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
+
+        // Обновляем навигацию
+        currentView = 'history';
+        addToHistory('history');
     },
 
-    showRepairDetails: function(carId, repairId) {
-        console.log('Showing repair details:', carId, repairId);
-
-        const repairs = serviceHistoryDB[carId];
-        if (!repairs) {
-            console.error('No repairs found for car:', carId);
-            return;
-        }
-
-        const repair = repairs.find(r => r.id === repairId);
-        if (!repair) {
-            console.error('Repair not found:', repairId);
-            return;
-        }
-
-        // Скрываем список и показываем детали
-        document.getElementById('history-car-view').style.display = 'none';
-        document.getElementById('repair-details-view').style.display = 'block';
-
-        // Заполняем информацию о ремонте
-        const infoGrid = document.getElementById('repair-info-grid');
-        infoGrid.innerHTML = `
-    <div class="info-item">
-        <span class="info-label">Дата ремонта:</span>
-        <span class="info-value">${repair.startDate || repair.date}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Пробег:</span>
-        <span class="info-value">${repair.mileage}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Тип ремонта:</span>
-        <span class="info-value">${repair.type}</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">Стоимость:</span>
-        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
-    </div>
-    <div class="info-item full-width">
-        <span class="info-label">Описание:</span>
-        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
-    </div>
-`;
-
-        // Обновляем фотографии
-        this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
-        document.getElementById('repair-photos-count').textContent =
-            `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
-
-        // Обновляем документы
-        this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
-        document.getElementById('repair-documents-count').textContent =
-            `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
-    },
+//     showRepairDetails: function(carId, repairId) {
+//         console.log('Showing repair details:', carId, repairId);
+//
+//         const repairs = serviceHistoryDB[carId];
+//         if (!repairs) {
+//             console.error('No repairs found for car:', carId);
+//             return;
+//         }
+//
+//         const repair = repairs.find(r => r.id === repairId);
+//         if (!repair) {
+//             console.error('Repair not found:', repairId);
+//             return;
+//         }
+//
+//         // Скрываем список и показываем детали
+//         document.getElementById('history-car-view').style.display = 'none';
+//         document.getElementById('repair-details-view').style.display = 'block';
+//
+//         // Заполняем информацию о ремонте
+//         const infoGrid = document.getElementById('repair-info-grid');
+//         infoGrid.innerHTML = `
+//     <div class="info-item">
+//         <span class="info-label">Дата ремонта:</span>
+//         <span class="info-value">${repair.startDate || repair.date}</span>
+//     </div>
+//     <div class="info-item">
+//         <span class="info-label">Пробег:</span>
+//         <span class="info-value">${repair.mileage}</span>
+//     </div>
+//     <div class="info-item">
+//         <span class="info-label">Тип ремонта:</span>
+//         <span class="info-value">${repair.type}</span>
+//     </div>
+//     <div class="info-item">
+//         <span class="info-label">Стоимость:</span>
+//         <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
+//     </div>
+//     <div class="info-item full-width">
+//         <span class="info-label">Описание:</span>
+//         <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
+//     </div>
+// `;
+//
+//         // Обновляем фотографии
+//         this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
+//         document.getElementById('repair-photos-count').textContent =
+//             `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
+//
+//         // Обновляем документы
+//         this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
+//         document.getElementById('repair-documents-count').textContent =
+//             `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
+//     },
 
 // Добавляем функцию для возврата из деталей ремонта
     goBackFromRepairDetails: function() {
@@ -890,41 +987,29 @@ var App = {
     </div>
 `;
 
-        // Берем фотографии из первого автомобиля пользователя "1"
-        const firstCar = carsDatabase.find(car => car.id === 1);
-        let repairPhotos = repair.photos || [];
-
-        // Если у ремонта нет фотографий, берем из первого автомобиля
-        if (repairPhotos.length === 0 && firstCar) {
-            // Собираем все фотографии из автомобиля
-            const allCarPhotos = [];
-            for (const status in firstCar.photos) {
-                if (firstCar.photos[status] && Array.isArray(firstCar.photos[status])) {
-                    allCarPhotos.push(...firstCar.photos[status]);
-                }
-            }
-            repairPhotos = allCarPhotos.slice(0, 5); // Берем первые 5 фотографий
-        }
-
-        // Берем документы из первого автомобиля пользователя "1"
-        let repairDocuments = repair.documents || [];
-
-        // Если у ремонта нет документов, берем из первого автомобиля
-        if (repairDocuments.length === 0 && firstCar) {
-            // Собираем все документы из автомобиля
-            const allCarDocuments = [];
-            for (const type in firstCar.documents) {
-                if (firstCar.documents[type] && Array.isArray(firstCar.documents[type])) {
-                    allCarDocuments.push(...firstCar.documents[type]);
-                }
-            }
-            repairDocuments = allCarDocuments.slice(0, 3); // Берем первые 3 документа
-        }
+        // Обновляем фотографии
+        this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
+        document.getElementById('repair-photos-count').textContent =
+            `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
 
         // Обновляем документы
-        this.updateDocumentsList(repairDocuments, 'repair-documents-list');
+        this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
         document.getElementById('repair-documents-count').textContent =
-            `${repairDocuments.length} ${this.getWordForm(repairDocuments.length, ['документ', 'документа', 'документов'])}`;
+            `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
+
+        // Обновляем навигацию
+        currentView = 'history-repair';
+        addToHistory('history-repair');
+    },
+
+    // Добавляем функцию для возврата из деталей ремонта
+    goBackFromRepairDetails: function() {
+        document.getElementById('repair-details-view').style.display = 'none';
+        document.getElementById('history-car-view').style.display = 'block';
+
+        // Обновляем навигацию
+        currentView = 'history';
+        addToHistory('history');
     },
 
     updateDocumentsList: function(documents, containerId) {
@@ -2014,14 +2099,22 @@ function searchClients() {
 }
 
 function logout() {
-    document.getElementById('auth-view').style.display = 'flex';
-    document.getElementById('auth-view').style.opacity = '1';
-    document.getElementById('app').classList.remove('show', 'user-mode');
-    document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('user-tabbar').style.display = 'none';
-    document.getElementById('admin-tabbar').style.display = 'none';
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        document.getElementById('app').classList.remove('show', 'user-mode');
+        document.getElementById('adminSection').style.display = 'none';
+        document.getElementById('user-tabbar').style.display = 'none';
+        document.getElementById('admin-tabbar').style.display = 'none';
+
+        document.getElementById('auth-view').style.display = 'flex';
+        document.getElementById('auth-view').style.opacity = '1';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('username').focus();
+
+        // Сбрасываем историю навигации
+        viewHistory = ['auth'];
+        tg.BackButton.hide();
+    }
 }
 
 function updateRepairPhotoGallery(photos, containerId) {
