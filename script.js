@@ -5,6 +5,30 @@ var currentDragItem = null;
 var currentEditingCarId = null;
 var autoSaveTimeout = null;
 var isScrollEnabled = false;
+var serviceHistoryDB = {};
+
+// Инициализация при загрузке DOM
+document.addEventListener('DOMContentLoaded', function() {
+    App.init();
+    document.getElementById('adminSection').style.display = 'none';
+    document.getElementById('user-tabbar').style.display = 'none';
+    document.getElementById('admin-tabbar').style.display = 'none';
+
+    // Инициализация обработчиков событий
+    const phoneInput = document.getElementById('new-car-owner-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            formatPhoneNumber(this);
+        });
+    }
+
+    // Добавляем обработчик ресайза
+    window.addEventListener('resize', function() {
+        if (document.getElementById('app').classList.contains('show')) {
+            App.checkScrollNeeded();
+        }
+    });
+});
 
 // Клиентское приложение (глобальное)
 var App = {
@@ -390,6 +414,75 @@ var App = {
 
         updateCarsTable();
         updateClientsTable();
+
+        serviceHistoryDB = {
+            1: [
+                {
+                    id: 1,
+                    date: '15.05.2023',
+                    startDate: '10.05.2023',
+                    endDate: '15.05.2023',
+                    type: 'Кузовной ремонт',
+                    title: 'Ремонт после ДТП',
+                    mileage: '45,230 км',
+                    photos: [
+                        {
+                            id: 1,
+                            dataUrl: 'images/Photo_1.jpg',
+                            caption: 'Повреждения до ремонта',
+                            uploadedAt: '2023-05-10'
+                        },
+                        {
+                            id: 2,
+                            dataUrl: 'images/Photo_2.jpg',
+                            caption: 'Процесс ремонта',
+                            uploadedAt: '2023-05-12'
+                        }
+                    ],
+                    documents: [
+                        {
+                            id: 1,
+                            name: 'Акт выполненных работ.pdf',
+                            type: 'pdf',
+                            size: '2.4 MB',
+                            date: '15.05.2023',
+                            url: '#'
+                        }
+                    ]
+                }
+            ],
+            2: [
+                {
+                    id: 1,
+                    date: '07.05.2023',
+                    startDate: '01.05.2023',
+                    endDate: '07.05.2023',
+                    type: 'Покраска',
+                    title: 'Покраска переднего бампера',
+                    description: 'Полная покраска переднего бампера с подготовкой поверхности',
+                    mileage: '18,750 км',
+                    totalCost: 25000,
+                    photos: [
+                        {
+                            id: 1,
+                            dataUrl: 'images/diagnostic-1.jpg',
+                            caption: 'Бампер до покраски',
+                            uploadedAt: '2023-05-01'
+                        }
+                    ],
+                    documents: [
+                        {
+                            id: 1,
+                            name: 'Акт выполненных работ.pdf',
+                            type: 'pdf',
+                            size: '1.5 MB',
+                            date: '07.05.2023',
+                            url: '#'
+                        }
+                    ]
+                }
+            ]
+        };
     },
 
     handleLogin() {
@@ -436,6 +529,7 @@ var App = {
 
     initUserInterface() {
         this.updateCarsList();
+        this.updateProfile();
         document.getElementById('current-screen-title').textContent = 'Мои автомобили';
         document.getElementById('cars-list-view').style.display = 'block';
         document.getElementById('car-details-view').style.display = 'none';
@@ -533,27 +627,31 @@ var App = {
     navigateTo(view) {
         this.currentView = view;
 
-        // Принудительно применяем отступы для пользовательского режима
-        if (document.getElementById('app').classList.contains('user-mode')) {
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.style.paddingTop = '100px';
-            }
-        }
-        document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => item.classList.remove('active'));
-        const viewTab = document.getElementById(`${view}-tab`);
-        if (viewTab) viewTab.classList.add('active');
-
-        const appHeader = document.getElementById('app-header');
-        if (appHeader) {
-            appHeader.style.display = 'none';
+        // Сбрасываем состояние истории при переходе на эту вкладку
+        if (view === 'history') {
+            this.historyCarId = null;
+            // Всегда показываем выбор автомобиля при переходе на вкладку истории
+            this.showCarSelectionHistory();
         }
 
-        ['cars-list-view', 'car-details-view', 'history-view', 'profile-view'].forEach(viewId => {
-            const element = document.getElementById(viewId);
-            if (element) element.style.display = 'none';
+        document.querySelectorAll('#user-tabbar .tabbar-item').forEach(item => {
+            item.classList.remove('active');
         });
 
+        const viewTab = document.getElementById(`${view}-tab`);
+        if (viewTab) {
+            viewTab.classList.add('active');
+        }
+
+        // Скрываем все view
+        ['cars-list-view', 'car-details-view', 'history-view', 'profile-view'].forEach(viewId => {
+            const element = document.getElementById(viewId);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
+
+        // Показываем нужную view
         switch(view) {
             case 'main':
                 document.getElementById('cars-list-view').style.display = 'block';
@@ -561,19 +659,22 @@ var App = {
                 break;
             case 'history':
                 document.getElementById('history-view').style.display = 'block';
-                if (this.historyCarId) {
-                    this.showCarHistory(this.historyCarId);
-                } else {
-                    this.showCarSelectionHistory();
-                }
+                // Теперь всегда показываем выбор автомобиля
+                this.showCarSelectionHistory();
                 break;
             case 'profile':
                 document.getElementById('profile-view').style.display = 'block';
+                this.updateProfile();
                 break;
         }
 
         setTimeout(() => this.checkScrollNeeded(), 100);
         setTimeout(() => this.applyIOSFixes(), 100);
+    },
+
+    goBackToHistory: function() {
+        document.getElementById('repair-details-view').style.display = 'none';
+        document.getElementById('history-car-view').style.display = 'block';
     },
 
     navigateToHistoryFromCar: function(carId) {
@@ -583,89 +684,278 @@ var App = {
     },
 
     showCarHistory: function(carId) {
+        console.log('Showing history for car:', carId);
+
         const car = carsDatabase.find(c => c.id === carId);
-        if (!car) return;
-
-        document.getElementById('current-screen-title').textContent = `${car.brand} ${car.model}`;
-
-        const backButton = document.getElementById('history-back-button');
-        if (backButton) {
-            backButton.style.display = 'block';
+        if (!car) {
+            console.error('Car not found:', carId);
+            alert('Автомобиль не найден!');
+            return;
         }
 
-        this.renderExistingHistory(carId);
+        // Показываем правильные элементы
+        document.getElementById('history-selection-view').style.display = 'none';
+        document.getElementById('history-car-view').style.display = 'block';
+        document.getElementById('repair-details-view').style.display = 'none';
+
+        // Рендерим историю ремонтов
+        this.renderServiceHistory(carId);
 
         setTimeout(() => this.checkScrollNeeded(), 100);
+    },
+
+    showRepairDetails: function(carId, repairId) {
+        console.log('Showing repair details:', carId, repairId);
+
+        const repairs = serviceHistoryDB[carId];
+        if (!repairs) {
+            console.error('No repairs found for car:', carId);
+            return;
+        }
+
+        const repair = repairs.find(r => r.id === repairId);
+        if (!repair) {
+            console.error('Repair not found:', repairId);
+            return;
+        }
+
+        // Скрываем список и показываем детали
+        document.getElementById('history-car-view').style.display = 'none';
+        document.getElementById('repair-details-view').style.display = 'block';
+
+        // Заполняем информацию о ремонте
+        const infoGrid = document.getElementById('repair-info-grid');
+        infoGrid.innerHTML = `
+    <div class="info-item">
+        <span class="info-label">Дата ремонта:</span>
+        <span class="info-value">${repair.startDate || repair.date}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Пробег:</span>
+        <span class="info-value">${repair.mileage}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Тип ремонта:</span>
+        <span class="info-value">${repair.type}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Стоимость:</span>
+        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
+    </div>
+    <div class="info-item full-width">
+        <span class="info-label">Описание:</span>
+        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
+    </div>
+`;
+
+        // Обновляем фотографии
+        this.updatePhotoGallery(repair.photos || [], 'repair-photos-gallery');
+        document.getElementById('repair-photos-count').textContent =
+            `${repair.photos ? repair.photos.length : 0} ${this.getWordForm(repair.photos ? repair.photos.length : 0, ['фото', 'фото', 'фото'])}`;
+
+        // Обновляем документы
+        this.updateDocumentsList(repair.documents || [], 'repair-documents-list');
+        document.getElementById('repair-documents-count').textContent =
+            `${repair.documents ? repair.documents.length : 0} ${this.getWordForm(repair.documents ? repair.documents.length : 0, ['документ', 'документа', 'документов'])}`;
+    },
+
+// Добавляем функцию для возврата из деталей ремонта
+    goBackFromRepairDetails: function() {
+        document.getElementById('repair-details-view').style.display = 'none';
+        document.getElementById('history-car-view').style.display = 'block';
+    },
+
+    renderServiceHistory: function(carId) {
+        const container = document.getElementById('repairs-list-container');
+        const repairs = serviceHistoryDB[carId] || [];
+
+        if (repairs.length === 0) {
+            container.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-history" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 16px;"></i>
+            <p style="color: var(--gray); text-align: center; padding: 40px;">История обслуживания отсутствует</p>
+        </div>
+    `;
+            return;
+        }
+
+        // Сортируем ремонты по дате (новые сверху)
+        const sortedRepairs = [...repairs].sort((a, b) => {
+            return new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-'));
+        });
+
+        container.innerHTML = sortedRepairs.map(repair => `
+    <div class="repair-card" onclick="App.showRepairDetails(${carId}, ${repair.id})">
+        <div class="repair-header">
+            <span class="repair-date">${repair.date}</span>
+            <span class="repair-type">${repair.type}</span>
+        </div>
+        <h3 class="repair-title">${repair.title}</h3>
+        <div class="repair-details">
+            <span class="repair-mileage"><i class="fas fa-tachometer-alt"></i> ${repair.mileage}</span>
+        </div>
+        <div class="repair-meta">
+            <span class="repair-photos-count ${repair.photos && repair.photos.length === 0 ? 'disabled' : ''}">
+                <i class="fas fa-camera"></i> ${repair.photos ? repair.photos.length : 0}
+            </span>
+            <span class="repair-documents-count ${repair.documents && repair.documents.length === 0 ? 'disabled' : ''}">
+                <i class="fas fa-file-alt"></i> ${repair.documents ? repair.documents.length : 0}
+            </span>
+        </div>
+    </div>
+`).join('');
     },
 
     showCarSelectionHistory: function() {
         this.historyCarId = null;
-        document.getElementById('current-screen-title').textContent = 'История обслуживания';
-        this.renderStandardHistory();
-        setTimeout(() => this.checkScrollNeeded(), 100);
+        document.getElementById('history-selection-view').style.display = 'block';
+        document.getElementById('history-car-view').style.display = 'none';
+        document.getElementById('repair-details-view').style.display = 'none';
+        this.updateHistoryCarsList();
     },
 
-    renderExistingHistory: function(carId) {
-        const historyView = document.getElementById('history-view');
-        if (!historyView) return;
+    updateHistoryCarsList: function() {
+        const historyCarsList = document.getElementById('history-cars-list');
+        if (!historyCarsList) return;
 
-        const car = carsDatabase.find(c => c.id === carId);
-        const carTitle = car ? `${car.brand} ${car.model} (${car.number})` : 'Автомобиль';
+        historyCarsList.innerHTML = '';
 
-        const serviceHistory = this.getServiceHistoryForCar(carId);
-
-        historyView.innerHTML = `
-        <div class="history-list">
-            <h3>${carTitle}</h3>
-            
-            ${serviceHistory.length > 0 ?
-            serviceHistory.map(service => `
-                    <div class="history-item">
-                        <h3><span class="history-date">${service.date}</span> - ${service.title}</h3>
-                        <p><i class="fas fa-car-crash"></i> ${service.description}</p>
-                        <p><i class="fas fa-tachometer-alt"></i> Пробег: ${service.mileage} км</p>
-                        <p><i class="fas fa-ruble-sign"></i> Стоимость: ${service.totalCost.toLocaleString('ru-RU')} руб.</p>
-                        
-                        ${service.workItems && service.workItems.length > 0 ? `
-                            <div class="parts-list">
-                                <p><strong>Работы:</strong></p>
-                                <ul>
-                                    ${service.workItems.map(item => `<li>${item.name} - ${item.cost.toLocaleString('ru-RU')} руб.</li>`).join('')}
-                                </ul>
-                            </div>
-                        ` : ''}
-                        
-                        ${service.parts && service.parts.length > 0 ? `
-                            <div class="parts-list">
-                                <p><strong>Запчасти:</strong></p>
-                                <ul>
-                                    ${service.parts.map(part => `<li>${part.name} - ${part.quantity} шт. × ${part.price.toLocaleString('ru-RU')} руб.</li>`).join('')}
-                                </ul>
-                            </div>
-                        ` : ''}
-                    </div>
-                `).join('')
-            :
-            '<p style="padding: 20px; text-align: center; color: var(--gray);">История обслуживания отсутствует</p>'
+        if (carsDatabase.length === 0) {
+            historyCarsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-car" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 16px;"></i>
+                <p style="color: var(--gray); text-align: center;">У вас нет автомобилей в истории</p>
+            </div>
+        `;
+            return;
         }
-        </div>
-    `;
+
+        carsDatabase.forEach(car => {
+            const carCard = document.createElement('div');
+            carCard.className = 'car-card';
+            carCard.onclick = () => this.showCarHistory(car.id);
+            carCard.innerHTML = `
+            <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
+            <p>Госномер: ${car.number}</p>
+            <div class="car-meta">
+                <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
+                <span class="status-badge">${getStatusText(car.status)}</span>
+            </div>
+        `;
+            historyCarsList.appendChild(carCard);
+        });
     },
 
-    renderStandardHistory: function() {
-        const historyView = document.getElementById('history-view');
-        if (!historyView) return;
+    showRepairDetails: function(carId, repairId) {
+        console.log('Showing repair details:', carId, repairId);
 
-        historyView.innerHTML = `
-        <div class="history-list">
-            <p>Выберите автомобиль для просмотра истории:</p>
-            <div id="history-cars-list">
-                <!-- Список автомобилей будет заполнен динамически -->
+        const repairs = serviceHistoryDB[carId];
+        if (!repairs) {
+            console.error('No repairs found for car:', carId);
+            return;
+        }
+
+        const repair = repairs.find(r => r.id === repairId);
+        if (!repair) {
+            console.error('Repair not found:', repairId);
+            return;
+        }
+
+        // Скрываем список и показываем детали
+        document.getElementById('history-car-view').style.display = 'none';
+        document.getElementById('repair-details-view').style.display = 'block';
+
+        // Заполняем информацию о ремонте
+        const infoGrid = document.getElementById('repair-info-grid');
+        infoGrid.innerHTML = `
+    <div class="info-item">
+        <span class="info-label">Дата ремонта:</span>
+        <span class="info-value">${repair.startDate || repair.date}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Пробег:</span>
+        <span class="info-value">${repair.mileage}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Тип ремонта:</span>
+        <span class="info-value">${repair.type}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Стоимость:</span>
+        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
+    </div>
+    <div class="info-item full-width">
+        <span class="info-label">Описание:</span>
+        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
+    </div>
+`;
+
+        // Берем фотографии из первого автомобиля пользователя "1"
+        const firstCar = carsDatabase.find(car => car.id === 1);
+        let repairPhotos = repair.photos || [];
+
+        // Если у ремонта нет фотографий, берем из первого автомобиля
+        if (repairPhotos.length === 0 && firstCar) {
+            // Собираем все фотографии из автомобиля
+            const allCarPhotos = [];
+            for (const status in firstCar.photos) {
+                if (firstCar.photos[status] && Array.isArray(firstCar.photos[status])) {
+                    allCarPhotos.push(...firstCar.photos[status]);
+                }
+            }
+            repairPhotos = allCarPhotos.slice(0, 5); // Берем первые 5 фотографий
+        }
+
+        // Берем документы из первого автомобиля пользователя "1"
+        let repairDocuments = repair.documents || [];
+
+        // Если у ремонта нет документов, берем из первого автомобиля
+        if (repairDocuments.length === 0 && firstCar) {
+            // Собираем все документы из автомобиля
+            const allCarDocuments = [];
+            for (const type in firstCar.documents) {
+                if (firstCar.documents[type] && Array.isArray(firstCar.documents[type])) {
+                    allCarDocuments.push(...firstCar.documents[type]);
+                }
+            }
+            repairDocuments = allCarDocuments.slice(0, 3); // Берем первые 3 документа
+        }
+
+        // Обновляем документы
+        this.updateDocumentsList(repairDocuments, 'repair-documents-list');
+        document.getElementById('repair-documents-count').textContent =
+            `${repairDocuments.length} ${this.getWordForm(repairDocuments.length, ['документ', 'документа', 'документов'])}`;
+    },
+
+    updateDocumentsList: function(documents, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+
+        if (!documents || documents.length === 0) {
+            container.innerHTML = '<p class="empty-text">Документы отсутствуют</p>';
+            return;
+        }
+
+        container.innerHTML = documents.map(doc => `
+        <div class="document-item">
+            <div class="document-icon"><i class="${this.getDocumentIcon(doc.type)}"></i></div>
+            <div class="document-info">
+                <div class="document-name">${doc.name}</div>
+                <div class="document-meta">${doc.date} · ${doc.size}</div>
+            </div>
+            <div class="document-actions">
+                <button class="document-btn" onclick="App.downloadDocument('${doc.url || '#'}', '${doc.name}')">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="document-btn" onclick="App.shareDocument('${doc.url || '#'}', '${doc.name}')">
+                    <i class="fas fa-share-alt"></i>
+                </button>
             </div>
         </div>
-    `;
-
-        this.updateHistoryCarsList();
+    `).join('');
     },
 
     updateHistoryCarsList: function() {
@@ -697,50 +987,6 @@ var App = {
             this.historyCarId = null;
             this.navigateTo('history');
         }
-    },
-
-    getServiceHistoryForCar: function(carId) {
-        const serviceHistoryDB = {
-            1: [
-                {
-                    date: '15.04.2023',
-                    mileage: '45,230',
-                    title: 'Кузовной ремонт',
-                    description: 'Устранение повреждений правого борта после ДТП',
-                    workItems: [
-                        { name: 'Рихтовка правого борта', cost: 25000 },
-                        { name: 'Покраска элементов', cost: 40000 },
-                        { name: 'Замена молдинга', cost: 5000 }
-                    ],
-                    parts: [
-                        { name: 'Молдинг правого борта', quantity: 1, price: 3500 },
-                        { name: 'ЛКМ', quantity: 2, price: 7500 }
-                    ],
-                    totalCost: 87500,
-                    warranty: '12 месяцев'
-                }
-            ],
-            2: [
-                {
-                    date: '20.03.2023',
-                    mileage: '18,750',
-                    title: 'Покраска переднего бампера',
-                    description: 'Локальный ремонт ЛКП переднего бампера',
-                    workItems: [
-                        { name: 'Подготовка поверхности', cost: 5000 },
-                        { name: 'Покраска бампера', cost: 15000 }
-                    ],
-                    parts: [
-                        { name: 'ЛКМ', quantity: 1, price: 4000 },
-                        { name: 'Лак', quantity: 1, price: 3000 }
-                    ],
-                    totalCost: 27000,
-                    warranty: '12 месяцев'
-                }
-            ]
-        };
-
-        return serviceHistoryDB[carId] || [];
     },
 
     updateRepairStatus(statusItems) {
@@ -804,7 +1050,10 @@ var App = {
 
     updatePhotoGallery(photos, containerId = 'modern-gallery') {
         const gallery = document.getElementById(containerId);
-        if (!gallery) return;
+        if (!gallery) {
+            console.error('Gallery container not found:', containerId);
+            return;
+        }
 
         gallery.innerHTML = '';
 
@@ -1079,7 +1328,7 @@ var App = {
         countElement.textContent = `${totalDocuments} ${this.getWordForm(totalDocuments, ['документ', 'документа', 'документов'])}`;
     },
 
-    getWordForm(number, forms) {
+    getWordForm: function(number, forms) {
         number = Math.abs(number) % 100;
         const n1 = number % 10;
         if (number > 10 && number < 20) return forms[2];
@@ -1112,6 +1361,16 @@ var App = {
         } else {
             alert(`Ссылка на документ "${name}": ${url}\n\nСкопируйте и отправьте вручную.`);
         }
+    },
+
+    updateProfile: function() {
+        // Здесь должна быть логика получения данных пользователя
+        // Пока используем тестовые данные
+        this.updateElementText('profile-name', 'Иван Петров');
+        this.updateElementText('profile-phone', '+7 (912) 345-67-89');
+        this.updateElementText('profile-email', 'ivan.petrov@example.com');
+
+        console.log('Profile updated successfully');
     },
 
     writeToManager() {
@@ -1682,25 +1941,6 @@ function getStatusText(status) {
     }
 }
 
-function getDocumentTypeText(type) {
-    switch(type) {
-        case 'work-certificate': return 'Акт выполненных работ';
-        case 'payment-receipt': return 'Чек об оплате';
-        case 'invoice': return 'Счет-фактура';
-        case 'contract': return 'Договор';
-        case 'warranty': return 'Гарантийный талон';
-        default: return 'Документ';
-    }
-}
-
-function formatPhoneNumber(input) {
-    let value = input.value.replace(/\D/g, '');
-    if (value.length > 0) {
-        value = value.match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-        input.value = !value[2] ? value[1] : '+7 (' + value[2] + ') ' + value[3] + (value[4] ? '-' + value[4] : '') + (value[5] ? '-' + value[5] : '');
-    }
-}
-
 // Функции для работы с данными
 function initTestData() { updateCarsTable(); updateClientsTable(); }
 
@@ -1784,24 +2024,122 @@ function logout() {
     document.getElementById('password').value = '';
 }
 
-// Инициализация при загрузке DOM
-document.addEventListener('DOMContentLoaded', function() {
-    App.init();
-    document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('user-tabbar').style.display = 'none';
-    document.getElementById('admin-tabbar').style.display = 'none';
+function updateRepairPhotoGallery(photos, containerId) {
+    const gallery = document.getElementById(containerId);
+    if (!gallery) return;
 
-    const phoneInput = document.getElementById('new-car-owner-phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            formatPhoneNumber(this);
-        });
+    gallery.innerHTML = '';
+
+    if (!photos || photos.length === 0) {
+        gallery.innerHTML = `
+            <div class="empty-gallery" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--gray);">
+                <i class="fas fa-camera" style="font-size: 3rem; margin-bottom: 16px; display: block; color: var(--gray-light);"></i>
+                <p>Фотографии отсутствуют</p>
+            </div>
+        `;
+        return;
     }
 
-    // Добавляем обработчик ресайза
-    window.addEventListener('resize', function() {
-        if (document.getElementById('app').classList.contains('show')) {
-            App.checkScrollNeeded();
-        }
+    photos.forEach((photo, index) => {
+        const photoElement = document.createElement('div');
+        photoElement.className = 'gallery-item';
+        photoElement.onclick = () => App.openCarousel(photos, index);
+
+        const img = document.createElement('img');
+        img.src = photo.dataUrl || photo.url;
+        img.alt = photo.caption || 'Фото ремонта';
+        img.loading = 'lazy';
+
+        photoElement.appendChild(img);
+        gallery.appendChild(photoElement);
     });
-});
+}
+
+function downloadDocument(url, name) {
+    // Эмуляция скачивания - в реальном приложении здесь будет fetch + создание ссылки
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    console.log(`Скачивание документа: ${name}`);
+}
+
+function shareDocument(url, name) {
+    if (navigator.share) {
+        navigator.share({
+            title: name,
+            text: `Документ из автосервиса: ${name}`,
+            url: url
+        }).catch(error => {
+            console.log('Ошибка при попытке поделиться:', error);
+            fallbackShare(url, name);
+        });
+    } else {
+        fallbackShare(url, name);
+    }
+}
+
+function fallbackShare(url, name) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert(`Ссылка на документ "${name}" скопирована в буфер обмена:\n${url}`);
+        }).catch(err => {
+            alert(`Ссылка на документ "${name}": ${url}\nСкопируйте и отправьте вручную.`);
+        });
+    } else {
+        alert(`Ссылка на документ "${name}": ${url}\nСкопируйте и отправьте вручную.`);
+    }
+}
+
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length === 0) return;
+
+    // Форматирование российского номера
+    if (value.startsWith('7') || value.startsWith('8')) {
+        if (value.length === 1) {
+            input.value = '+7 (';
+        } else if (value.length <= 4) {
+            input.value = '+7 (' + value.substring(1);
+        } else if (value.length <= 7) {
+            input.value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4);
+        } else if (value.length <= 9) {
+            input.value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7);
+        } else {
+            input.value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
+        }
+    } else if (value.startsWith('9') && value.length <= 10) {
+        // Для номеров без +7/8 в начале
+        if (value.length <= 3) {
+            input.value = value;
+        } else if (value.length <= 6) {
+            input.value = value.substring(0, 3) + '-' + value.substring(3);
+        } else {
+            input.value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6);
+        }
+    }
+}
+
+// Исправленная getDocumentTypeText
+function getDocumentTypeText(type) {
+    switch(type) {
+        case 'work-certificate': return 'Акт выполненных работ';
+        case 'payment-receipt': return 'Чек об оплате';
+        case 'invoice': return 'Счет-фактура';
+        case 'contract': return 'Договор';
+        case 'warranty': return 'Гарантийный талон';
+        default: return 'Документ';
+    }
+}
+
+// Также добавьте эту функцию для обновления счетчика фотографий в ремонте
+function updateRepairPhotosCount(count) {
+    const countElement = document.getElementById('repair-photos-count');
+    if (countElement) {
+        countElement.textContent = `${count} ${App.getWordForm(count, ['фото', 'фото', 'фото'])}`;
+    }
+}

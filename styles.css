@@ -857,10 +857,11 @@ body {
     100% { transform: scale(1); }
 }
 
-    /* Единый отступ для всех страниц в пользовательском режиме */
-    .user-mode .main-content {
-        padding-top: 100px !important;
-    }
+.user-mode #cars-list-view,
+.user-mode #car-details-view,
+.user-mode #history-view {
+    padding-top: 20px !important;
+}
 
     /* Убедитесь, что все контейнеры страниц имеют одинаковую структуру */
     .user-mode #cars-list-view,
@@ -3095,4 +3096,317 @@ input[type="tel"] {
 /* Плавная анимация для индикаторов */
 .carousel-indicator {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Стили для истории обслуживания */
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 16px;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.btn-back:hover {
+    background: var(--primary-light);
+}
+
+.repair-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.repair-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.repair-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.repair-date {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.95rem;
+}
+
+.repair-type {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.repair-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--dark);
+    line-height: 1.4;
+}
+
+.repair-details {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.repair-mileage,
+.repair-cost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--gray-dark);
+}
+
+.repair-meta {
+    display: flex;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.repair-photos-count,
+.repair-documents-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--primary);
+}
+
+.repair-photos-count.disabled,
+.repair-documents-count.disabled {
+    color: var(--gray-light);
+    cursor: not-allowed;
+}
+
+/* Детали ремонта */
+.repair-details-content {
+    padding: 0 20px 20px;
+}
+
+.repair-info-section {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+}
+
+.repair-info-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.repair-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: var(--gray);
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+.info-item.full-width .info-value {
+    font-weight: normal;
+    line-height: 1.5;
+}
+
+.repair-photos-section,
+.repair-documents-section {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.empty-text {
+    text-align: center;
+    color: var(--gray);
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .repair-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .repair-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .repair-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .repair-details-content {
+        padding: 0 16px 16px;
+    }
+}
+
+/* Исправление для отображения истории */
+#history-car-view {
+    display: none;
+}
+
+#repair-details-view {
+    display: none;
+}
+
+.repairs-container {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin: 16px 0;
+    box-shadow: var(--card-shadow);
+}
+
+.repairs-container h3 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Убедитесь, что все элементы скрыты по умолчанию */
+#history-selection-view,
+#history-car-view,
+#repair-details-view {
+    display: none;
+}
+
+/* Стили для кнопок навигации в истории */
+.repairs-container .btn-block {
+    margin-top: 20px;
+}
+
+.repair-details-content .btn-block {
+    margin-top: 30px;
+}
+
+/* Убираем лишние отступы */
+#history-view .main-content {
+    padding-top: 20px !important;
+}
+
+/* Адаптивность для истории */
+@media (max-width: 480px) {
+    .repairs-container {
+        padding: 12px;
+        margin: 12px 0;
+    }
+
+    .repair-details-content {
+        padding: 0 12px 12px;
+    }
+}
+/* Унифицированные отступы для ВСЕХ страниц */
+.user-mode #cars-list-view,
+.user-mode #car-details-view,
+.user-mode #history-view,
+.user-mode #profile-view {
+    padding: 20px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+/* Специфичные стили для страницы профиля */
+#profile-view .profile-view {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    margin: 0;
+}
+
+/* Для iOS безопасные зоны */
+.ios-device.user-mode #cars-list-view,
+.ios-device.user-mode #car-details-view,
+.ios-device.user-mode #history-view,
+.ios-device.user-mode #profile-view {
+    padding-top: calc(20px + env(safe-area-inset-top));
+}
+
+/* Убираем любые дополнительные отступы */
+.user-mode #profile-view {
+    padding-top: 20px !important;
+}
+
+.user-mode #profile-view .profile-view {
+    margin-top: 0 !important;
+    padding-top: 20px !important;
 }

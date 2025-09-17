@@ -179,41 +179,113 @@
 
         <!-- History View (hidden by default) -->
         <div id="history-view" style="display: none;">
-            <div class="history-list">
-                <!-- Контент будет заполняться динамически -->
+
+            <!-- Вид выбора автомобиля -->
+            <div id="history-selection-view">
+                <div id="history-cars-list" class="cars-list">
+                    <!-- Автомобили будут добавлены динамически -->
+                </div>
             </div>
-        </div>
 
-        <!-- Profile View (hidden by default) -->
-        <div id="profile-view" style="display: none;">
-            <div class="profile-safe-area">
-                <div class="profile-view">
-                    <h2><i class="fas fa-user"></i> Мой профиль</h2>
+            <!-- Вид конкретного автомобиля -->
+            <div id="history-car-view" style="display: none;">
 
-                    <div class="profile-info">
-                        <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Иван Петров</p>
-                        <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (912) 345-67-89</p>
-                        <p><strong><i class="fas fa-envelope"></i> Email:</strong> ivan.petrov@example.com</p>
-                        <p><strong><i class="fas fa-car"></i> Автомобилей:</strong> 2</p>
+                <div class="repairs-container">
+                    <h3>История ремонтов</h3>
+                    <div id="repairs-list-container">
+                        <!-- Список ремонтов будет заполнен динамически -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Детали ремонта -->
+            <div id="repair-details-view" style="display: none;">
+
+                <div class="repair-details-content">
+                    <div class="repair-info-section">
+                        <h3>Информация о ремонте</h3>
+                        <div id="repair-info-grid" class="repair-info-grid">
+                            <!-- Информация будет заполнена динамически -->
+                        </div>
                     </div>
 
-                    <div class="profile-actions">
-                        <button class="btn btn-secondary btn-block" onclick="App.writeToManager()">
-                            <i class="fas fa-comment-dots"></i> Написать менеджеру
-                        </button>
-                        <button class="btn btn-secondary btn-block" onclick="App.callService()">
-                            <i class="fas fa-phone-alt"></i> Позвонить в автосервис
-                        </button>
+                    <div class="repair-photos-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-camera"></i> Фотографии</h3>
+                            <span id="repair-photos-count">1 фото</span>
+                        </div>
+
+                        <!-- Современная галерея -->
+                        <div class="modern-gallery" id="repair-photos-gallery">
+                            <!-- Фотографии будут заполнены динамически -->
+                        </div>
+
+                        <!-- Карусель для полноэкранного просмотра -->
+                        <div class="gallery-carousel" id="repair-gallery-carousel" style="display: none;">
+                            <div class="carousel-header">
+                                <button class="carousel-close" onclick="App.closeRepairCarousel()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <div class="carousel-track-container">
+                                <div class="carousel-track" id="repair-carousel-track">
+                                    <!-- Будет заполнено динамически -->
+                                </div>
+                            </div>
+
+                            <button class="carousel-nav carousel-prev" onclick="App.prevRepairPhoto()" id="repair-carousel-prev">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-nav carousel-next" onclick="App.nextRepairPhoto()" id="repair-carousel-next">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+
+                            <div class="carousel-indicators" id="repair-carousel-indicators">
+                                <!-- Будет заполнено динамически -->
+                            </div>
+                        </div>
                     </div>
 
-                    <button class="btn btn-primary btn-block" onclick="App.logout()">
-                        <i class="fas fa-sign-out-alt"></i> Выйти
-                    </button>
+                    <div class="repair-documents-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-file-alt"></i> Документы</h3>
+                            <span id="repair-documents-count">0 документов</span>
+                        </div>
+                        <div id="repair-documents-list" class="document-list">
+                            <!-- Документы будут заполнены динамически -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Profile View -->
+    <div id="profile-view" style="display: none;">
+        <div class="profile-view">
+            <h2><i class="fas fa-user"></i> Мой профиль</h2>
+
+            <div class="profile-info">
+                <p><strong><i class="fas fa-user"></i> Имя:</strong> <span id="profile-name">Иван Петров</span></p>
+                <p><strong><i class="fas fa-phone"></i> Телефон:</strong> <span id="profile-phone">+7 (912) 345-67-89</span></p>
+                <p><strong><i class="fas fa-envelope"></i> Email:</strong> <span id="profile-email">ivan.petrov@example.com</span></p>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary btn-block" onclick="App.writeToManager()">
+                    <i class="fas fa-comment"></i> Написать менеджеру
+                </button>
+                <button class="btn btn-secondary btn-block" onclick="App.callService()">
+                    <i class="fas fa-phone"></i> Позвонить в сервис
+                </button>
+            </div>
+
+            <button class="btn btn-secondary btn-block" onclick="App.logout()">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
+        </div>
+    </div>
 
 <!-- Администраторская панель -->
 <div class="admin-container" id="adminSection">
