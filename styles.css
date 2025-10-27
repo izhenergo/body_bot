@@ -3409,3 +3409,14 @@ input[type="tel"] {
     margin-top: 0 !important;
     padding-top: 20px !important;
 }
+
+.btn-online-booking {
+    background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
+    border: none;
+}
+
+.btn-online-booking:hover {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.25);
+}
