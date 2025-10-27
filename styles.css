@@ -892,7 +892,6 @@ body {
 .modal-content {
     padding-top: max(100px, env(safe-area-inset-top)) !important;
 }
-}
 
 /* Responsive Adjustments */
 @media (max-width: 480px) {

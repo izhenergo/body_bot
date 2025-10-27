@@ -36,6 +36,7 @@ var App = {
     currentCar: null,
     historyCarId: null,
     carouselState: null,
+    repairCarouselState: null,
 
     init() {
         this.historyCarId = null;
@@ -211,53 +212,46 @@ var App = {
                 repairStatus: [
                     {
                         id: 1,
-                        date: '10.05.2023',
+                        date: '11.05.2023',
                         title: 'Приемка автомобиля',
-                        description: 'Автомобиль принят на ремонт после ДТП',
+                        description: 'Автомобиль принят на плановое ТО',
                         status: 'completed'
                     },
                     {
                         id: 2,
                         date: '11.05.2023',
-                        title: 'Дефектовка',
-                        description: 'Проведена полная диагностика повреждений',
+                        title: 'Замена масла в ДВС',
+                        description: 'Отработанное масло слито из автомобиля',
                         status: 'completed'
                     },
                     {
                         id: 3,
-                        date: '12.05.2023',
-                        title: 'Рихтовка кузова',
-                        description: 'Устранение вмятин и деформаций кузова',
+                        date: '11.05.2023',
+                        title: 'Замена масла в ДВС',
+                        description: 'Заменен масляный фильтр',
                         status: 'completed'
                     },
                     {
                         id: 4,
-                        date: '~ 15.05.2023',
-                        title: 'Покраска',
-                        description: 'Начата покраска поврежденных элементов',
-                        status: 'active'
+                        date: '11.05.2023',
+                        title: 'Замена масла в ДВС',
+                        description: 'Залито новое масло в ДВС',
+                        status: 'completed'
                     },
                     {
                         id: 5,
-                        date: '~ 18.05.2023',
-                        title: 'Сборка',
-                        description: 'Предстоит сборка после покраски',
-                        status: 'pending'
+                        date: '11.05.2023',
+                        title: 'Готов к выдаче',
+                        description: 'Автомобиль готов к выдаче',
+                        status: 'completed'
                     },
                     {
                         id: 6,
-                        date: '~ 20.05.2023',
-                        title: 'Готов к выдаче',
-                        description: 'Автомобиль будет готов к выдаче',
-                        status: 'pending'
-                    },
-                    {
-                        id: 7,
-                        date: '~ 22.05.2023',
+                        date: '11.05.2023',
                         title: 'Выдан клиенту',
                         description: 'Автомобиль выдан клиенту',
-                        status: 'pending'
-                    }
+                        status: 'completed'
+                    },
                 ]
             },
             {
@@ -419,11 +413,11 @@ var App = {
             1: [
                 {
                     id: 1,
-                    date: '15.05.2023',
-                    startDate: '10.05.2023',
-                    endDate: '15.05.2023',
-                    type: 'Кузовной ремонт',
-                    title: 'Ремонт после ДТП',
+                    date: '11.05.2023',
+                    startDate: '11.05.2023',
+                    endDate: '11.05.2023',
+                    type: 'Замена масла в ДВС',
+                    title: 'Плановое ТО',
                     mileage: '45,230 км',
                     photos: [
                         {
@@ -546,22 +540,13 @@ var App = {
 
         carsList.innerHTML = '';
         carsDatabase.forEach(car => {
-            const statusText = getStatusText(car.status);
-            const statusClass = car.status === 'completed' || car.status === 'ready' ? 'completed' : '';
-
-            // Проверяем, нужен ли перенос текста (более 2 слов)
-            const wordCount = statusText.split(' ').length;
-            const multilineClass = wordCount > 2 ? 'multiline' : '';
-
             const carCard = document.createElement('div');
             carCard.className = 'car-card';
             carCard.setAttribute('data-car-id', car.id);
             carCard.onclick = () => this.showCarDetails(car.id);
             carCard.innerHTML = `
-            <div class="car-status ${statusClass} ${multilineClass}">${statusText}</div>
             <h2><i class="fas fa-car"></i> ${car.brand} ${car.model}</h2>
             <p>Госномер: ${car.number}</p>
-            <p>Статус: ${statusText}</p>
             <div class="car-meta">
                 <span><i class="fas fa-tachometer-alt"></i> ${car.odometer || '0'} км</span>
             </div>
@@ -744,7 +729,7 @@ var App = {
     </div>
     <div class="info-item full-width">
         <span class="info-label">Описание:</span>
-        <span class="info-value">${repair.description || 'Описание отсутствует'}</span>
+        <span class="info-value">${repair.description || 'Описание отсутствует :('}</span>
     </div>
 `;
 
@@ -1039,73 +1024,464 @@ var App = {
         });
     },
 
-    preloadImages(photos) {
-        photos.forEach(photo => {
-            if (photo.dataUrl || photo.url) {
-                const img = new Image();
-                img.src = photo.dataUrl || photo.url;
-            }
-        });
-    },
-
-    updatePhotoGallery(photos, containerId = 'modern-gallery') {
+    updatePhotoGallery: function(photos, containerId) {
         const gallery = document.getElementById(containerId);
-        if (!gallery) {
-            console.error('Gallery container not found:', containerId);
-            return;
-        }
+        if (!gallery) return;
 
         gallery.innerHTML = '';
 
+        if (!photos || photos.length === 0) {
+            gallery.innerHTML = `
+            <div class="empty-gallery" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--gray);">
+                <i class="fas fa-camera" style="font-size: 3rem; margin-bottom: 16px; display: block; color: var(--gray-light);"></i>
+                <p>Фотографии отсутствуют</p>
+            </div>
+        `;
+            return;
+        }
+
+        // Собираем все фотографии в один массив
         const allPhotos = [];
-        for (const status in photos) {
-            if (photos[status] && Array.isArray(photos[status])) {
-                allPhotos.push(...photos[status].map(photo => ({ ...photo, status })));
+        if (typeof photos === 'object' && !Array.isArray(photos)) {
+            // Если photos - это объект с разными статусами (diagnostic, repair, painting и т.д.)
+            for (const status in photos) {
+                if (photos[status] && Array.isArray(photos[status])) {
+                    allPhotos.push(...photos[status]);
+                }
             }
+        } else if (Array.isArray(photos)) {
+            // Если photos - это простой массив
+            allPhotos.push(...photos);
         }
 
         if (allPhotos.length === 0) {
             gallery.innerHTML = `
             <div class="empty-gallery" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--gray);">
                 <i class="fas fa-camera" style="font-size: 3rem; margin-bottom: 16px; display: block; color: var(--gray-light);"></i>
+                <p>Фотографии отсутствуют</p>
             </div>
         `;
             return;
         }
 
-        const photosToShow = allPhotos.slice(0, 9);
-
-        photosToShow.forEach((photo, index) => {
+        // Отображаем фотографии
+        allPhotos.forEach((photo, index) => {
             const photoElement = document.createElement('div');
             photoElement.className = 'gallery-item';
-            photoElement.onclick = () => this.openCarousel(allPhotos, index);
+            photoElement.onclick = () => App.openCarousel(allPhotos, index);
 
             const img = document.createElement('img');
-            img.src = photo.dataUrl || photo.url;
+
+            // Исправляем пути к изображениям
+            let imageUrl = photo.dataUrl || photo.url;
+
+            // Если это относительный путь, добавляем базовый URL
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                if (imageUrl.startsWith('images/')) {
+                    // Оставляем как есть, если путь правильный
+                } else if (!imageUrl.includes('/')) {
+                    imageUrl = 'images/' + imageUrl;
+                }
+            }
+
+            img.src = imageUrl;
             img.alt = photo.caption || 'Фото ремонта';
             img.loading = 'lazy';
 
+            // Добавляем обработчик ошибок
+            img.onerror = function() {
+                console.error('Ошибка загрузки изображения:', imageUrl);
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+                this.alt = 'Изображение не найдено';
+            };
+
+            // Убираем все подписи и баннеры - показываем только изображение
             photoElement.appendChild(img);
             gallery.appendChild(photoElement);
         });
 
-        if (allPhotos.length > 9) {
-            const lastItem = document.createElement('div');
-            lastItem.className = 'gallery-item';
-            lastItem.onclick = () => this.openCarousel(allPhotos, 8);
+        // Обновляем счетчик фотографий
+        this.updatePhotosCount(allPhotos.length);
+    },
+
+// Упрощенный метод для открытия карусели
+    openCarousel: function(photos, startIndex) {
+        console.log('Opening carousel with photos:', photos);
+
+        // Фильтруем только фотографии с валидными URL
+        const validPhotos = photos.filter(photo => {
+            const url = photo.dataUrl || photo.url;
+            return url && (url.startsWith('http') || url.startsWith('data:') || url.includes('images/'));
+        });
+
+        if (validPhotos.length === 0) {
+            alert('Нет доступных фотографий для просмотра');
+            return;
+        }
+
+        this.carouselState = {
+            photos: validPhotos,
+            currentIndex: Math.min(startIndex, validPhotos.length - 1),
+            total: validPhotos.length
+        };
+
+        const carousel = document.getElementById('gallery-carousel');
+        const track = document.getElementById('carousel-track');
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+        const indicators = document.getElementById('carousel-indicators');
+
+        if (!carousel || !track) {
+            console.error('Carousel elements not found');
+            return;
+        }
+
+        // Очищаем и заполняем трек
+        track.innerHTML = '';
+        validPhotos.forEach((photo, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
 
             const img = document.createElement('img');
-            img.src = allPhotos[8].dataUrl || allPhotos[8].url;
-            img.alt = 'Еще фото';
+            let imageUrl = photo.dataUrl || photo.url;
 
-            const moreIndicator = document.createElement('div');
-            moreIndicator.className = 'gallery-more-items';
-            moreIndicator.textContent = `+${allPhotos.length - 8}`;
+            // Исправляем пути к изображениям для карусели
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                if (imageUrl.startsWith('images/')) {
+                    // Оставляем как есть
+                } else if (!imageUrl.includes('/')) {
+                    imageUrl = 'images/' + imageUrl;
+                }
+            }
 
-            lastItem.appendChild(img);
-            lastItem.appendChild(moreIndicator);
-            gallery.appendChild(lastItem);
+            img.src = imageUrl;
+            img.alt = photo.caption || 'Фото ремонта';
+            img.loading = 'eager';
+
+            img.onerror = function() {
+                console.error('Error loading carousel image:', imageUrl);
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+            };
+
+            // Добавляем подпись если есть
+            if (photo.caption) {
+                const caption = document.createElement('div');
+                caption.className = 'carousel-caption';
+                caption.textContent = photo.caption;
+                slide.appendChild(caption);
+            }
+
+            slide.appendChild(img);
+            track.appendChild(slide);
+        });
+
+        // Обновляем индикаторы
+        indicators.innerHTML = '';
+        validPhotos.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.className = `carousel-indicator ${index === this.carouselState.currentIndex ? 'active' : ''}`;
+            indicator.onclick = () => this.goToPhoto(index);
+            indicators.appendChild(indicator);
+        });
+
+        // Показываем карусель
+        carousel.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Устанавливаем начальную позицию
+        this.goToPhoto(this.carouselState.currentIndex);
+
+        console.log('Carousel opened successfully');
+    },
+
+// Также добавьте метод для обновления счетчика фотографий
+    updatePhotosCount: function(count) {
+        const countElement = document.getElementById('photos-count');
+        if (countElement) {
+            countElement.textContent = `${count} ${this.getWordForm(count, ['фото', 'фото', 'фото'])}`;
         }
+    },
+
+    showRepairDetails: function(carId, repairId) {
+        console.log('Showing repair details:', carId, repairId);
+
+        const repairs = serviceHistoryDB[carId];
+        if (!repairs) {
+            console.error('No repairs found for car:', carId);
+            return;
+        }
+
+        const repair = repairs.find(r => r.id === repairId);
+        if (!repair) {
+            console.error('Repair not found:', repairId);
+            return;
+        }
+
+        // Скрываем список и показываем детали
+        document.getElementById('history-car-view').style.display = 'none';
+        document.getElementById('repair-details-view').style.display = 'block';
+
+        // Заполняем информацию о ремонте
+        const infoGrid = document.getElementById('repair-info-grid');
+        infoGrid.innerHTML = `
+    <div class="info-item">
+        <span class="info-label">Дата ремонта:</span>
+        <span class="info-value">${repair.startDate || repair.date}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Пробег:</span>
+        <span class="info-value">${repair.mileage}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Тип ремонта:</span>
+        <span class="info-value">${repair.type}</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Стоимость:</span>
+        <span class="info-value">${repair.totalCost ? repair.totalCost.toLocaleString('ru-RU') : '0'} руб.</span>
+    </div>
+    <div class="info-item full-width">
+        <span class="info-label">Описание:</span>
+        <span class="info-value">${repair.description || 'Описание отсутствует :('}</span>
+    </div>
+`;
+
+        // Берем фотографии из первого автомобиля пользователя "1"
+        const firstCar = carsDatabase.find(car => car.id === 1);
+        let repairPhotos = repair.photos || [];
+
+        // Если у ремонта нет фотографий, берем из первого автомобиля
+        if (repairPhotos.length === 0 && firstCar) {
+            // Собираем все фотографии из автомобиля
+            const allCarPhotos = [];
+            for (const status in firstCar.photos) {
+                if (firstCar.photos[status] && Array.isArray(firstCar.photos[status])) {
+                    allCarPhotos.push(...firstCar.photos[status]);
+                }
+            }
+            repairPhotos = allCarPhotos.slice(0, 5); // Берем первые 5 фотографий
+        }
+
+        // Обновляем фотографии ремонта с использованием новой галереи
+        this.updatePhotoGallery(repairPhotos, 'repair-photos-gallery');
+        document.getElementById('repair-photos-count').textContent =
+            `${repairPhotos.length} ${this.getWordForm(repairPhotos.length, ['фото', 'фото', 'фото'])}`;
+
+        // Берем документы из первого автомобиля пользователя "1"
+        let repairDocuments = repair.documents || [];
+
+        // Если у ремонта нет документов, берем из первого автомобиля
+        if (repairDocuments.length === 0 && firstCar) {
+            // Собираем все документы из автомобиля
+            const allCarDocuments = [];
+            for (const type in firstCar.documents) {
+                if (firstCar.documents[type] && Array.isArray(firstCar.documents[type])) {
+                    allCarDocuments.push(...firstCar.documents[type]);
+                }
+            }
+            repairDocuments = allCarDocuments.slice(0, 3); // Берем первые 3 документа
+        }
+
+        // Обновляем документы
+        this.updateDocumentsList(repairDocuments, 'repair-documents-list');
+        document.getElementById('repair-documents-count').textContent =
+            `${repairDocuments.length} ${this.getWordForm(repairDocuments.length, ['документ', 'документа', 'документов'])}`;
+    },
+
+    // Методы для карусели ремонта
+    openRepairCarousel: function(photos, startIndex) {
+        // Фильтруем фотографии с корректными URL
+        const validPhotos = photos.filter(photo =>
+            photo.dataUrl || photo.url
+        );
+
+        if (validPhotos.length === 0) {
+            alert('Нет доступных фотографий для просмотра');
+            return;
+        }
+
+        this.repairCarouselState = {
+            photos: validPhotos,
+            currentIndex: Math.min(startIndex, validPhotos.length - 1),
+            total: validPhotos.length
+        };
+
+        const carousel = document.getElementById('repair-gallery-carousel');
+        const track = document.getElementById('repair-carousel-track');
+        const prevBtn = document.getElementById('repair-carousel-prev');
+        const nextBtn = document.getElementById('repair-carousel-next');
+        const indicators = document.getElementById('repair-carousel-indicators');
+
+        if (!carousel || !track) return;
+
+        // Очищаем и заполняем трек
+        track.innerHTML = '';
+        validPhotos.forEach((photo, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+
+            const img = document.createElement('img');
+            img.src = photo.dataUrl || photo.url;
+            img.alt = photo.caption || 'Фото ремонта';
+            img.loading = 'eager';
+            img.onerror = function() {
+                // Запасное изображение при ошибке загрузки
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+                this.alt = 'Изображение не найдено';
+            };
+
+            slide.appendChild(img);
+            track.appendChild(slide);
+        });
+
+        // Обновляем индикаторы
+        indicators.innerHTML = '';
+        validPhotos.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.className = `carousel-indicator ${index === this.repairCarouselState.currentIndex ? 'active' : ''}`;
+            indicator.onclick = () => this.goToRepairPhoto(index);
+            indicators.appendChild(indicator);
+        });
+
+        // Обновляем состояние кнопок навигации
+        this.updateRepairNavButtons();
+
+        // Показываем карусель
+        carousel.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Устанавливаем начальную позицию
+        this.goToRepairPhoto(this.repairCarouselState.currentIndex);
+
+        // Добавляем обработчики жестов
+        this.addRepairCarouselGestures();
+    },
+
+    updateRepairNavButtons: function() {
+        const prevBtn = document.getElementById('repair-carousel-prev');
+        const nextBtn = document.getElementById('repair-carousel-next');
+
+        if (prevBtn) prevBtn.disabled = this.repairCarouselState.currentIndex === 0;
+        if (nextBtn) nextBtn.disabled = this.repairCarouselState.currentIndex === this.repairCarouselState.total - 1;
+    },
+
+    addRepairCarouselGestures: function() {
+        const trackContainer = document.querySelector('#repair-gallery-carousel .carousel-track-container');
+        if (!trackContainer) return;
+
+        let startX = 0;
+        let isDragging = false;
+        const swipeThreshold = 50;
+
+        const onStart = (e) => {
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            isDragging = true;
+            document.querySelector('#repair-carousel-track').style.transition = 'none';
+        };
+
+        const onMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+        };
+
+        const onEnd = (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const diffX = endX - startX;
+
+            document.querySelector('#repair-carousel-track').style.transition = 'transform 0.3s ease';
+
+            if (Math.abs(diffX) > swipeThreshold) {
+                if (diffX > 0) {
+                    this.prevRepairPhoto();
+                } else {
+                    this.nextRepairPhoto();
+                }
+            } else {
+                this.goToRepairPhoto(this.repairCarouselState.currentIndex);
+            }
+        };
+
+        // Удаляем старые обработчики
+        trackContainer.removeEventListener('touchstart', onStart);
+        trackContainer.removeEventListener('touchmove', onMove);
+        trackContainer.removeEventListener('touchend', onEnd);
+        trackContainer.removeEventListener('mousedown', onStart);
+        trackContainer.removeEventListener('mousemove', onMove);
+        trackContainer.removeEventListener('mouseup', onEnd);
+        trackContainer.removeEventListener('mouseleave', onEnd);
+
+        // Добавляем новые обработчики
+        trackContainer.addEventListener('touchstart', onStart);
+        trackContainer.addEventListener('touchmove', onMove, { passive: false });
+        trackContainer.addEventListener('touchend', onEnd);
+        trackContainer.addEventListener('mousedown', onStart);
+        trackContainer.addEventListener('mousemove', onMove);
+        trackContainer.addEventListener('mouseup', onEnd);
+        trackContainer.addEventListener('mouseleave', onEnd);
+    },
+
+    closeRepairCarousel: function() {
+        const carousel = document.getElementById('repair-gallery-carousel');
+        if (carousel) {
+            carousel.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            this.repairCarouselState = null;
+        }
+    },
+
+    prevRepairPhoto: function() {
+        if (this.repairCarouselState && this.repairCarouselState.currentIndex > 0) {
+            this.goToRepairPhoto(this.repairCarouselState.currentIndex - 1);
+        }
+    },
+
+    nextRepairPhoto: function() {
+        if (this.repairCarouselState && this.repairCarouselState.currentIndex < this.repairCarouselState.total - 1) {
+            this.goToRepairPhoto(this.repairCarouselState.currentIndex + 1);
+        }
+    },
+
+    goToRepairPhoto: function(index) {
+        const track = document.getElementById('repair-carousel-track');
+        const indicators = document.querySelectorAll('#repair-carousel-indicators .carousel-indicator');
+
+        if (!track || index < 0 || index >= this.repairCarouselState.total) return;
+
+        // Обновляем позицию трека
+        track.style.transform = `translateX(-${index * 100}%)`;
+
+        // Обновляем индикаторы
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === index);
+        });
+
+        // Обновляем текущий индекс
+        this.repairCarouselState.currentIndex = index;
+
+        // Обновляем кнопки навигации
+        this.updateRepairNavButtons();
+    },
+
+    updateDocumentsCount: function(documents) {
+        const countElement = document.getElementById('documents-count');
+        if (!countElement) return;
+
+        let totalDocuments = 0;
+
+        if (documents && typeof documents === 'object') {
+            for (const type in documents) {
+                if (documents[type] && Array.isArray(documents[type])) {
+                    totalDocuments += documents[type].length;
+                }
+            }
+        } else if (Array.isArray(documents)) {
+            totalDocuments = documents.length;
+        }
+
+        countElement.textContent = `${totalDocuments} ${this.getWordForm(totalDocuments, ['документ', 'документа', 'документов'])}`;
     },
 
     openCarousel(photos, startIndex) {
@@ -1222,15 +1598,6 @@ var App = {
                 this.goToPhoto(this.carouselState.currentIndex);
             }
         };
-
-        // Удаляем старые обработчики
-        trackContainer.removeEventListener('touchstart', onStart);
-        trackContainer.removeEventListener('touchmove', onMove);
-        trackContainer.removeEventListener('touchend', onEnd);
-        trackContainer.removeEventListener('mousedown', onStart);
-        trackContainer.removeEventListener('mousemove', onMove);
-        trackContainer.removeEventListener('mouseup', onEnd);
-        trackContainer.removeEventListener('mouseleave', onEnd);
 
         // Добавляем новые обработчики
         trackContainer.addEventListener('touchstart', onStart);

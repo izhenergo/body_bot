@@ -26,7 +26,7 @@
                 <i class="fas fa-car-crash"></i>
             </div>
             <h1 class="auth-title">MCSERVICE<br>"Планета Авто"</h1>
-            <p class="auth-subtitle">Кузовной ремонт и обслуживание</p>
+            <p class="auth-subtitle">Замена масла и жидкостей</p>
         </div>
 
         <form id="login-form" class="auth-form">
@@ -73,7 +73,7 @@
                 <div class="car-status completed">Готов</div>
                 <h2><i class="fas fa-car"></i> Kia Sportage</h2>
                 <p>Госномер: Х987УК177</p>
-                <p>Статус: Выдан клиенту</p>
+                <!--                <p>Статус: Выдан клиенту</p>-->
                 <div class="car-meta">
                     <span><i class="fas fa-tachometer-alt"></i> 18 750 км</span>
                     <span><i class="fas fa-wrench"></i> Кузовной ремонт</span>
@@ -191,7 +191,7 @@
             <div id="history-car-view" style="display: none;">
 
                 <div class="repairs-container">
-                    <h3>История ремонтов</h3>
+                    <h3>История обслуживания</h3>
                     <div id="repairs-list-container">
                         <!-- Список ремонтов будет заполнен динамически -->
                     </div>
@@ -209,13 +209,13 @@
                         </div>
                     </div>
 
-                    <div class="repair-photos-section">
-                        <div class="section-header">
-                            <h3><i class="fas fa-camera"></i> Фотографии</h3>
-                            <span id="repair-photos-count">1 фото</span>
+                    <!-- Обновленный блок фотографий -->
+                    <div class="photo-gallery" id="repair-photos-section">
+                        <div class="gallery-header">
+                            <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
+                            <span class="photos-count" id="repair-photos-count">0 фото</span>
                         </div>
 
-                        <!-- Современная галерея -->
                         <div class="modern-gallery" id="repair-photos-gallery">
                             <!-- Фотографии будут заполнены динамически -->
                         </div>
