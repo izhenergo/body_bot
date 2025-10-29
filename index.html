@@ -2,708 +2,492 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Автосервис - Личный кабинет</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>СТО Сервис</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<!-- Splash Screen -->
+<!-- Сплеш-скрин -->
 <div id="splash">
-    <div class="splash-logo">
-        <i class="fas fa-car-crash"></i>
+    <img src="images/Splash.jpg" alt="Splash Screen">
+</div>
+
+<!-- Просмотр фотографий -->
+<div id="photoViewer" class="photo-viewer">
+    <div class="photo-viewer-content" id="photoViewerContent">
+        <button class="close-viewer" id="closeViewer">×</button>
+        <div class="photo-counter" id="photoCounter">1 / 3</div>
+        <div class="photo-slider" id="photoSlider">
+            <div class="photo-slide">
+                <img class="photo-slide-img" src="images/Photo_1.jpg" alt="Фото работы 1">
+            </div>
+            <div class="photo-slide">
+                <img class="photo-slide-img" src="images/Photo_2.jpg" alt="Фото работы 2">
+            </div>
+            <div class="photo-slide">
+                <img class="photo-slide-img" src="images/Photo_3.jpg" alt="Фото работы 3">
+            </div>
+        </div>
+        <div class="photo-dots" id="photoDots">
+            <div class="photo-dot active" data-index="0"></div>
+            <div class="photo-dot" data-index="1"></div>
+            <div class="photo-dot" data-index="2"></div>
+        </div>
     </div>
 </div>
 
-<!-- Auth Form -->
-<div id="auth-view" class="container">
+<!-- Экран авторизации -->
+<div id="authScreen" class="screen">
     <div class="auth-container">
-        <div class="auth-header">
-            <div class="app-logo">
-                <i class="fas fa-car-crash"></i>
-            </div>
-            <h1 class="auth-title">MCSERVICE<br>"Планета Авто"</h1>
-            <p class="auth-subtitle">Замена масла и жидкостей</p>
+        <div class="input-group">
+            <div class="input-label">Логин</div>
+            <input type="text" id="loginInput" class="input-field" placeholder="Введите логин">
         </div>
-
-        <form id="login-form" class="auth-form">
-            <div class="form-group">
-                <label for="username" class="form-label">Логин</label>
-                <input type="text" id="username" class="form-input" placeholder="Введите ваш логин" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label">Пароль</label>
-                <input type="password" id="password" class="form-input" placeholder="Введите ваш пароль" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block">
-                <i class="fas fa-sign-in-alt"></i> Войти
-            </button>
-        </form>
-
-        <p class="footer-text">© 2025 MCSERVICE "Планета Авто".<br>Все права защищены.</p>
+        <div class="input-group">
+            <div class="input-label">Пароль</div>
+            <input type="password" id="passwordInput" class="input-field" placeholder="Введите пароль">
+        </div>
+        <button id="loginBtn" class="auth-btn">Войти</button>
     </div>
 </div>
 
-<!-- Клиентское приложение -->
-<div id="app">
-    <div class="app-header" id="app-header" style="display: none;">
-        <h1 class="app-title" id="current-screen-title">Мои автомобили</h1>
-    </div>
+<!-- Главный экран с таббаром -->
+<div id="mainScreen" class="screen">
+    <!-- Контент для вкладки "Мои автомобили" -->
+    <div id="carsTab" class="content">
+        <h1 class="page-title">Мои автомобили</h1>
 
-    <div class="main-content" id="main-content">
-        <!-- Cars List View -->
-        <div id="cars-list-view">
-            <div class="car-card" data-car-id="1" onclick="App.showCarDetails(1)">
-                <div class="car-status">В работе</div>
-                <h2><i class="fas fa-car"></i> Volkswagen Tiguan</h2>
-                <p>Госномер: А123БВ777</p>
-                <p>Статус: Дефектовка</p>
-                <div class="car-meta">
-                    <span><i class="fas fa-tachometer-alt"></i> 45 230 км</span>
-                    <span><i class="fas fa-wrench"></i> Кузовной ремонт</span>
-                </div>
+        <div class="car-card" data-car-id="1">
+            <div class="car-header">
+                <div class="car-title">Toyota Camry</div>
+                <div class="car-plate">A252АА|777</div>
             </div>
-
-            <div class="car-card" data-car-id="2" onclick="App.showCarDetails(2)">
-                <div class="car-status completed">Готов</div>
-                <h2><i class="fas fa-car"></i> Kia Sportage</h2>
-                <p>Госномер: Х987УК177</p>
-                <!--                <p>Статус: Выдан клиенту</p>-->
-                <div class="car-meta">
-                    <span><i class="fas fa-tachometer-alt"></i> 18 750 км</span>
-                    <span><i class="fas fa-wrench"></i> Кузовной ремонт</span>
-                </div>
-            </div>
+            <div class="car-mileage">Пробег: 85 430 км</div>
         </div>
 
-        <!-- Car Details View (hidden by default) -->
-        <div id="car-details-view" style="display: none;">
-            <!-- Компактная информация об автомобиле -->
-            <div class="car-details-compact">
-                <div class="car-header">
-                    <div class="car-basic-info">
-                        <h2 id="car-model">Volkswagen Tiguan</h2>
-                    </div>
-                </div>
-
-                <div class="car-details-grid">
-                    <div class="detail-item">
-                        <i class="fas fa-car-alt"></i>
-                        <span>Гос. номер:</span>
-                        <strong id="car-plate">А123БВ777</strong>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-barcode"></i>
-                        <span>VIN:</span>
-                        <span id="car-vin">WVGZZZ5NZJW123456</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Пробег:</span>
-                        <span id="car-mileage">45 230 км</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Год выпуска:</span>
-                        <span id="car-year">2019</span>
-                    </div>
-                </div>
+        <div class="car-card" data-car-id="2">
+            <div class="car-header">
+                <div class="car-title">Honda Civic</div>
+                <div class="car-plate">С123АД|77</div>
             </div>
-
-            <!-- Repair Status Timeline -->
-            <div class="repair-status" id="repair-status-section">
-                <h3><i class="fas fa-tasks"></i> Ход ремонта</h3>
-                <div class="status-timeline" id="status-timeline">
-                    <!-- Filled dynamically by JavaScript -->
-                </div>
-            </div>
-
-            <!-- Photo Gallery -->
-            <div class="photo-gallery" id="photo-gallery-section">
-                <div class="gallery-header">
-                    <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
-                    <span class="photos-count" id="photos-count">3 фото</span>
-                </div>
-
-                <div class="modern-gallery" id="modern-gallery">
-                    <!-- Будет заполнено динамически -->
-                </div>
-
-                <!-- Карусель для полноэкранного просмотра -->
-                <div class="gallery-carousel" id="gallery-carousel" style="display: none;">
-                    <div class="carousel-header">
-                        <button class="carousel-close" onclick="App.closeCarousel()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-
-                    <div class="carousel-track-container">
-                        <div class="carousel-track" id="carousel-track">
-                            <!-- Будет заполнено динамически -->
-                        </div>
-                    </div>
-
-                    <button class="carousel-nav carousel-prev" onclick="App.prevPhoto()" id="carousel-prev">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav carousel-next" onclick="App.nextPhoto()" id="carousel-next">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-
-                    <div class="carousel-indicators" id="carousel-indicators">
-                        <!-- Будет заполнено динамически -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Documents Section -->
-            <div class="documents-section" id="documents-section">
-                <div class="documents-header">
-                    <h3><i class="fas fa-file-alt"></i> Документы</h3>
-                    <span class="documents-count" id="documents-count">0 документов</span>
-                </div>
-                <div class="document-list" id="document-list">
-                    <!-- Filled dynamically by JavaScript -->
-                </div>
-            </div>
-
-            <button class="btn btn-primary btn-block" onclick="App.showServiceHistory()" style="margin-top: 20px;">
-                <i class="fas fa-history"></i> Посмотреть историю
-            </button>
-
-            <button class="btn btn-primary btn-block" onclick="App.showOnlineBooking()" style="margin-top: 10px;">
-                <i class="fas fa-calendar-check"></i> Записаться онлайн
-            </button>
-        </div>
-
-        <!-- History View (hidden by default) -->
-        <div id="history-view" style="display: none;">
-
-            <!-- Вид выбора автомобиля -->
-            <div id="history-selection-view">
-                <div id="history-cars-list" class="cars-list">
-                    <!-- Автомобили будут добавлены динамически -->
-                </div>
-            </div>
-
-            <!-- Вид конкретного автомобиля -->
-            <div id="history-car-view" style="display: none;">
-
-                <div class="repairs-container">
-                    <h3>История обслуживания</h3>
-                    <div id="repairs-list-container">
-                        <!-- Список ремонтов будет заполнен динамически -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Детали ремонта -->
-            <div id="repair-details-view" style="display: none;">
-
-                <div class="repair-details-content">
-                    <div class="repair-info-section">
-                        <h3>Информация о ремонте</h3>
-                        <div id="repair-info-grid" class="repair-info-grid">
-                            <!-- Информация будет заполнена динамически -->
-                        </div>
-                    </div>
-
-                    <!-- Обновленный блок фотографий -->
-                    <div class="photo-gallery" id="repair-photos-section">
-                        <div class="gallery-header">
-                            <h3><i class="fas fa-camera"></i> Фотографии ремонта</h3>
-                            <span class="photos-count" id="repair-photos-count">0 фото</span>
-                        </div>
-
-                        <div class="modern-gallery" id="repair-photos-gallery">
-                            <!-- Фотографии будут заполнены динамически -->
-                        </div>
-
-                        <!-- Карусель для полноэкранного просмотра -->
-                        <div class="gallery-carousel" id="repair-gallery-carousel" style="display: none;">
-                            <div class="carousel-header">
-                                <button class="carousel-close" onclick="App.closeRepairCarousel()">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-
-                            <div class="carousel-track-container">
-                                <div class="carousel-track" id="repair-carousel-track">
-                                    <!-- Будет заполнено динамически -->
-                                </div>
-                            </div>
-
-                            <button class="carousel-nav carousel-prev" onclick="App.prevRepairPhoto()" id="repair-carousel-prev">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="carousel-nav carousel-next" onclick="App.nextRepairPhoto()" id="repair-carousel-next">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-
-                            <div class="carousel-indicators" id="repair-carousel-indicators">
-                                <!-- Будет заполнено динамически -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="repair-documents-section">
-                        <div class="section-header">
-                            <h3><i class="fas fa-file-alt"></i> Документы</h3>
-                            <span id="repair-documents-count">0 документов</span>
-                        </div>
-                        <div id="repair-documents-list" class="document-list">
-                            <!-- Документы будут заполнены динамически -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="car-mileage">Пробег: 42 150 км</div>
         </div>
     </div>
 
-    <!-- Profile View -->
-    <div id="profile-view" style="display: none;">
-        <div class="profile-view">
-            <h2><i class="fas fa-user"></i> Мой профиль</h2>
+    <!-- Контент для вкладки "Профиль" -->
+    <div id="profileTab" class="content" style="display: none;">
+        <h1 class="page-title">Профиль</h1>
 
+        <div class="profile-section">
             <div class="profile-info">
-                <p><strong><i class="fas fa-user"></i> Имя:</strong> <span id="profile-name">Иван Петров</span></p>
-                <p><strong><i class="fas fa-phone"></i> Телефон:</strong> <span id="profile-phone">+7 (912) 345-67-89</span></p>
-                <p><strong><i class="fas fa-envelope"></i> Email:</strong> <span id="profile-email">ivan.petrov@example.com</span></p>
+                <div class="detail-label">ФИО</div>
+                <div class="detail-value">Иванов Иван Иванович</div>
             </div>
-
-            <div class="profile-actions">
-                <button class="btn btn-primary btn-block" onclick="App.writeToManager()">
-                    <i class="fas fa-comment"></i> Написать менеджеру
-                </button>
-                <button class="btn btn-secondary btn-block" onclick="App.callService()">
-                    <i class="fas fa-phone"></i> Позвонить в сервис
-                </button>
+            <div class="profile-info">
+                <div class="detail-label">Телефон</div>
+                <div class="detail-value">+7 (999) 123-45-67</div>
             </div>
-
-            <button class="btn btn-secondary btn-block" onclick="App.logout()">
-                <i class="fas fa-sign-out-alt"></i> Выйти
-            </button>
+            <div class="profile-info">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">ivanov@example.com</div>
+            </div>
         </div>
+
+        <button class="action-btn btn-primary">Написать менеджеру</button>
+        <button class="action-btn btn-secondary">Позвонить в сервис</button>
+        <button id="logoutBtn" class="logout-btn">Выйти</button>
     </div>
 
-    <!-- Администраторская панель -->
-    <div class="admin-container" id="adminSection">
-        <div class="admin-header">
-            <h1>Панель администратора</h1>
+    <!-- Таббар -->
+    <div class="tabbar">
+        <div class="tab active" data-tab="cars">
+            <div class="tab-icon"></div>
+            <div>Мои автомобили</div>
         </div>
-
-        <!-- Вкладка автомобилей -->
-        <div id="cars" class="tab-content active">
-            <div class="search-box">
-                <input type="text" id="car-search" placeholder="Поиск по гос. номеру, марке, модели..." onkeyup="searchCars()">
-                <button class="btn btn-primary" onclick="Admin.showAddCarPage()" style="margin-top: 10px;">
-                    <i class="fas fa-plus"></i> Добавить ремонт
-                </button>
-            </div>
-
-            <table id="cars-table">
-                <thead>
-                <tr>
-                    <th>Гос. номер</th>
-                    <th>Марка</th>
-                    <th>Модель</th>
-                </tr>
-                </thead>
-                <tbody id="cars-table-body">
-                <!-- Данные будут загружаться динамически -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Вкладка клиентов -->
-        <div id="clients" class="tab-content">
-            <div class="search-box">
-                <input type="text" id="client-search" placeholder="Поиск по имени, телефону или автомобилю..." onkeyup="searchClients()">
-            </div>
-
-            <table id="clients-table">
-                <thead>
-                <tr>
-                    <th>ФИО</th>
-                    <th>Телефон</th>
-                    <th>Автомобиль</th>
-                </tr>
-                </thead>
-                <tbody id="clients-table-body">
-                <!-- Данные будут загружаться динамически -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Вкладка профиля -->
-        <div id="profile" class="tab-content">
-            <div class="profile-view">
-                <h2><i class="fas fa-user-cog"></i> Профиль администратора</h2>
-
-                <div class="profile-info">
-                    <p><strong><i class="fas fa-user-tie"></i> Имя:</strong> Иванов Алексей Геннадьевич</p>
-                    <p><strong><i class="fas fa-phone"></i> Телефон:</strong> +7 (900) 123-45-67</p>
-                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> admin@autoservice.ru</p>
-                </div>
-
-                <button class="btn btn-primary btn-block" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-            </div>
+        <div class="tab" data-tab="profile">
+            <div class="tab-icon"></div>
+            <div>Профиль</div>
         </div>
     </div>
+</div>
 
-    <!-- Модальное окно добавления автомобиля -->
-    <div id="add-car-modal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Информация о ремонте</h3>
-                <button class="modal-close" onclick="Admin.hideAddCarModal()">&times;</button>
+<!-- Экран деталей автомобиля -->
+<div id="carDetailScreen" class="screen">
+    <div class="content">
+        <h1 class="page-title" id="carDetailTitle">Toyota Camry</h1>
+
+        <div class="car-detail-section">
+            <div class="detail-row">
+                <div class="detail-label">Марка и модель</div>
+                <div class="detail-value">Toyota Camry</div>
             </div>
-            <div class="modal-body">
-                <!-- Секция информации о собственнике (ОБЯЗАТЕЛЬНАЯ) -->
-                <div class="form-section owner-section">
-                    <h4><i class="fas fa-user"></i> Информация о собственнике <span class="required">*</span></h4>
-                    <div class="form-group">
-                        <label for="new-car-owner-name">ФИО собственника: <span class="required">*</span></label>
-                        <input type="text" id="new-car-owner-name" class="form-input" placeholder="Иванов Иван Иванович" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-owner-phone">Телефон собственника: <span class="required">*</span></label>
-                        <input type="tel" id="new-car-owner-phone" class="form-input" placeholder="+7 (912) 345-67-89" required>
-                    </div>
-                </div>
-
-                <!-- Секция информации об автомобиле -->
-                <div class="form-section">
-                    <h4><i class="fas fa-car"></i> Информация об автомобиле</h4>
-
-                    <div class="form-group">
-                        <label for="new-car-status">Статус ремонта:</label>
-                        <select id="new-car-status" class="form-input">
-                            <option value="diagnostic">Дефектовка</option>
-                            <option value="repair">Ремонт</option>
-                            <option value="painting">Покраска</option>
-                            <option value="ready">Готов к выдаче</option>
-                            <option value="completed">Выдан клиенту</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="new-car-brand">Марка: <span class="required">*</span></label>
-                        <input type="text" id="new-car-brand" class="form-input" placeholder="Toyota" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-model">Модель: <span class="required">*</span></label>
-                        <input type="text" id="new-car-model" class="form-input" placeholder="Camry" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-number">Гос. номер: <span class="required">*</span></label>
-                        <input type="text" id="new-car-number" class="form-input" placeholder="А123БВ777" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-odometer">Пробег:</label>
-                        <input type="number" id="new-car-odometer" class="form-input" placeholder="45230">
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-year">Год выпуска:</label>
-                        <input type="number" id="new-car-year" class="form-input" placeholder="2018" min="1990" max="2025">
-                    </div>
-                    <div class="form-group">
-                        <label for="new-car-vin">VIN:</label>
-                        <input type="text" id="new-car-vin" class="form-input" placeholder="XTA210997654321">
-                    </div>
-                </div>
-
-                <!-- Кнопки редактирования фотографий и документов -->
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()" style="margin-top: 15px;">
-                        <i class="fas fa-camera"></i> Редактирование фотографий
-                    </button>
-                </div>
-
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()" style="margin-top: 15px;">
-                        <i class="fas fa-file-alt"></i> Закрывающая документация
-                    </button>
-                </div>
+            <div class="detail-row">
+                <div class="detail-label">Гос. номер</div>
+                <div class="detail-value">A252АА|777</div>
             </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="Admin.hideAddCarModal()">Отмена</button>
-                <button class="btn btn-primary" onclick="Admin.addNewCar()">Сохранить</button>
+            <div class="detail-row">
+                <div class="detail-label">VIN</div>
+                <div class="detail-value">JTDKB20U087789123</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Пробег</div>
+                <div class="detail-value">85 430 км</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Год выпуска</div>
+                <div class="detail-value">2018</div>
             </div>
         </div>
+
+        <button id="viewHistoryBtn" class="action-btn btn-primary">Посмотреть историю</button>
+        <button id="bookOnlineBtn" class="action-btn btn-secondary">Записаться онлайн</button>
     </div>
+</div>
 
-    <!-- Tabbar для пользователя (по умолчанию) -->
-    <div class="tabbar" id="user-tabbar">
-        <a href="#" class="tabbar-item active" id="main-tab" onclick="App.navigateTo('main')">
-            <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-            <span>Автомобили</span>
-        </a>
-        <a href="#" class="tabbar-item" id="history-tab" onclick="App.navigateTo('history')">
-            <span class="tabbar-icon"><i class="fas fa-history"></i></span>
-            <span>История</span>
-        </a>
-        <a href="#" class="tabbar-item" id="profile-tab" onclick="App.navigateTo('profile')">
-            <span class="tabbar-icon"><i class="fas fa-user"></i></span>
-            <span>Профиль</span>
-        </a>
-    </div>
+<!-- Экран истории визитов -->
+<div id="historyScreen" class="screen">
+    <div class="content">
+        <h1 class="page-title">История визитов</h1>
 
-    <!-- Tabbar для администратора (скрыт по умолчанию) -->
-    <div class="tabbar" id="admin-tabbar" style="display: none;">
-        <a href="#" class="tabbar-item active" onclick="openTab('cars')">
-            <span class="tabbar-icon"><i class="fas fa-car"></i></span>
-            <span>Ремонты</span>
-        </a>
-        <a href="#" class="tabbar-item" onclick="openTab('clients')">
-            <span class="tabbar-icon"><i class="fas fa-users"></i></span>
-            <span>Клиенты</span>
-        </a>
-        <a href="#" class="tabbar-item" onclick="openTab('profile')">
-            <span class="tabbar-icon"><i class="fas fa-user-cog"></i></span>
-            <span>Профиль</span>
-        </a>
-    </div>
+        <div class="visit-card" data-visit-id="1">
+            <div class="visit-date">15 марта 2024</div>
+            <div class="visit-services">Замена масла в ДВС, замена масляного фильтра</div>
+            <div class="visit-mileage">Пробег: 85 430 км</div>
+        </div>
 
-    <!-- Модальное окно редактирования автомобиля -->
-    <div id="edit-car-modal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <!-- Заголовок с навигацией -->
-            <div class="modal-header">
-                <button class="modal-back-btn" id="modal-back-btn" style="display: none;" onclick="Admin.goBackToEditCar()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h3 class="modal-title" id="modal-title">Редактирование автомобиля</h3>
-                <button class="modal-close" onclick="Admin.hideEditCarForm()">&times;</button>
-            </div>
-
-            <!-- Тело модального окна -->
-            <div class="modal-body" id="modal-body">
-                <!-- Основное содержимое редактирования автомобиля -->
-                <div id="edit-car-content">
-                    <!-- Изменение текущего статуса -->
-                    <div class="form-group">
-                        <label for="current-status-select">Статус ремонта:</label>
-                        <select id="current-status-select" class="form-input" onchange="Admin.updateRepairStatuses()">
-                            <option value="diagnostic">Дефектовка</option>
-                            <option value="repair">Ремонт</option>
-                            <option value="painting">Покраска</option>
-                            <option value="ready">Готов к выдаче</option>
-                            <option value="completed">Выдан клиенту</option>
-                        </select>
-                    </div>
-
-                    <!-- Кнопки редактирования фотографий и документов -->
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-block" onclick="Admin.showPhotoEdit()">
-                            <i class="fas fa-camera"></i> Редактирование фотографий
-                        </button>
-                    </div>
-
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-block" onclick="Admin.showDocumentEdit()">
-                            <i class="fas fa-file-alt"></i> Закрывающая документация
-                        </button>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit-car-brand">Марка:</label>
-                        <input type="text" id="edit-car-brand" class="form-input" required oninput="Admin.autoSaveCar()">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-car-model">Модель:</label>
-                        <input type="text" id="edit-car-model" class="form-input" required oninput="Admin.autoSaveCar()">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-car-number">Гос. номер:</label>
-                        <input type="text" id="edit-car-number" class="form-input" required oninput="Admin.autoSaveCar()">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-car-odometer">Пробег:</label>
-                        <input type="number" id="edit-car-odometer" class="form-input" oninput="Admin.autoSaveCar()">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-car-year">Год выпуска:</label>
-                        <input type="number" id="edit-car-year" class="form-input" oninput="Admin.autoSaveCar()">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-car-vin">VIN:</label>
-                        <input type="text" id="edit-car-vin" class="form-input" oninput="Admin.autoSaveCar()">
-                    </div>
-                </div>
-
-                <!-- Контент для редактирования фотографий -->
-                <div id="edit-photo-content" style="display: none;">
-                    <div class="status-photos-section">
-                        <h3><i class="fas fa-tasks"></i> Фотографии по статусам ремонта</h3>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-search"></i> Дефектовка</h4>
-                            <div class="status-photos-container" id="diagnostic-photos">
-                                <!-- Фотографии для статуса "Дефектовка" -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('diagnostic')">
-                                <i class="fas fa-plus"></i> Добавить фото
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-tools"></i> Ремонт</h4>
-                            <div class="status-photos-container" id="repair-photos">
-                                <!-- Фотографии для статуса "Ремонт" -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('repair')">
-                                <i class="fas fa-plus"></i> Добавить фото
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-paint-roller"></i> Покраска</h4>
-                            <div class="status-photos-container" id="painting-photos">
-                                <!-- Фотографии для статуса "Покраска" -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('painting')">
-                                <i class="fas fa-plus"></i> Добавить фото
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-check-circle"></i> Готов к выдаче</h4>
-                            <div class="status-photos-container" id="ready-photos">
-                                <!-- Фотографии для статуса "Готов к выдаче" -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('ready')">
-                                <i class="fas fa-plus"></i> Добавить фото
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-car"></i> Выдан клиенту</h4>
-                            <div class="status-photos-container" id="completed-photos">
-                                <!-- Фотографии для статуса "Выдан клиенту" -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadPhotoForStatus('completed')">
-                                <i class="fas fa-plus"></i> Добавить фото
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Контент для редактирования документов -->
-                <div id="edit-document-content" style="display: none;">
-                    <div class="status-photos-section">
-                        <h3><i class="fas fa-file-alt"></i> Документы по статусам ремонта</h3>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-file-contract"></i> Акт выполненных работ</h4>
-                            <div class="status-photos-container" id="work-certificate-docs">
-                                <!-- Документы для акта выполненных работ -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('work-certificate')">
-                                <i class="fas fa-plus"></i> Добавить документ
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-receipt"></i> Чек об оплате</h4>
-                            <div class="status-photos-container" id="payment-receipt-docs">
-                                <!-- Документы для чека об оплате -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('payment-receipt')">
-                                <i class="fas fa-plus"></i> Добавить документ
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-file-invoice"></i> Счет-фактура</h4>
-                            <div class="status-photos-container" id="invoice-docs">
-                                <!-- Документы для счет-фактуры -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('invoice')">
-                                <i class="fas fa-plus"></i> Добавить документ
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-file-signature"></i> Договор</h4>
-                            <div class="status-photos-container" id="contract-docs">
-                                <!-- Документы для договора -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('contract')">
-                                <i class="fas fa-plus"></i> Добавить документ
-                            </div>
-                        </div>
-
-                        <div class="status-photo-category">
-                            <h4><i class="fas fa-file-medical"></i> Гарантийный талон</h4>
-                            <div class="status-photos-container" id="warranty-docs">
-                                <!-- Документы для гарантийного талона -->
-                            </div>
-                            <div class="photo-upload-mini" onclick="Admin.uploadDocumentForType('warranty')">
-                                <i class="fas fa-plus"></i> Добавить документ
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="visit-card" data-visit-id="2">
+            <div class="visit-date">10 января 2024</div>
+            <div class="visit-services">Замена антифриза, диагностика ходовой</div>
+            <div class="visit-mileage">Пробег: 82 150 км</div>
         </div>
     </div>
+</div>
 
-    <!-- Модальное окно редактирования клиента -->
-    <div id="edit-client-modal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Редактирование клиента</h3>
-                <button class="modal-close" onclick="Admin.hideEditClientModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="edit-client-name">ФИО:</label>
-                    <input type="text" id="edit-client-name" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-client-phone">Телефон:</label>
-                    <input type="tel" id="edit-client-phone" class="form-input" required>
-                </div>
+<!-- Экран деталей визита -->
+<div id="visitDetailScreen" class="screen">
+    <div class="content">
+        <h1 class="page-title">Детали визита</h1>
 
-                <div class="form-group">
-                    <label>Автомобили клиента:</label>
-                    <div id="client-cars-list" class="client-cars-list">
-                        <!-- Список автомобилей будет заполнен динамически -->
-                    </div>
-                </div>
+        <div class="car-detail-section">
+            <div class="detail-row">
+                <div class="detail-label">Дата</div>
+                <div class="detail-value">15 марта 2024</div>
             </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="Admin.hideEditClientModal()">Отмена</button>
-                <button class="btn btn-primary" onclick="Admin.saveClientChanges()">Сохранить</button>
+            <div class="detail-row">
+                <div class="detail-label">Пробег</div>
+                <div class="detail-value">85 430 км</div>
             </div>
         </div>
-    </div>
 
-    <!-- Блок админ-контролей в карточке автомобиля -->
-    <div id="admin-controls" style="display: none; margin-top: 20px; padding: 20px; background: var(--light); border-radius: var(--radius-md);">
-        <h3><i class="fas fa-cog"></i> Управление для администратора</h3>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="Admin.showEditCarForm(App.currentCar)">
-                <i class="fas fa-edit"></i> Редактировать автомобиль
-            </button>
-            <button class="btn btn-secondary" onclick="document.getElementById('edit-photo-upload-input').click()">
-                <i class="fas fa-camera"></i> Добавить фото
-            </button>
-            <button class="btn btn-secondary" onclick="document.getElementById('edit-document-upload-input').click()">
-                <i class="fas fa-file"></i> Добавить документы
-            </button>
+        <h2 style="font-size: 18px; margin: 20px 0 12px 0; color: #1a1a1a;">Выполненные работы</h2>
+
+        <div class="service-item">
+            <div class="service-name">Замена масла в ДВС</div>
+        </div>
+        <div class="service-item">
+            <div class="service-name">Замена масляного фильтра</div>
+        </div>
+
+        <h2 style="font-size: 18px; margin: 20px 0 12px 0; color: #1a1a1a;">Фотографии работ</h2>
+
+        <div class="photo-gallery">
+            <div class="photo-item" data-photo-index="0" style="background-image: url('images/Photo_1.jpg')"></div>
+            <div class="photo-item" data-photo-index="1" style="background-image: url('images/Photo_2.jpg')"></div>
+            <div class="photo-item" data-photo-index="2" style="background-image: url('images/Photo_3.jpg')"></div>
         </div>
     </div>
+</div>
 
-    <!-- Подключение внешнего JavaScript файла -->
-    <script src="script.js"></script>
+<script>
+    const tg = window.Telegram.WebApp;
+
+    // Инициализация WebApp
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+    tg.BackButton.hide();
+
+    // Текущий экран
+    let currentScreen = 'auth';
+
+    // Переменные для просмотра фотографий
+    let currentPhotoIndex = 0;
+    const totalPhotos = 3;
+    let startX = 0;
+    let currentX = 0;
+    let isSwiping = false;
+
+    // Функции навигации
+    function showScreen(screenName) {
+        console.log('Переход на экран:', screenName);
+
+        // Скрыть все экраны
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+
+        // Показать нужный экран
+        const targetScreen = document.getElementById(screenName + 'Screen');
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        } else {
+            console.error('Экран не найден:', screenName);
+        }
+
+        currentScreen = screenName;
+        updateBackButton();
+    }
+
+    function updateBackButton() {
+        switch(currentScreen) {
+            case 'auth':
+            case 'main':
+                tg.BackButton.hide();
+                break;
+            case 'carDetail':
+                tg.BackButton.show();
+                tg.BackButton.offClick(goBack);
+                tg.BackButton.onClick(() => showScreen('main'));
+                break;
+            case 'history':
+                tg.BackButton.show();
+                tg.BackButton.offClick(goBack);
+                tg.BackButton.onClick(() => showScreen('carDetail'));
+                break;
+            case 'visitDetail':
+                tg.BackButton.show();
+                tg.BackButton.offClick(goBack);
+                tg.BackButton.onClick(() => showScreen('history'));
+                break;
+        }
+    }
+
+    function goBack() {
+        switch(currentScreen) {
+            case 'carDetail':
+                showScreen('main');
+                break;
+            case 'history':
+                showScreen('carDetail');
+                break;
+            case 'visitDetail':
+                showScreen('history');
+                break;
+        }
+    }
+
+    // Функции для просмотра фотографий
+    function openPhotoViewer(startIndex = 0) {
+        currentPhotoIndex = startIndex;
+        updatePhotoViewer();
+        document.getElementById('photoViewer').classList.add('active');
+    }
+
+    function closePhotoViewer() {
+        document.getElementById('photoViewer').classList.remove('active');
+    }
+
+    function updatePhotoViewer() {
+        const photoSlider = document.getElementById('photoSlider');
+        const photoCounter = document.getElementById('photoCounter');
+        const photoDots = document.querySelectorAll('.photo-dot');
+
+        // Обновляем позицию слайдера
+        photoSlider.style.transform = `translateX(-${currentPhotoIndex * 100}%)`;
+
+        photoCounter.textContent = `${currentPhotoIndex + 1} / ${totalPhotos}`;
+
+        // Обновляем точки
+        photoDots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentPhotoIndex);
+        });
+    }
+
+    function showPhoto(index) {
+        if (index >= 0 && index < totalPhotos) {
+            currentPhotoIndex = index;
+            updatePhotoViewer();
+        }
+    }
+
+    function showNextPhoto() {
+        if (currentPhotoIndex < totalPhotos - 1) {
+            currentPhotoIndex++;
+            updatePhotoViewer();
+        }
+    }
+
+    function showPrevPhoto() {
+        if (currentPhotoIndex > 0) {
+            currentPhotoIndex--;
+            updatePhotoViewer();
+        }
+    }
+
+    // Функции для свайпа
+    function handleTouchStart(e) {
+        startX = e.touches[0].clientX;
+        currentX = startX;
+        isSwiping = true;
+    }
+
+    function handleTouchMove(e) {
+        if (!isSwiping) return;
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+
+        // Блокируем вертикальный скролл во время горизонтального свайпа
+        if (Math.abs(diff) > 10) {
+            e.preventDefault();
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if (!isSwiping) return;
+
+        const diff = currentX - startX;
+        const threshold = 50; // Минимальное расстояние свайпа
+
+        if (Math.abs(diff) > threshold) {
+            if (diff > 0) {
+                // Свайп вправо - предыдущая фотография
+                showPrevPhoto();
+            } else {
+                // Свайп влево - следующая фотография
+                showNextPhoto();
+            }
+        }
+
+        isSwiping = false;
+    }
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        // Сплеш-скрин
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hidden');
+            showScreen('auth');
+        }, 1500);
+
+        // Авторизация
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const login = document.getElementById('loginInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            // Любой логин/пароль подходит для прототипа
+            if (login && password) {
+                showScreen('main');
+            } else {
+                // Просто показываем главный экран даже если поля пустые (для тестирования)
+                showScreen('main');
+            }
+        });
+
+        // Таббар
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+
+                // Обновить активную вкладку
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Показать соответствующий контент
+                document.getElementById('carsTab').style.display = 'none';
+                document.getElementById('profileTab').style.display = 'none';
+                document.getElementById(tabName + 'Tab').style.display = 'block';
+            });
+        });
+
+        // Навигация по автомобилям
+        document.querySelectorAll('.car-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const carId = card.getAttribute('data-car-id');
+                console.log('Клик по автомобилю:', carId);
+                showScreen('carDetail');
+            });
+        });
+
+        // Кнопки на странице автомобиля
+        document.getElementById('viewHistoryBtn').addEventListener('click', () => {
+            showScreen('history');
+        });
+
+        document.getElementById('bookOnlineBtn').addEventListener('click', () => {
+            // Заглушка для записи онлайн
+            tg.showPopup({
+                title: 'Запись онлайн',
+                message: 'Функция записи онлайн будет доступна в полной версии приложения',
+                buttons: [{ type: 'ok' }]
+            });
+        });
+
+        // Навигация по истории
+        document.querySelectorAll('.visit-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const visitId = card.getAttribute('data-visit-id');
+                console.log('Клик по визиту:', visitId);
+                showScreen('visitDetail');
+            });
+        });
+
+        // Просмотр фотографий
+        document.querySelectorAll('.photo-item').forEach(photo => {
+            photo.addEventListener('click', () => {
+                const photoIndex = parseInt(photo.getAttribute('data-photo-index'));
+                openPhotoViewer(photoIndex);
+            });
+        });
+
+        // Управление просмотром фотографий
+        document.getElementById('closeViewer').addEventListener('click', closePhotoViewer);
+
+        // Навигация по фотографиям через точки
+        document.querySelectorAll('.photo-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.getAttribute('data-index'));
+                showPhoto(index);
+            });
+        });
+
+        // Свайп для фотографий
+        const photoViewerContent = document.getElementById('photoViewerContent');
+        photoViewerContent.addEventListener('touchstart', handleTouchStart, { passive: true });
+        photoViewerContent.addEventListener('touchmove', handleTouchMove, { passive: false });
+        photoViewerContent.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        // Закрытие просмотра по клику на фон
+        document.getElementById('photoViewer').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('photoViewer')) {
+                closePhotoViewer();
+            }
+        });
+
+        // Выход из системы
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            showScreen('auth');
+            // Очищаем поля ввода
+            document.getElementById('loginInput').value = '';
+            document.getElementById('passwordInput').value = '';
+        });
+
+        // Блокировка свайпа вниз
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target === document.body) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Также добавляем Enter для авторизации
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('loginBtn').click();
+            }
+        });
+    });
+</script>
 </body>
 </html>
