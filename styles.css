@@ -58,6 +58,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 0 20px;
+    margin-top: -50px; /* Компенсируем отступ для центрирования */
 }
 
 .input-group {
@@ -151,6 +152,7 @@ body {
     overflow-y: auto;
     padding: 16px;
     padding-bottom: 80px;
+    padding-top: 66px; /* 16px + 50px отступа от верха */
 }
 
 .page-title {
@@ -365,7 +367,7 @@ body {
 
 .photo-counter {
     position: absolute;
-    top: 20px;
+    top: 70px; /* Увеличили отступ сверху */
     left: 0;
     right: 0;
     text-align: center;
@@ -380,7 +382,7 @@ body {
 
 .close-viewer {
     position: absolute;
-    top: 20px;
+    top: 70px; /* Увеличили отступ сверху */
     right: 20px;
     background: rgba(0, 0, 0, 0.5);
     border: none;

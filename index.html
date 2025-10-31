@@ -22,7 +22,7 @@
         <div class="photo-counter" id="photoCounter">1 / 3</div>
         <div class="photo-slider" id="photoSlider">
             <div class="photo-slide">
-                <img class="photo-slide-img" src="images/Photo_1.jpg" alt="Фото работы 1">
+                <img class="photo-slide-img" src="images/.jpg" alt="Фото работы 1">
             </div>
             <div class="photo-slide">
                 <img class="photo-slide-img" src="images/Photo_2.jpg" alt="Фото работы 2">
@@ -63,7 +63,7 @@
         <div class="car-card" data-car-id="1">
             <div class="car-header">
                 <div class="car-title">Toyota Camry</div>
-                <div class="car-plate">A252АА|777</div>
+                <div class="car-plate">A123MP | 18</div>
             </div>
             <div class="car-mileage">Пробег: 85 430 км</div>
         </div>
@@ -71,7 +71,7 @@
         <div class="car-card" data-car-id="2">
             <div class="car-header">
                 <div class="car-title">Honda Civic</div>
-                <div class="car-plate">С123АД|77</div>
+                <div class="car-plate">C404ТО | 777</div>
             </div>
             <div class="car-mileage">Пробег: 42 150 км</div>
         </div>
@@ -126,7 +126,7 @@
             </div>
             <div class="detail-row">
                 <div class="detail-label">Гос. номер</div>
-                <div class="detail-value">A252АА|777</div>
+                <div class="detail-value">A123МР | 18</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">VIN</div>
@@ -154,13 +154,13 @@
 
         <div class="visit-card" data-visit-id="1">
             <div class="visit-date">15 марта 2024</div>
-            <div class="visit-services">Замена масла в ДВС, замена масляного фильтра</div>
+            <div class="visit-services">Замена масла в ДВС, замена масляного фильтра, замена воздушного фильтра</div>
             <div class="visit-mileage">Пробег: 85 430 км</div>
         </div>
 
         <div class="visit-card" data-visit-id="2">
             <div class="visit-date">10 января 2024</div>
-            <div class="visit-services">Замена антифриза, диагностика ходовой</div>
+            <div class="visit-services">Замена антифриза, промывка радиатора</div>
             <div class="visit-mileage">Пробег: 82 150 км</div>
         </div>
     </div>
@@ -189,6 +189,9 @@
         </div>
         <div class="service-item">
             <div class="service-name">Замена масляного фильтра</div>
+        </div>
+        <div class="service-item">
+            <div class="service-name">Замена воздушного фильтра</div>
         </div>
 
         <h2 style="font-size: 18px; margin: 20px 0 12px 0; color: #1a1a1a;">Фотографии работ</h2>
@@ -255,12 +258,12 @@
             case 'history':
                 tg.BackButton.show();
                 tg.BackButton.offClick(goBack);
-                tg.BackButton.onClick(() => showScreen('carDetail'));
+                tg.BackButton.onClick(() => showScreen('carDetail')); // Исправлено: возврат на страницу автомобиля
                 break;
             case 'visitDetail':
                 tg.BackButton.show();
                 tg.BackButton.offClick(goBack);
-                tg.BackButton.onClick(() => showScreen('history'));
+                tg.BackButton.onClick(() => showScreen('history')); // Исправлено: возврат на историю визитов
                 break;
         }
     }
@@ -271,10 +274,10 @@
                 showScreen('main');
                 break;
             case 'history':
-                showScreen('carDetail');
+                showScreen('carDetail'); // Исправлено: возврат на страницу автомобиля
                 break;
             case 'visitDetail':
-                showScreen('history');
+                showScreen('history'); // Исправлено: возврат на историю визитов
                 break;
         }
     }
