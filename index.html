@@ -204,6 +204,93 @@
     </div>
 </div>
 
+<!-- Экран записи онлайн -->
+<div id="bookingScreen" class="screen">
+    <div class="content">
+        <h1 class="page-title">Запись онлайн</h1>
+
+        <div class="car-detail-section">
+            <div class="detail-row">
+                <div class="detail-label">Автомобиль</div>
+                <div class="detail-value" id="bookingCarTitle">Toyota Camry</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Текущий пробег</div>
+                <div class="detail-value" id="bookingCarMileage">85 430 км</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-label">Желаемая дата</div>
+            <input type="date" id="bookingDate" class="input-field" min="">
+        </div>
+
+        <div class="input-group">
+            <div class="input-label">Удобное время</div>
+            <select id="bookingTime" class="input-field">
+                <option value="">Выберите время</option>
+                <option value="09:00">09:00</option>
+                <option value="10:00">10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <div class="input-label">Тип услуги</div>
+            <select id="serviceType" class="input-field">
+                <option value="">Выберите услугу</option>
+                <option value="technical_service">Техническое обслуживание</option>
+                <option value="oil_change">Замена масла</option>
+                <option value="brake_service">Ремонт тормозной системы</option>
+                <option value="diagnostics">Диагностика</option>
+                <option value="tire_service">Шиномонтаж</option>
+                <option value="other">Другая услуга</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <div class="input-label">Комментарий (необязательно)</div>
+            <textarea id="bookingComment" class="input-field" placeholder="Опишите проблему или пожелания" rows="3" style="height: auto; padding: 12px 16px; resize: none;"></textarea>
+        </div>
+
+        <button id="submitBookingBtn" class="action-btn btn-primary">Отправить заявку</button>
+        <button id="cancelBookingBtn" class="action-btn btn-secondary">Отмена</button>
+    </div>
+</div>
+
+<!-- Экран подтверждения записи -->
+<div id="bookingConfirmationScreen" class="screen">
+    <div class="content" style="text-align: center; padding-top: 100px;">
+        <div style="font-size: 64px; margin-bottom: 24px;">✅</div>
+        <h1 class="page-title">Заявка отправлена!</h1>
+        <p style="color: #8E8E93; margin-bottom: 32px; line-height: 1.4;">
+            Ваша заявка на запись успешно отправлена.<br>
+            Наш менеджер свяжется с вами для подтверждения.
+        </p>
+        <div class="booking-details" style="background: #F7F7F7; border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;">
+            <div class="detail-row">
+                <div class="detail-label">Дата</div>
+                <div class="detail-value" id="confirmationDate">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Время</div>
+                <div class="detail-value" id="confirmationTime">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Услуга</div>
+                <div class="detail-value" id="confirmationService">-</div>
+            </div>
+        </div>
+        <button id="bookingBackToCarBtn" class="action-btn btn-primary">Вернуться к автомобилю</button>
+    </div>
+</div>
+
 <script>
     const tg = window.Telegram.WebApp;
 
@@ -480,6 +567,137 @@
         document.getElementById('passwordInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 document.getElementById('loginBtn').click();
+            }
+        });
+    });
+    // Функции для записи онлайн
+    function setupBookingScreen(carData) {
+        document.getElementById('bookingCarTitle').textContent = carData.title;
+        document.getElementById('bookingCarMileage').textContent = carData.mileage;
+
+        // Устанавливаем минимальную дату - сегодня
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').min = today;
+
+        // Очищаем форму
+        document.getElementById('bookingDate').value = '';
+        document.getElementById('bookingTime').value = '';
+        document.getElementById('serviceType').value = '';
+        document.getElementById('bookingComment').value = '';
+    }
+
+    function submitBooking() {
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('bookingTime').value;
+        const service = document.getElementById('serviceType').value;
+        const comment = document.getElementById('bookingComment').value;
+
+        // Валидация
+        if (!date || !time || !service) {
+            tg.showPopup({
+                title: 'Ошибка',
+                message: 'Пожалуйста, заполните все обязательные поля',
+                buttons: [{ type: 'ok' }]
+            });
+            return;
+        }
+
+        // Форматируем дату для отображения
+        const dateObj = new Date(date);
+        const formattedDate = dateObj.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // Показываем экран подтверждения
+        document.getElementById('confirmationDate').textContent = formattedDate;
+        document.getElementById('confirmationTime').textContent = time;
+
+        const serviceText = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
+        document.getElementById('confirmationService').textContent = serviceText;
+
+        // Здесь можно отправить данные на сервер
+        console.log('Данные записи:', {
+            date,
+            time,
+            service,
+            comment,
+            car: document.getElementById('bookingCarTitle').textContent
+        });
+
+        showScreen('bookingConfirmation');
+    }
+
+    // Обновите функцию goBack для обработки новых экранов
+    function goBack() {
+        switch(currentScreen) {
+            case 'carDetail':
+                showScreen('main');
+                break;
+            case 'history':
+                showScreen('carDetail');
+                break;
+            case 'visitDetail':
+                showScreen('history');
+                break;
+            case 'booking':
+                showScreen('carDetail');
+                break;
+            case 'bookingConfirmation':
+                showScreen('carDetail');
+                break;
+        }
+    }
+
+    // Обновите updateBackButton для новых экранов
+    function updateBackButton() {
+        switch(currentScreen) {
+            case 'auth':
+            case 'main':
+            case 'bookingConfirmation':
+                tg.BackButton.hide();
+                break;
+            case 'carDetail':
+            case 'history':
+            case 'visitDetail':
+            case 'booking':
+                tg.BackButton.show();
+                tg.BackButton.offClick(goBack);
+                tg.BackButton.onClick(goBack);
+                break;
+        }
+    }
+
+    // В секции DOMContentLoaded добавьте обработчики:
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... существующий код ...
+
+        // Запись онлайн - замените существующий обработчик
+        document.getElementById('bookOnlineBtn').addEventListener('click', () => {
+            const carData = {
+                title: document.getElementById('carDetailTitle').textContent,
+                mileage: document.querySelector('.car-detail-section .detail-row:nth-child(4) .detail-value').textContent
+            };
+            setupBookingScreen(carData);
+            showScreen('booking');
+        });
+
+        // Обработчики для экрана записи
+        document.getElementById('submitBookingBtn').addEventListener('click', submitBooking);
+
+        document.getElementById('cancelBookingBtn').addEventListener('click', () => {
+            showScreen('carDetail');
+        });
+
+        document.getElementById('bookingBackToCarBtn').addEventListener('click', () => {
+            showScreen('carDetail');
+        });
+
+        // Enter для отправки формы записи
+        document.getElementById('bookingComment').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                submitBooking();
             }
         });
     });
