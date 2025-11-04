@@ -37,17 +37,72 @@ body {
     display: none;
 }
 
+/* Стили для экранов */
 .screen {
     width: 100%;
     height: 100%;
     display: none;
     flex-direction: column;
     background: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .screen.active {
     display: flex;
+}
+
+/* Убедитесь, что главный экран имеет правильную структуру */
+#mainScreen {
+    display: none;
+    flex-direction: column;
+}
+
+#mainScreen.active {
+    display: flex;
+}
+
+/* Стили для структуры главного экрана */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Убедитесь, что на экранах без таббара контент занимает всю высоту */
+#authScreen,
+#carDetailScreen,
+#historyScreen,
+#visitDetailScreen,
+#bookingScreen,
+#bookingConfirmationScreen {
+    padding-bottom: 0;
+}
+
+#authScreen .content,
+#carDetailScreen .content,
+#historyScreen .content,
+#visitDetailScreen .content,
+#bookingScreen .content,
+#bookingConfirmationScreen .content {
+    padding-bottom: 16px;
+    flex: 1;
 }
 
 /* Стили для экрана авторизации */
@@ -58,7 +113,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 0 20px;
-    margin-top: -50px; /* Компенсируем отступ для центрирования */
+    margin-top: -50px;
 }
 
 .input-group {
@@ -114,6 +169,7 @@ body {
     border-top: 1px solid #E5E5EA;
     display: flex;
     padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
 }
 
 .tab {
@@ -152,7 +208,7 @@ body {
     overflow-y: auto;
     padding: 16px;
     padding-bottom: 80px;
-    padding-top: 66px; /* 16px + 50px отступа от верха */
+    padding-top: 16px;
 }
 
 .page-title {
@@ -369,7 +425,7 @@ body {
 
 .photo-counter {
     position: absolute;
-    top: 70px; /* Увеличили отступ сверху */
+    top: 70px;
     left: 0;
     right: 0;
     text-align: center;
@@ -384,7 +440,7 @@ body {
 
 .close-viewer {
     position: absolute;
-    top: 70px; /* Увеличили отступ сверху */
+    top: 70px;
     right: 20px;
     background: rgba(0, 0, 0, 0.5);
     border: none;
@@ -467,6 +523,7 @@ select.input-field {
 textarea.input-field {
     font-family: inherit;
     line-height: 1.4;
+    min-height: 100px;
 }
 
 /* Анимация для подтверждения */
@@ -477,4 +534,74 @@ textarea.input-field {
 
 .booking-details {
     animation: fadeIn 0.5s ease;
+}
+
+/* Дополнительные стили для центрирования контента на некоторых экранах */
+#authScreen .content {
+    display: flex;
+    flex-direction: column;
+}
+
+#bookingConfirmationScreen .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Улучшенные стили для скролла */
+.content::-webkit-scrollbar {
+    display: none;
+}
+
+.content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Улучшенные стили для инпутов на iOS */
+input, select, textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Улучшенные стили для фокуса */
+input:focus, select:focus, textarea:focus {
+    border-color: #007AFF;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* Адаптивные стили для разных экранов */
+@media (max-width: 320px) {
+    .content {
+        padding: 12px;
+        padding-bottom: 70px;
+    }
+
+    .page-title {
+        font-size: 20px;
+    }
+
+    .car-card, .visit-card, .service-item {
+        padding: 12px;
+    }
+}
+
+/* Стили для состояния наведения (для устройств с мышью) */
+@media (hover: hover) {
+    .car-card:hover, .visit-card:hover, .photo-item:hover {
+        opacity: 0.8;
+    }
+
+    .action-btn:hover, .auth-btn:hover {
+        opacity: 0.9;
+    }
+
+    .tab:hover {
+        color: #007AFF;
+    }
+
+    .tab:hover .tab-icon {
+        background: #007AFF;
+    }
 }

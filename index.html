@@ -41,64 +41,68 @@
 
 <!-- Экран авторизации -->
 <div id="authScreen" class="screen">
-    <div class="auth-container">
-        <div class="input-group">
-            <div class="input-label">Логин</div>
-            <input type="text" id="loginInput" class="input-field" placeholder="Введите логин">
+    <div class="content">
+        <div class="auth-container">
+            <div class="input-group">
+                <div class="input-label">Логин</div>
+                <input type="text" id="loginInput" class="input-field" placeholder="Введите логин">
+            </div>
+            <div class="input-group">
+                <div class="input-label">Пароль</div>
+                <input type="password" id="passwordInput" class="input-field" placeholder="Введите пароль">
+            </div>
+            <button id="loginBtn" class="auth-btn">Войти</button>
         </div>
-        <div class="input-group">
-            <div class="input-label">Пароль</div>
-            <input type="password" id="passwordInput" class="input-field" placeholder="Введите пароль">
-        </div>
-        <button id="loginBtn" class="auth-btn">Войти</button>
     </div>
 </div>
 
 <!-- Главный экран с таббаром -->
 <div id="mainScreen" class="screen">
-    <!-- Контент для вкладки "Мои автомобили" -->
-    <div id="carsTab" class="content">
-        <h1 class="page-title">Мои автомобили</h1>
+    <div class="main-content">
+        <!-- Контент для вкладки "Мои автомобили" -->
+        <div id="carsTab" class="tab-content active">
+            <h1 class="page-title">Мои автомобили</h1>
 
-        <div class="car-card" data-car-id="1">
-            <div class="car-header">
-                <div class="car-title">Toyota Camry</div>
-                <div class="car-plate">A123MP | 18</div>
+            <div class="car-card" data-car-id="1">
+                <div class="car-header">
+                    <div class="car-title">Toyota Camry</div>
+                    <div class="car-plate">A123MP | 18</div>
+                </div>
+                <div class="car-mileage">Пробег: 85 430 км</div>
             </div>
-            <div class="car-mileage">Пробег: 85 430 км</div>
-        </div>
 
-        <div class="car-card" data-car-id="2">
-            <div class="car-header">
-                <div class="car-title">Honda Civic</div>
-                <div class="car-plate">C404ТО | 777</div>
-            </div>
-            <div class="car-mileage">Пробег: 42 150 км</div>
-        </div>
-    </div>
-
-    <!-- Контент для вкладки "Профиль" -->
-    <div id="profileTab" class="content" style="display: none;">
-        <h1 class="page-title">Профиль</h1>
-
-        <div class="profile-section">
-            <div class="profile-info">
-                <div class="detail-label">ФИО</div>
-                <div class="detail-value">Иванов Иван Иванович</div>
-            </div>
-            <div class="profile-info">
-                <div class="detail-label">Телефон</div>
-                <div class="detail-value">+7 (999) 123-45-67</div>
-            </div>
-            <div class="profile-info">
-                <div class="detail-label">Email</div>
-                <div class="detail-value">ivanov@example.com</div>
+            <div class="car-card" data-car-id="2">
+                <div class="car-header">
+                    <div class="car-title">Honda Civic</div>
+                    <div class="car-plate">C404ТО | 777</div>
+                </div>
+                <div class="car-mileage">Пробег: 42 150 км</div>
             </div>
         </div>
 
-        <button class="action-btn btn-primary">Написать менеджеру</button>
-        <button class="action-btn btn-secondary">Позвонить в сервис</button>
-        <button id="logoutBtn" class="logout-btn">Выйти</button>
+        <!-- Контент для вкладки "Профиль" -->
+        <div id="profileTab" class="tab-content">
+            <h1 class="page-title">Профиль</h1>
+
+            <div class="profile-section">
+                <div class="profile-info">
+                    <div class="detail-label">ФИО</div>
+                    <div class="detail-value">Иванов Иван Иванович</div>
+                </div>
+                <div class="profile-info">
+                    <div class="detail-label">Телефон</div>
+                    <div class="detail-value">+7 (999) 123-45-67</div>
+                </div>
+                <div class="profile-info">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">ivanov@example.com</div>
+                </div>
+            </div>
+
+            <button class="action-btn btn-primary">Написать менеджеру</button>
+            <button class="action-btn btn-secondary">Позвонить в сервис</button>
+            <button id="logoutBtn" class="logout-btn">Выйти</button>
+        </div>
     </div>
 
     <!-- Таббар -->
@@ -323,6 +327,11 @@
         const targetScreen = document.getElementById(screenName + 'Screen');
         if (targetScreen) {
             targetScreen.classList.add('active');
+
+            // Если переходим на главный экран, убедимся что отображается правильная вкладка
+            if (screenName === 'main') {
+                showTab('cars'); // По умолчанию показываем вкладку автомобилей
+            }
         } else {
             console.error('Экран не найден:', screenName);
         }
@@ -331,15 +340,38 @@
         updateBackButton();
     }
 
+    // Функция для переключения вкладок
+    function showTab(tabName) {
+        // Обновить активную вкладку
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('data-tab') === tabName) {
+                tab.classList.add('active');
+            }
+        });
+
+        // Показать соответствующий контент
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        const targetTab = document.getElementById(tabName + 'Tab');
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+    }
+
     function updateBackButton() {
         switch(currentScreen) {
             case 'auth':
             case 'main':
+            case 'bookingConfirmation':
                 tg.BackButton.hide();
                 break;
             case 'carDetail':
             case 'history':
             case 'visitDetail':
+            case 'booking':
                 tg.BackButton.show();
                 tg.BackButton.offClick(goBack);
                 tg.BackButton.onClick(goBack);
@@ -358,6 +390,14 @@
             case 'visitDetail':
                 showScreen('history');
                 break;
+            case 'booking':
+                showScreen('carDetail');
+                break;
+            case 'bookingConfirmation':
+                showScreen('carDetail');
+                break;
+            default:
+                showScreen('main');
         }
     }
 
@@ -446,6 +486,65 @@
         isSwiping = false;
     }
 
+    // Функции для записи онлайн
+    function setupBookingScreen(carData) {
+        document.getElementById('bookingCarTitle').textContent = carData.title;
+        document.getElementById('bookingCarMileage').textContent = carData.mileage;
+
+        // Устанавливаем минимальную дату - сегодня
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').min = today;
+
+        // Очищаем форму
+        document.getElementById('bookingDate').value = '';
+        document.getElementById('bookingTime').value = '';
+        document.getElementById('serviceType').value = '';
+        document.getElementById('bookingComment').value = '';
+    }
+
+    function submitBooking() {
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('bookingTime').value;
+        const service = document.getElementById('serviceType').value;
+        const comment = document.getElementById('bookingComment').value;
+
+        // Валидация
+        if (!date || !time || !service) {
+            tg.showPopup({
+                title: 'Ошибка',
+                message: 'Пожалуйста, заполните все обязательные поля',
+                buttons: [{ type: 'ok' }]
+            });
+            return;
+        }
+
+        // Форматируем дату для отображения
+        const dateObj = new Date(date);
+        const formattedDate = dateObj.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // Показываем экран подтверждения
+        document.getElementById('confirmationDate').textContent = formattedDate;
+        document.getElementById('confirmationTime').textContent = time;
+
+        const serviceText = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
+        document.getElementById('confirmationService').textContent = serviceText;
+
+        // Здесь можно отправить данные на сервер
+        console.log('Данные записи:', {
+            date,
+            time,
+            service,
+            comment,
+            car: document.getElementById('bookingCarTitle').textContent
+        });
+
+        showScreen('bookingConfirmation');
+    }
+
     // Инициализация при загрузке
     document.addEventListener('DOMContentLoaded', () => {
         // Сплеш-скрин
@@ -472,15 +571,7 @@
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabName = tab.getAttribute('data-tab');
-
-                // Обновить активную вкладку
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                // Показать соответствующий контент
-                document.getElementById('carsTab').style.display = 'none';
-                document.getElementById('profileTab').style.display = 'none';
-                document.getElementById(tabName + 'Tab').style.display = 'block';
+                showTab(tabName);
             });
         });
 
@@ -498,13 +589,25 @@
             showScreen('history');
         });
 
+        // Запись онлайн
         document.getElementById('bookOnlineBtn').addEventListener('click', () => {
-            // Заглушка для записи онлайн
-            tg.showPopup({
-                title: 'Запись онлайн',
-                message: 'Функция записи онлайн будет доступна в полной версии приложения',
-                buttons: [{ type: 'ok' }]
-            });
+            const carData = {
+                title: document.getElementById('carDetailTitle').textContent,
+                mileage: document.querySelector('.car-detail-section .detail-row:nth-child(4) .detail-value').textContent
+            };
+            setupBookingScreen(carData);
+            showScreen('booking');
+        });
+
+        // Обработчики для экрана записи
+        document.getElementById('submitBookingBtn').addEventListener('click', submitBooking);
+
+        document.getElementById('cancelBookingBtn').addEventListener('click', () => {
+            showScreen('carDetail');
+        });
+
+        document.getElementById('bookingBackToCarBtn').addEventListener('click', () => {
+            showScreen('carDetail');
         });
 
         // Навигация по истории
@@ -568,130 +671,6 @@
             if (e.key === 'Enter') {
                 document.getElementById('loginBtn').click();
             }
-        });
-    });
-    // Функции для записи онлайн
-    function setupBookingScreen(carData) {
-        document.getElementById('bookingCarTitle').textContent = carData.title;
-        document.getElementById('bookingCarMileage').textContent = carData.mileage;
-
-        // Устанавливаем минимальную дату - сегодня
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('bookingDate').min = today;
-
-        // Очищаем форму
-        document.getElementById('bookingDate').value = '';
-        document.getElementById('bookingTime').value = '';
-        document.getElementById('serviceType').value = '';
-        document.getElementById('bookingComment').value = '';
-    }
-
-    function submitBooking() {
-        const date = document.getElementById('bookingDate').value;
-        const time = document.getElementById('bookingTime').value;
-        const service = document.getElementById('serviceType').value;
-        const comment = document.getElementById('bookingComment').value;
-
-        // Валидация
-        if (!date || !time || !service) {
-            tg.showPopup({
-                title: 'Ошибка',
-                message: 'Пожалуйста, заполните все обязательные поля',
-                buttons: [{ type: 'ok' }]
-            });
-            return;
-        }
-
-        // Форматируем дату для отображения
-        const dateObj = new Date(date);
-        const formattedDate = dateObj.toLocaleDateString('ru-RU', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-
-        // Показываем экран подтверждения
-        document.getElementById('confirmationDate').textContent = formattedDate;
-        document.getElementById('confirmationTime').textContent = time;
-
-        const serviceText = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
-        document.getElementById('confirmationService').textContent = serviceText;
-
-        // Здесь можно отправить данные на сервер
-        console.log('Данные записи:', {
-            date,
-            time,
-            service,
-            comment,
-            car: document.getElementById('bookingCarTitle').textContent
-        });
-
-        showScreen('bookingConfirmation');
-    }
-
-    // Обновите функцию goBack для обработки новых экранов
-    function goBack() {
-        switch(currentScreen) {
-            case 'carDetail':
-                showScreen('main');
-                break;
-            case 'history':
-                showScreen('carDetail');
-                break;
-            case 'visitDetail':
-                showScreen('history');
-                break;
-            case 'booking':
-                showScreen('carDetail');
-                break;
-            case 'bookingConfirmation':
-                showScreen('carDetail');
-                break;
-        }
-    }
-
-    // Обновите updateBackButton для новых экранов
-    function updateBackButton() {
-        switch(currentScreen) {
-            case 'auth':
-            case 'main':
-            case 'bookingConfirmation':
-                tg.BackButton.hide();
-                break;
-            case 'carDetail':
-            case 'history':
-            case 'visitDetail':
-            case 'booking':
-                tg.BackButton.show();
-                tg.BackButton.offClick(goBack);
-                tg.BackButton.onClick(goBack);
-                break;
-        }
-    }
-
-    // В секции DOMContentLoaded добавьте обработчики:
-    document.addEventListener('DOMContentLoaded', () => {
-        // ... существующий код ...
-
-        // Запись онлайн - замените существующий обработчик
-        document.getElementById('bookOnlineBtn').addEventListener('click', () => {
-            const carData = {
-                title: document.getElementById('carDetailTitle').textContent,
-                mileage: document.querySelector('.car-detail-section .detail-row:nth-child(4) .detail-value').textContent
-            };
-            setupBookingScreen(carData);
-            showScreen('booking');
-        });
-
-        // Обработчики для экрана записи
-        document.getElementById('submitBookingBtn').addEventListener('click', submitBooking);
-
-        document.getElementById('cancelBookingBtn').addEventListener('click', () => {
-            showScreen('carDetail');
-        });
-
-        document.getElementById('bookingBackToCarBtn').addEventListener('click', () => {
-            showScreen('carDetail');
         });
 
         // Enter для отправки формы записи
