@@ -420,6 +420,17 @@
     }
 
     function updateBackButton() {
+        const photoViewer = document.getElementById('photoViewer');
+
+        // Если открыт просмотр фотографий - показываем кнопку "Назад" для закрытия
+        if (photoViewer.classList.contains('active')) {
+            tg.BackButton.show();
+            tg.BackButton.offClick(goBack);
+            tg.BackButton.onClick(closePhotoViewer);
+            return;
+        }
+
+        // Остальная логика для обычных экранов
         switch(currentScreen) {
             case 'auth':
             case 'main':
@@ -466,10 +477,12 @@
         currentPhotoIndex = startIndex;
         updatePhotoViewer();
         document.getElementById('photoViewer').classList.add('active');
+        updateBackButton(); // Обновляем кнопку "Назад"
     }
 
     function closePhotoViewer() {
         document.getElementById('photoViewer').classList.remove('active');
+        updateBackButton(); // Возвращаем обычное состояние кнопки
     }
 
     function updatePhotoViewer() {
@@ -732,6 +745,13 @@
 
         document.getElementById('bookingBackToCarBtn').addEventListener('click', () => {
             showScreen('carDetail');
+        });
+
+        // Обработчик клавиши Escape для закрытия просмотра фотографий
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('photoViewer').classList.contains('active')) {
+                closePhotoViewer();
+            }
         });
 
         // Блокировка свайпа вниз
