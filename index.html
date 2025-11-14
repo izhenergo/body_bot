@@ -422,11 +422,11 @@
     function updateBackButton() {
         const photoViewer = document.getElementById('photoViewer');
 
-        // Если открыт просмотр фотографий - показываем кнопку "Назад" для закрытия
+        // Если открыт просмотр фотографий - показываем кнопку "Назад" для закрытия просмотрёра
         if (photoViewer.classList.contains('active')) {
             tg.BackButton.show();
-            tg.BackButton.offClick(goBack);
-            tg.BackButton.onClick(closePhotoViewer);
+            tg.BackButton.offClick(goBack); // Убираем старый обработчик
+            tg.BackButton.onClick(closePhotoViewer); // Устанавливаем новый обработчик для закрытия просмотрёра
             return;
         }
 
