@@ -374,6 +374,7 @@ body {
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(20px);
+    margin-top: 66px;
 }
 
 .photo-counter {
