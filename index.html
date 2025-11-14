@@ -361,8 +361,10 @@
     tg.enableClosingConfirmation();
     tg.BackButton.hide();
 
-    // Текущий экран
+    // Текущий экран и состояние
     let currentScreen = 'auth';
+    let previousScreenBeforePhotoViewer = null;
+    let isPhotoViewerOpen = false;
 
     // Переменные для просмотра фотографий
     let currentPhotoIndex = 0;
@@ -376,20 +378,15 @@
         const managerUsername = 'MobileApps18';
 
         try {
-            // Пытаемся использовать Telegram WebApp API
             if (tg && typeof tg.openTelegramLink === 'function') {
                 tg.openTelegramLink(`https://t.me/${managerUsername}`);
             } else if (tg && typeof tg.openLink === 'function') {
-                // Альтернативный метод для некоторых версий WebApp
                 tg.openLink(`https://t.me/${managerUsername}`);
             } else {
-                // Fallback для браузера или других окружений
                 window.open(`https://t.me/${managerUsername}`, '_blank');
             }
         } catch (error) {
             console.error('Ошибка при открытии чата:', error);
-
-            // Показываем пользователю сообщение об ошибке
             tg.showPopup({
                 title: 'Ошибка',
                 message: 'Не удалось открыть чат. Пожалуйста, напишите менеджеру напрямую: @MobileApps18',
@@ -420,13 +417,11 @@
     }
 
     function updateBackButton() {
-        const photoViewer = document.getElementById('photoViewer');
-
         // Если открыт просмотр фотографий - показываем кнопку "Назад" для закрытия просмотрёра
-        if (photoViewer.classList.contains('active')) {
+        if (isPhotoViewerOpen) {
             tg.BackButton.show();
-            tg.BackButton.offClick(goBack); // Убираем старый обработчик
-            tg.BackButton.onClick(closePhotoViewer); // Устанавливаем новый обработчик для закрытия просмотрёра
+            tg.BackButton.offClick(goBack);
+            tg.BackButton.onClick(closePhotoViewer);
             return;
         }
 
@@ -477,12 +472,23 @@
         currentPhotoIndex = startIndex;
         updatePhotoViewer();
         document.getElementById('photoViewer').classList.add('active');
-        updateBackButton(); // Обновляем кнопку "Назад"
+
+        // Сохраняем текущий экран перед открытием просмотрёра
+        previousScreenBeforePhotoViewer = currentScreen;
+        isPhotoViewerOpen = true;
+
+        updateBackButton();
     }
 
     function closePhotoViewer() {
         document.getElementById('photoViewer').classList.remove('active');
-        updateBackButton(); // Возвращаем обычное состояние кнопки
+        isPhotoViewerOpen = false;
+
+        // Восстанавливаем навигацию к предыдущему экрану
+        if (previousScreenBeforePhotoViewer) {
+            // Не меняем currentScreen, просто обновляем кнопку назад
+            updateBackButton();
+        }
     }
 
     function updatePhotoViewer() {
@@ -490,12 +496,9 @@
         const photoCounter = document.getElementById('photoCounter');
         const photoDots = document.querySelectorAll('.photo-dot');
 
-        // Обновляем позицию слайдера
         photoSlider.style.transform = `translateX(-${currentPhotoIndex * 100}%)`;
-
         photoCounter.textContent = `${currentPhotoIndex + 1} / ${totalPhotos}`;
 
-        // Обновляем точки
         photoDots.forEach((dot, index) => {
             dot.classList.toggle('active', index === currentPhotoIndex);
         });
@@ -534,7 +537,6 @@
         currentX = e.touches[0].clientX;
         const diff = currentX - startX;
 
-        // Блокируем вертикальный скролл во время горизонтального свайпа
         if (Math.abs(diff) > 10) {
             e.preventDefault();
         }
@@ -544,14 +546,12 @@
         if (!isSwiping) return;
 
         const diff = currentX - startX;
-        const threshold = 50; // Минимальное расстояние свайпа
+        const threshold = 50;
 
         if (Math.abs(diff) > threshold) {
             if (diff > 0) {
-                // Свайп вправо - предыдущая фотография
                 showPrevPhoto();
             } else {
-                // Свайп влево - следующая фотография
                 showNextPhoto();
             }
         }
@@ -564,11 +564,9 @@
         document.getElementById('bookingCarTitle').textContent = carData.title;
         document.getElementById('bookingCarMileage').textContent = carData.mileage;
 
-        // Устанавливаем минимальную дату - сегодня
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('bookingDate').min = today;
 
-        // Очищаем форму
         document.getElementById('bookingDate').value = '';
         document.getElementById('bookingTime').value = '';
         document.getElementById('serviceType').value = '';
@@ -581,7 +579,6 @@
         const service = document.getElementById('serviceType').value;
         const comment = document.getElementById('bookingComment').value;
 
-        // Валидация
         if (!date || !time || !service) {
             tg.showPopup({
                 title: 'Ошибка',
@@ -591,7 +588,6 @@
             return;
         }
 
-        // Форматируем дату для отображения
         const dateObj = new Date(date);
         const formattedDate = dateObj.toLocaleDateString('ru-RU', {
             day: 'numeric',
@@ -599,14 +595,12 @@
             year: 'numeric'
         });
 
-        // Показываем экран подтверждения
         document.getElementById('confirmationDate').textContent = formattedDate;
         document.getElementById('confirmationTime').textContent = time;
 
         const serviceText = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
         document.getElementById('confirmationService').textContent = serviceText;
 
-        // Здесь можно отправить данные на сервер
         console.log('Данные записи:', {
             date,
             time,
@@ -631,11 +625,9 @@
             const login = document.getElementById('loginInput').value;
             const password = document.getElementById('passwordInput').value;
 
-            // Любой логин/пароль подходит для прототипа
             if (login && password) {
                 showScreen('main');
             } else {
-                // Просто показываем главный экран даже если поля пустые (для тестирования)
                 showScreen('main');
             }
         });
@@ -645,11 +637,9 @@
             tab.addEventListener('click', () => {
                 const tabName = tab.getAttribute('data-tab');
 
-                // Обновить активную вкладку
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                // Показать соответствующий контент
                 document.getElementById('carsTab').style.display = 'none';
                 document.getElementById('profileTab').style.display = 'none';
                 document.getElementById(tabName + 'Tab').style.display = 'block';
@@ -723,7 +713,6 @@
         // Выход из системы
         document.getElementById('logoutBtn').addEventListener('click', () => {
             showScreen('auth');
-            // Очищаем поля ввода
             document.getElementById('loginInput').value = '';
             document.getElementById('passwordInput').value = '';
         });
